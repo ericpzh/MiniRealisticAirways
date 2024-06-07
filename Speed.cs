@@ -1,10 +1,9 @@
-using HarmonyLib;
 using System;
 using UnityEngine;
 
 namespace MiniRealisticAirways
 {
-    public enum Speed
+    public enum SpeedLevel
     {
         Stopped,
         Slow,
@@ -12,52 +11,86 @@ namespace MiniRealisticAirways
         Fast,
     }
 
-    public class AircraftSpeed : MonoBehaviour
+    public class Speed: MonoBehaviour
     {
-        public static float ToGameSpeed(Speed speed)
+        public const float SPEED_DELTA = 2f; 
+
+        public static float ToGameSpeed(SpeedLevel speed)
         {
             switch(speed)
             {
-                case Speed.Slow:
+                case SpeedLevel.Slow:
                     return 20;
-                case Speed.Normal:
+                case SpeedLevel.Normal:
                     return 24;
-                case Speed.Fast:
+                case SpeedLevel.Fast:
                     return 28;
             }
             return 0;
         }
 
-        public static Speed ToModSpeed(float speed)
+        public static SpeedLevel ToModSpeed(float speed)
         {
-            if (speed < ToGameSpeed(Speed.Slow) - SPEED_DELTA) {
-                return Speed.Stopped;
+            if (speed < ToGameSpeed(SpeedLevel.Slow) - SPEED_DELTA) {
+                return SpeedLevel.Stopped;
             }
 
-            if (speed < ToGameSpeed(Speed.Normal) - SPEED_DELTA) {
-                return Speed.Slow;
+            if (speed < ToGameSpeed(SpeedLevel.Normal) - SPEED_DELTA) {
+                return SpeedLevel.Slow;
             }
 
-            if (speed < ToGameSpeed(Speed.Fast) - SPEED_DELTA) {
-                return Speed.Normal;
+            if (speed < ToGameSpeed(SpeedLevel.Fast) - SPEED_DELTA) {
+                return SpeedLevel.Normal;
             }
 
-            return Speed.Fast;
+            return SpeedLevel.Fast;
         }
 
+        public static string ToString(SpeedLevel speed) {
+            switch(speed)
+            {
+                case SpeedLevel.Slow:
+                    return "<";
+                case SpeedLevel.Normal:
+                    return "|";
+                case SpeedLevel.Fast:
+                    return ">";
+            }
+            return "";
+        }
+    }
+
+    public class AircraftSpeed : Speed
+    {
+        
         public bool CanLand() {
-            return ToModSpeed(aircraft_.targetSpeed) <= Speed.Normal;
+            return ToModSpeed(aircraft_.targetSpeed) <= SpeedLevel.Normal;
+        }
+
+        public SpeedLevel MaxSpeed() {
+            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null && aircraftType.weight_ == Weight.Light) {
+                // Light acraft only have max speed to Normal.
+                return SpeedLevel.Normal;
+            }
+            return SpeedLevel.Fast;
         }
 
         public void AircraftSpeedUp() {
-            if (aircraft_.targetSpeed < ToGameSpeed(Speed.Fast))
+            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
+            if (aircraftState == null) {
+                return;
+            }
+
+            if (aircraft_.targetSpeed < ToGameSpeed(MaxSpeed()))
             {
                 aircraft_.targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) + 1);
             }
         }
 
         public void AircraftSlowDown() {
-            if (aircraft_.targetSpeed > ToGameSpeed(Speed.Slow))
+            if (aircraft_.targetSpeed > ToGameSpeed(SpeedLevel.Slow))
             {
                 aircraft_.targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
             }
@@ -66,31 +99,40 @@ namespace MiniRealisticAirways
         override public string ToString() {
             float SpeedDiff = Math.Abs(aircraft_.speed - aircraft_.targetSpeed);
             if (Math.Abs(SpeedDiff) > SPEED_DELTA && Math.Abs(SpeedDiff) % 0.5 < 0.25) {
+                // Trainsitional blink.
                 return " ";
             }
 
-            switch(ToModSpeed(aircraft_.speed))
-            {
-                case Speed.Slow:
-                    return "<";
-                case Speed.Normal:
-                    return "|";
-                case Speed.Fast:
-                    return ">";
-            }
-            return "";
+            return ToString(ToModSpeed(aircraft_.speed));
         }
 
         public Aircraft aircraft_;
 
-        public Speed GetSpeed() { return ToModSpeed(aircraft_.speed); }
+        public SpeedLevel GetSpeed() { return ToModSpeed(aircraft_.speed); }
 
-        private const float SPEED_DELTA = 2f; 
+        void Start()
+        {
+            if (aircraft_ == null) {
+                return;
+            }
+
+            // Initialize speed.
+            aircraft_.TakeOffSpeedFactor = Speed.ToGameSpeed(SpeedLevel.Normal);
+
+            if (aircraft_.direction == Aircraft.Direction.Outbound) {
+                aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
+            }
+            if (aircraft_.direction == Aircraft.Direction.Inbound) {
+                aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
+            }
+        }
 
         private void Update()
         {
-            if (aircraft_ == null)
+            if (aircraft_ == null){
                 Destroy(gameObject);
+                return;
+            }
                        
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
@@ -107,100 +149,44 @@ namespace MiniRealisticAirways
         }
     }
 
-    // Methods to restore to specified speed.
-    [HarmonyPatch(typeof(Aircraft), "OnPointUp", new Type[] {typeof(bool)})]
-    class PatchOnPointUp
+    public class WaypointSpeed : Speed
     {
-        static bool Prefix(bool external, ref Aircraft __instance, ref object[] __state) {
-            __state = new object[] {__instance.targetSpeed};
-            return true;
+        
+        override public string ToString() {
+            return ToString(speed_);
         }
 
-        static void Postfix(bool external, ref Aircraft __instance, ref object[] __state)
+        public Waypoint waypoint_;
+
+        public SpeedLevel speed_;
+
+        private void Start()
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-                __instance.targetSpeed = (float)__state[0];
+            speed_ = SpeedLevel.Normal;
+        }
+
+        private void Update()
+        {
+            if (waypoint_ == null){
+                Destroy(gameObject);
+                return;
+            }
+
+            // Waypoint would hard follow mouse position when placed.
+            Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 waypointPosition = ((Component)waypoint_).transform.position;
+            if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
+            {
+                if (Input.GetKeyDown(KeyCode.A) && speed_ > SpeedLevel.Slow)
+                {
+                    speed_--;
+                }
+
+                if (Input.GetKeyDown(KeyCode.D) && speed_ < SpeedLevel.Fast)
+                {
+                    speed_++;
+                }
             }
         }
     }
-
-    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {})]
-    class PatchSetFlyHeading
-    {
-        static bool Prefix(ref Aircraft __instance, ref object[] __state) {
-            __state = new object[] {__instance.targetSpeed};
-            return true;
-        }
-    
-        static void Postfix(ref Aircraft __instance, ref object[] __state)
-        {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-                __instance.targetSpeed = (float)__state[0];
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {typeof(float)})]
-    class PatchSetFlyHeadingFloat
-    {
-        static bool Prefix(float heading,  ref Aircraft __instance, ref object[] __state) {
-            __state = new object[] {__instance.targetSpeed};
-            return true;
-        }
-
-        static void Postfix(float heading,  ref Aircraft __instance, ref object[] __state)
-        {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-                __instance.targetSpeed = (float)__state[0];
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(WaypointAutoHover)})]
-    class PatchSetVectorTo
-    {
-        static bool Prefix(WaypointAutoHover waypoint,  ref Aircraft __instance, ref object[] __state) {
-            __state = new object[] {__instance.targetSpeed};
-            return true;
-        }
-
-        static void Postfix(WaypointAutoHover waypoint, ref Aircraft __instance, ref object[] __state)
-        {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-                __instance.targetSpeed = (float)__state[0];
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(PlaceableWaypoint)})]
-    class PatchSetVectorToPlaceable
-    {
-        static bool Prefix(PlaceableWaypoint waypoint,  ref Aircraft __instance, ref object[] __state) {
-            __state = new object[] {__instance.targetSpeed};
-            return true;
-        }
-
-        static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
-        {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-                __instance.targetSpeed = (float)__state[0];
-            }
-        }
-    }
-
-    // [HarmonyPatch(typeof(Aircraft), "LandCoroutine", new Type[] {})]
-    // class PatchLandCoroutine
-    // {
-    //     static bool Prefix(PlaceableWaypoint waypoint,  ref Aircraft __instance, ref object[] __state) {
-    //         __state = new object[] {__instance.targetSpeed};
-    //         return true;
-    //     }
-
-    //     static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
-    //     {
-    //         if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-    //             __instance.targetSpeed = (float)__state[0];
-    //         }
-    //     }
-    // }
 }
