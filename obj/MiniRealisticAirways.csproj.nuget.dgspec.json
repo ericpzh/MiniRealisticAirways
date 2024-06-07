@@ -1,20 +1,20 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\MiniRealisticAirways.csproj": {}
+    "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\MiniRealisticAirways.csproj": {}
   },
   "projects": {
-    "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\MiniRealisticAirways.csproj": {
+    "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\MiniRealisticAirways.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
+        "projectUniqueName": "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
         "projectName": "MiniRealisticAirways",
-        "projectPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
+        "projectPath": "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
         "packagesPath": "C:\\Users\\ericp\\.nuget\\packages\\",
-        "outputPath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\obj\\",
+        "outputPath": "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\NuGet.Config",
+          "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\NuGet.Config",
           "C:\\Users\\ericp\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [

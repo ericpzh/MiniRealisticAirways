@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "vcjzA4GH7ykrqE9RLAE+o8Uui5WeYh+Tv6os8pXTSCMO0LO4pjTMerJInK4A5Y73AA72PeQJZJcCAwxqU8FumQ==",
+  "dgSpecHash": "LErwxxOPcsssecDNWPf348LvL4s9isr/UsXww6kiPWK3TkPGI1wY8K6Zcwxx/T59y6y9TydPwkVfL6pROdr3tQ==",
   "success": true,
-  "projectFilePath": "C:\\Program Files (x86)\\Steam\\steamapps\\common\\Mini Airways Playtest\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
+  "projectFilePath": "C:\\Users\\ericp\\OneDrive\\Desktop\\MiniRealisticAirways\\MiniRealisticAirways.csproj",
   "expectedPackageFiles": [
     "C:\\Users\\ericp\\.nuget\\packages\\bepinex.analyzers\\1.0.8\\bepinex.analyzers.1.0.8.nupkg.sha512",
     "C:\\Users\\ericp\\.nuget\\packages\\bepinex.baselib\\5.4.20\\bepinex.baselib.5.4.20.nupkg.sha512",
