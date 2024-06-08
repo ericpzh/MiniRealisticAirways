@@ -1,6 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
+using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -45,7 +46,5 @@ namespace MiniRealisticAirways
             aircraftState.transform.SetParent(obj.transform);
             obj.transform.SetParent(aircraft.transform);
         }
-
     }
-
 }

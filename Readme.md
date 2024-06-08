@@ -19,8 +19,10 @@ Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`�
 - Terrain (Red) will not affect aircraft in high (`^`) altitude. Restricted area (yellow), however, will.
 
 You can control the altitude of the aircraft by:
-- Press `W` while commanding an aircraft will increase its altitude, when animation is completed.
-- Press `S` while commanding an aircraft will decrease its altitude, when animation is completed.
+- Press `W` while hovering mouse over or commanding an aircraft will increase its altitude, when animation is completed.
+- Press `S` while hovering mouse over or commanding an aircraft will decrease its altitude, when animation is completed.
+- `Scroll Up` while hovering mouse over an aircraft will increase its altitude, when animation is completed.
+- `Scroll Down` while hovering mouse over an aircraft will decrease its altitude, when animation is completed.
 
 Waypoint command aircraft's altitude. You can control the altitude of the waypoint by:
 - Press `W` while holding a waypoint will increase its altitude.
@@ -31,12 +33,15 @@ Waypoint command aircraft's altitude. You can control the altitude of the waypoi
 Aircraft in the air may be in one of the three speeds, slow (`<`), normal (`|`), and fast (`>`). The current speed of an aircraft is displayed as: `SPD: >`. Aircraft and upgrades interact with altitude in the following ways:
 - Arrival aircraft from outside of the screen arrives at normal (`|`) speed.
 - Arrival aircraft can land when it is in slow (`<`) or normal (`|`) speed.
+- Arrival aircraft going around will lift-off with normal (`|`) speed.
 - Departure aircraft will start at normal (`|`) speed after take-off sequence finishes.
 - Landing waypoint will instruct aircraft to first reach normal (`|`) speed if the current speed is fast (`>`) and then issue the landing clearance.
 
 You can control the altitude of the aircraft by:
-- Press `D` while commanding an aircraft will increase its speed.
-- Press `A` while commanding an aircraft will decrease its speed.
+- Press `D` while hovering mouse over or commanding an aircraft will increase its speed, when animation is completed.
+- Press `A` while hovering mouse over or commanding an aircraft will decrease its speed, when animation is completed.
+- Hold `left shift` while `Scroll Up` and hovering mouse over an aircraft will increase its speed, when animation is completed.
+- Hold `left shift` while `Scroll Down` and hovering mouse over an aircraft will decrease its speed, when animation is completed.
 
 Waypoint can command aircraft's speeds. You can control the altitude of the waypoint by:
 - Press `D` while holding a waypoint will increase its speed.
@@ -85,8 +90,10 @@ Medium aircraft have the following behavior:
 - 地形（红色区域）不会影响高（`^`）的飞机。但是，限制区（黄色区域）会影响。
 
 可以通过以下方式控制飞机的高度:
-- 在指挥飞机时按`W`会增加其高度。
-- 在指挥飞机时按`S`会降低其高度。
+- 在指挥飞机或鼠标悬浮于飞机上时按`W`会增加其高度。
+- 在指挥飞机或鼠标悬浮于飞机上时按`S`会降低其高度。
+- 在鼠标悬浮于飞机上时滚轮`scroll up`会增加其高度。
+- 在鼠标悬浮于飞机上时滚轮`scroll down`会降低其高度。
 
 航点可以控制飞机改变高度：
 - 在放置航点时按`W`会增加其高度。
@@ -97,12 +104,15 @@ Medium aircraft have the following behavior:
 飞机会处于以下三种速度：慢速（`<`）、正常（`|`）和快速（`>`）。飞机的当前速度会显示为：`SPD: >`。飞机有以下的速度特性：
 - 屏幕外进场的飞机会以正常（`|`）进场。
 - 进场的飞机只有在慢速（`<`）或正常（`|`）时才能降落。
+- 复飞的飞机会以正常（`|`）起飞。
 - 离场飞机将以正常（`|`）起飞。
 - 如果当前速度为快速（`>`），降落航点将指示飞机首先达到正常（`|`）并发出降落许可。
 
 可以通过以下方式控制飞机的速度:
-- 指挥飞机时按`D`会增加其速度。
-- 指挥飞机时按`A`会降低其速度。
+- 指挥飞机或鼠标悬浮于飞机上时按`D`会增加其速度。
+- 指挥飞机或鼠标悬浮于飞机上时按`A`会降低其速度。
+- 在鼠标悬浮于飞机上时滚轮`scroll up`并按住`left shift`会增加其速度。
+- 在鼠标悬浮于飞机上时滚轮`scroll down`并按住`left shift`会降低其速度。
 
 航点可以控制飞机改变速度：
 - 在放置航点时按`D`会增加其速度。
@@ -110,18 +120,18 @@ Medium aircraft have the following behavior:
 
 # 机型系统
 
-飞机会属于以下三种机型：轻，中，重。
+飞机会属于以下三种机型：轻、中、重。
 
-轻型飞机拥有以下特性：
+轻型飞机拥有以下特性:
 - 飞机图标尺寸变小。
 - 最大速度为正常（`|`）。如果通过具有快速（`>`）的航点，速度也只会变为正常（`|`）。
 - 占所有飞机的5%。
 
-重型飞机具有以下行为：
+重型飞机具有以下特性：
 - 飞机图标尺寸较大。
 - 占所有飞机的30%。
 
-中型飞机具有以下行为：
+中型飞机具有以下特性：
 - 占所有飞机的65%。
 
 # 其他特性

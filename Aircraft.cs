@@ -35,7 +35,8 @@ namespace MiniRealisticAirways
 
         void Start()
         {
-            if (aircraft_ == null) {
+            if (aircraft_ == null) 
+            {
                 return;
             }
 
@@ -55,7 +56,8 @@ namespace MiniRealisticAirways
 
         void Update()
         {
-            if (aircraft_ == null) {
+            if (aircraft_ == null)
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -66,7 +68,8 @@ namespace MiniRealisticAirways
             }
            
             AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) {
+            if (aircraftState == null) 
+            {
                 return;
             }
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;

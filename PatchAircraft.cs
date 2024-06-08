@@ -17,7 +17,8 @@ namespace MiniRealisticAirways
     
         static void Postfix(ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1) 
+            {  // Sanity check.
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -33,7 +34,8 @@ namespace MiniRealisticAirways
 
         static void Postfix(float heading,  ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1) 
+            {  // Sanity check.
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -49,39 +51,25 @@ namespace MiniRealisticAirways
 
         static void Postfix(WaypointAutoHover waypoint, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1) 
+            {  // Sanity check.
                 __instance.targetSpeed = (float)__state[0];
             }
         }
     }
 
-    // [HarmonyPatch(typeof(Aircraft), "LandCoroutine", new Type[] {})]
-    // class PatchLandCoroutine
-    // {
-    //     static bool Prefix(PlaceableWaypoint waypoint,  ref Aircraft __instance, ref object[] __state) {
-    //         __state = new object[] {__instance.targetSpeed};
-    //         return true;
-    //     }
-
-    //     static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
-    //     {
-    //         if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
-    //             __instance.targetSpeed = (float)__state[0];
-    //         }
-    //     }
-    // }
-
     [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(PlaceableWaypoint)})]
     class PatchSetVectorToPlaceableWaypoint
     {
-        static bool Prefix(PlaceableWaypoint waypoint,  ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state) {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
 
         static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1)
+            {  // Sanity check.
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -97,7 +85,8 @@ namespace MiniRealisticAirways
 
         static void Postfix(bool external, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1) 
+            {  // Sanity check.
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -107,41 +96,80 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] {})]
     class PatchUpdateHeading
     {
+        static bool Prefix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP)
+        {
+            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) 
+            {
+                return true;
+            }
+
+            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoLanding)) 
+            {
+                return true;
+            }
+
+            Runway targetRunway = ____HARWCurWP.GetFieldValue<Runway>("_targetRunway");
+            if (targetRunway == null)
+            {
+                return true;
+            }
+
+            Plugin.Log.LogInfo("WaypointAutoLanding commanded an aircraft.");
+
+            // Stablize the approach first before trying to land.
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null) {
+                return true;
+            }
+
+            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
+            while (aircraftAltitude != null && !aircraftAltitude.CanLand()) {
+                aircraftAltitude.AircraftDesend(); 
+            }
+
+            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+            while (aircraftSpeed != null && !aircraftSpeed.CanLand()) {
+                aircraftSpeed.AircraftSlowDown(); 
+            }
+            return true;
+        }
+
         static void Postfix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP)
         {
 
-            if (__instance.state == Aircraft.State.HeadingAfterReachingWaypoint)
-            {
-                Plugin.Log.LogInfo("WaypointAutoHeading commanded an aircraft.");
+            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) {
+                return;
+            }
 
-                if (____HARWCurWP == null) {
-                    return;
+            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoHeading)) {
+                return;
+            }
+
+            Plugin.Log.LogInfo("WaypointAutoHeading commanded an aircraft.");
+
+            // Altitude sync.
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null) {
+                return;
+            }
+            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
+            WaypointAltitude waypointAltitude = ____HARWCurWP.GetComponent<WaypointAltitude>();
+            if (aircraftAltitude != null && waypointAltitude != null) {
+                while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_) {
+                    aircraftAltitude.AircraftClimb();
                 }
 
-                // Altitude sync.
-                AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState == null) {
-                    return;
+                while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_) {
+                    aircraftAltitude.AircraftDesend();
                 }
-                AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-                WaypointAltitude waypointAltitude = ____HARWCurWP.GetComponent<WaypointAltitude>();
-                if (aircraftAltitude != null && waypointAltitude != null) {
-                    while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_) {
-                        aircraftAltitude.AircraftClimb();
-                    }
+            }
 
-                    while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_) {
-                        aircraftAltitude.AircraftDesend();
-                    }
-                }
-
-                // Speed sync.
-                WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
-                AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-                if (aircraftSpeed != null && waypointSpeed != null) {
-                    __instance.targetSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
-                                                    Speed.ToGameSpeed(waypointSpeed.speed_));
-                }
+            // Speed sync.
+            WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
+            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+            if (aircraftSpeed != null && waypointSpeed != null) {
+                __instance.targetSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
+                                                Speed.ToGameSpeed(waypointSpeed.speed_));
             }
         }
     }
@@ -156,6 +184,9 @@ namespace MiniRealisticAirways
             if (aircraftState == null) {
                 return true;
             }
+            
+            Plugin.Log.LogInfo("TrySetupLanding invoked.");
+
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand())

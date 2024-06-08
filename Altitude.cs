@@ -64,7 +64,7 @@ namespace MiniRealisticAirways
         public AltitudeLevel targetAltitude_ { get; private set; }
         private const int TRANSITION_TIME = 200;
         private const int REACTION_TIME = 100;
-        private int transitionTimer_ = REACTION_TIME + TRANSITION_TIME;
+        private int transitionTimer_ = 0;
         
         private void Start()
         {
@@ -108,7 +108,7 @@ namespace MiniRealisticAirways
         private void TakeoffTouchdownProcess()
         {
             if (altitude_ == AltitudeLevel.Ground && aircraft_.direction == Aircraft.Direction.Outbound &&
-                aircraft_.state == Aircraft.State.Flying)
+                (aircraft_.state == Aircraft.State.Flying || aircraft_.state == Aircraft.State.HeadingAfterReachingWaypoint))
             {
                 altitude_ = AltitudeLevel.Low;
                 targetAltitude_ = AltitudeLevel.Low;
@@ -132,7 +132,6 @@ namespace MiniRealisticAirways
             if (--transitionTimer_ < 0)
             {
                 altitude_ = targetAltitude_;
-                transitionTimer_ = REACTION_TIME + TRANSITION_TIME;
             }
         }
 

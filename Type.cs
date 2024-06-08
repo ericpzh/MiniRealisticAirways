@@ -1,5 +1,3 @@
-using HarmonyLib;
-using System;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -32,9 +30,11 @@ namespace MiniRealisticAirways
 
         private Weight RandomWeight() {
             float rand = UnityEngine.Random.value;
-            if (rand <= 0.05f) { // 5% Light aircrafts.
+            if (rand <= 0.05f) 
+            { // 5% Light aircrafts.
                 return Weight.Light;
-            } else if (rand >= 0.3f) { // 30% Heavy aircrafts.
+            } else if (rand >= 0.3f) 
+            { // 30% Heavy aircrafts.
                 return Weight.Heavy;
             }
             return Weight.Medium;
@@ -46,14 +46,16 @@ namespace MiniRealisticAirways
             switch (weight_)
             {
                 case Weight.Light:
-                    if (aircraft_.direction == Aircraft.Direction.Inbound) {
+                    if (aircraft_.direction == Aircraft.Direction.Inbound) 
+                    {
                         aircraft_.AP.gameObject.transform.localScale = scale_ * 0.5f;
                     } else {
                         aircraft_.AP.gameObject.transform.localScale = scale_ * 0.7f;
                     }
                     return;
                 case Weight.Heavy:
-                    if (aircraft_.direction == Aircraft.Direction.Inbound) {
+                    if (aircraft_.direction == Aircraft.Direction.Inbound) 
+                    {
                         aircraft_.AP.gameObject.transform.localScale = scale_ * 1.25f;
                     } else {
                         aircraft_.AP.gameObject.transform.localScale = scale_ * 1.75f;
