@@ -25,8 +25,8 @@ You can control the altitude of the aircraft by:
 - `Scroll Down` while hovering mouse over an aircraft will decrease its altitude, when animation is completed.
 
 Waypoint command aircraft's altitude. You can control the altitude of the waypoint by:
-- Press `W` while holding a waypoint will increase its altitude.
-- Press `S` while holding a waypoint will decrease its altitude.
+- Press `W` or `Scroll Up` and holding a waypoint will increase its altitude.
+- Press `S` or `Scroll Down` and holding a waypoint will decrease its altitude.
 
 # Speed
 
@@ -44,8 +44,8 @@ You can control the altitude of the aircraft by:
 - Hold `left shift` while `Scroll Down` and hovering mouse over an aircraft will decrease its speed, when animation is completed.
 
 Waypoint can command aircraft's speeds. You can control the altitude of the waypoint by:
-- Press `D` while holding a waypoint will increase its speed.
-- Press `A` while holding a waypoint will decrease its speed.
+- Press `D` or hold `left shift` and `Scroll Up` while holding a waypoint will increase its speed.
+- Press `A` or hold `left shift` and `Scroll Down` while holding a waypoint will decrease its speed.
 
 # Aircraft Type
 
@@ -96,8 +96,8 @@ Medium aircraft have the following behavior:
 - 在鼠标悬浮于飞机上时滚轮`scroll down`会降低其高度。
 
 航点可以控制飞机改变高度：
-- 在放置航点时按`W`会增加其高度。
-- 在放置航点时按`S`会降低其高度。
+- 在放置航点时按`W`或滚轮`scroll up`会增加其高度。
+- 在放置航点时按`S`或滚轮`scroll down`会降低其高度。
 
 # 速度系统
 
@@ -115,8 +115,8 @@ Medium aircraft have the following behavior:
 - 在鼠标悬浮于飞机上时滚轮`scroll down`并按住`left shift`会降低其速度。
 
 航点可以控制飞机改变速度：
-- 在放置航点时按`D`会增加其速度。
-- 在放置航点时按`A`会降低其速度。
+- 在放置航点时按`D`或滚轮`scroll up`并按住`left shift`会增加其速度。
+- 在放置航点时按`A`或滚轮`scroll down`并按住`left shift`会降低其速度。
 
 # 机型系统
 

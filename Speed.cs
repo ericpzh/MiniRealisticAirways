@@ -177,12 +177,16 @@ namespace MiniRealisticAirways
             Vector3 waypointPosition = ((Component)waypoint_).transform.position;
             if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
             {
-                if (Input.GetKeyDown(KeyCode.A) && speed_ > SpeedLevel.Slow)
+                if (speed_ > SpeedLevel.Slow && (
+                    Input.GetKeyDown(KeyCode.A) || 
+                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f)))
                 {
                     speed_--;
                 }
 
-                if (Input.GetKeyDown(KeyCode.D) && speed_ < SpeedLevel.Fast)
+                if (speed_ < SpeedLevel.Fast && (
+                    Input.GetKeyDown(KeyCode.D) || 
+                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f)))
                 {
                     speed_++;
                 }
