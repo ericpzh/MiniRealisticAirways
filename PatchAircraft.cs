@@ -121,8 +121,7 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            if (____HARWCurWP == null ||
-                !(____HARWCurWP is WaypointAutoLanding || ____HARWCurWP is WaypointTakingOff)) 
+            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoLanding)) 
             {
                 return true;
             }
@@ -142,7 +141,6 @@ namespace MiniRealisticAirways
             {
                 aircraftAltitude.AircraftDesend(); 
             }
-
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_))
             {
@@ -355,8 +353,7 @@ namespace MiniRealisticAirways
         static bool Prefix(ref Aircraft __instance)
         {
             // Continue to update speed while landing.
-            if (__instance.state != Aircraft.State.Crashed &&
-                __instance.state == Aircraft.State.Landing)
+            if (__instance.state == Aircraft.State.Landing)
             {
                 __instance.Invoke("UpdateSpeed", 0);
             }
@@ -552,10 +549,95 @@ namespace MiniRealisticAirways
             {
                 return;
             }
-            AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-            if (altitude != null && altitude.altitude_ == AltitudeLevel.High && altitude.targetAltitude_ == AltitudeLevel.High)
+
+            Vector3 vector = Quaternion.AngleAxis(__instance.heading, Vector3.back) * Vector2.up;
+            string[] layerNames = new string[1] { "AircraftSafety" };
+            RaycastHit2D[] array = Physics2D.CircleCastAll(__instance.transform.position, 0.5f, vector, 3f, LayerMask.GetMask(layerNames));
+            for (int i = 0; i < array.Length; i++)
             {
-                __result = false;
+                RaycastHit2D raycastHit2D = array[i];
+                if (raycastHit2D.collider.name == "Tanel")
+                {
+                    AircraftAltitude altitude = aircraftState.aircraftAltitude_;
+                    if (altitude != null && altitude.altitude_ == AltitudeLevel.High && altitude.targetAltitude_ == AltitudeLevel.High)
+                    {
+                        __result = false;
+                        return;
+                    }
+                    else if (altitude.tcasAction_ == TCASAction.None)
+                    {
+                        // Active GPWS on aircrafts if there is no TCAS action.
+                        Plugin.Log.LogInfo("GPWS activated.");
+                        altitude.TCASClimb();
+                    }
+                }
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "EnableVisualWarning", new Type[] {typeof(GameObject), typeof(bool)})]
+    class PatchEnableVisualWarning
+    {
+        static void Postfix(GameObject other, bool isAircraftWarner, ref Aircraft __instance)
+        {
+            if (!isAircraftWarner)
+            {
+                return;
+            }
+
+            Aircraft aircraft = other.GetComponent<AircraftRef>().aircraft;
+            if (aircraft == null || other.name != "TCAS")
+            {
+                return;
+            }
+
+            AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
+            AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
+            if (aircraftState1 == null || aircraftState2 == null)
+            {
+                return;
+            }
+
+            AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
+            AircraftAltitude altitude2 = aircraftState2.aircraftAltitude_;
+            if (altitude1 == null || altitude2 == null)
+            {
+                return;
+            }
+
+            if (altitude1.tcasAction_ == TCASAction.None && altitude2.tcasAction_ == TCASAction.None)
+            {
+                // Active TCAS on aircrafts if there is no previous action.
+                Plugin.Log.LogInfo("TCAS activated.");
+                if (altitude1.targetAltitude_ == AltitudeLevel.High && (altitude2.targetAltitude_ == AltitudeLevel.High || altitude2.altitude_ == AltitudeLevel.High))
+                {
+                    altitude1.TCASDesend();
+                }
+                else if (altitude2.targetAltitude_ == AltitudeLevel.High && (altitude1.targetAltitude_ == AltitudeLevel.High || altitude1.altitude_ == AltitudeLevel.High))
+                {
+                    altitude2.TCASDesend();
+                }
+                else if (altitude1.targetAltitude_ == AltitudeLevel.Low && (altitude2.targetAltitude_ == AltitudeLevel.Low || altitude2.altitude_ == AltitudeLevel.Low))
+                {
+                    altitude1.TCASClimb();
+                }
+                else if (altitude2.targetAltitude_ == AltitudeLevel.Low && (altitude1.targetAltitude_ == AltitudeLevel.Low || altitude1.altitude_ == AltitudeLevel.Low))
+                {
+                    altitude2.TCASClimb();
+                }
+                else if (altitude1.altitude_ == AltitudeLevel.Low && altitude2.altitude_ == AltitudeLevel.Low)
+                {
+                    altitude2.TCASClimb();
+                }
+                else if (altitude1.altitude_ == AltitudeLevel.High && altitude2.altitude_ == AltitudeLevel.High)
+                {
+                    altitude2.TCASDesend();
+                }
+                else
+                {
+                    altitude1.TCASClimb();
+                    altitude2.TCASDesend();
+                }
             }
         }
     }

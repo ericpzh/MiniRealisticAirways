@@ -30,7 +30,7 @@ namespace MiniRealisticAirways
         {
             if (weight_ == Weight.Light)
             {
-                // Light aircraft turns twice as fast.
+                // Light aircraft turns faster.
                 Aircraft.TurnSpeed *= LIGHT_TURN_FACTOR;
             }
         }
@@ -105,11 +105,11 @@ namespace MiniRealisticAirways
                     {
                         if (IsTakingOff())
                         {
-                            return 1.75f * 0.7f;
+                            return 1.5f * 0.7f;
                         }
                         else
                         {
-                            return 1.75f;
+                            return 1.5f;
                         }
                     }
             }
@@ -153,6 +153,6 @@ namespace MiniRealisticAirways
         public Aircraft aircraft_;
         public Weight weight_;
         public Vector3 initScale_;
-        public const int LIGHT_TURN_FACTOR = 2;
+        public const float LIGHT_TURN_FACTOR = 1.5f;
     }
 }

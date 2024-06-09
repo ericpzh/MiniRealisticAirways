@@ -81,10 +81,10 @@ namespace MiniRealisticAirways
         
         public bool CanLand(Weight weight)
         {
-            if (weight == Weight.Light)
-            {
-                return ToModSpeed(aircraft_.targetSpeed) < SpeedLevel.Normal;
-            }
+            // if (weight == Weight.Light)
+            // {
+            //     return ToModSpeed(aircraft_.targetSpeed) <= SpeedLevel.Slow;
+            // }
             return ToModSpeed(aircraft_.targetSpeed) <= SpeedLevel.Normal;
         }
 

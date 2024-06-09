@@ -11,6 +11,13 @@ namespace MiniRealisticAirways
         High,
     }
 
+    public enum TCASAction
+    {
+        None,
+        Climb,
+        Desend
+    }
+
     public class Altitude : MonoBehaviour
     {
         public static string ToString(AltitudeLevel altitude)
@@ -76,6 +83,18 @@ namespace MiniRealisticAirways
                 targetAltitude_ --;
                 transitionTime = UnityEngine.Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
             }
+        }
+
+        public void TCASClimb()
+        {
+            tcasAction_ = TCASAction.Climb;
+            AircraftClimb();
+        }
+
+        public void TCASDesend()
+        {
+            tcasAction_ = TCASAction.Desend;
+            AircraftDesend();
         }
 
         private void Start()
@@ -145,13 +164,15 @@ namespace MiniRealisticAirways
             if (UnityEngine.Time.time >= transitionTime)
             {
                 altitude_ = targetAltitude_;
+                // Reset TCAS status.
+                tcasAction_ = TCASAction.None;
             }
         }
 
         public Aircraft aircraft_;
-
-        public AltitudeLevel altitude_ { get; private set; }
-        public AltitudeLevel targetAltitude_ { get; private set; }
+        public AltitudeLevel altitude_;
+        public AltitudeLevel targetAltitude_;
+        public TCASAction tcasAction_ = TCASAction.None;
         private const float TRANSITION_TIME = 4f;
         private const float REACTION_TIME = 2f;
         private float transitionTime = 0f;

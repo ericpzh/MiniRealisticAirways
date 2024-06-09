@@ -19,7 +19,6 @@ namespace MiniRealisticAirways
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
             text = obj.AddComponent<TextMeshPro>();
 
-            
             text.fontSize = 2f;
             text.horizontalAlignment = HorizontalAlignmentOptions.Left;
             text.verticalAlignment = VerticalAlignmentOptions.Top;

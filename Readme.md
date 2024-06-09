@@ -17,6 +17,8 @@ Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`�
 - Departure aircraft will only be able to reach departure (colored) waypoint at normal (`—`) or high (`^`) altitude.
 - Landing waypoint will instruct aircraft to first reach low (`v`) altitude and issue the landing clearance.
 - Terrain (Red) will not affect aircraft in high (`^`) altitude. Restricted area (yellow), however, will.
+- When two aircraft are about to crash, TCAS will command one to climb and another to descend when possible.
+- When aircraft is about to crash into terrain (Red), GPWS will command aircraft to climb.
 
 You can control the altitude of the aircraft by:
 - Press `W` while hovering mouse over or commanding an aircraft will increase its altitude, when animation is completed.
@@ -54,15 +56,12 @@ Aircraft will have the following three types: Light, Medium, and Heavy.
 Light aircraft have the following behavior:
 - Plane icon size is small.
 - Will only have speed of slow (`<`), normal (`|`). If passing through a waypoint with fast (`>`), it will only go up to normal (`|`).
-- Light aircraft can only land with slow (`<`).
-- Landing waypoint will insturct light aircraft to reach slow (`<`) and then issue the landing clearance.
-- Light aircraft has 50% smaller turning radius.
+- Light aircraft has 50% faster turning speed.
 - 5% of all random aircraft (arrival & departure) spawn.
 
 Heavy aircraft have the following behavior:
 - Plane icon size is large.
 - 30% of all random aircraft (arrival & departure) spawn.
-- Heavy aircraft when landing, will cause subseqent aircraft to go around if there is not enough spacing.
 
 Medium aircraft have the following behavior:
 - 65% of all random aircraft (arrival & departure) spawn.
@@ -91,6 +90,8 @@ Medium aircraft have the following behavior:
 - 离场飞机只有正常（`—`）或高（`^`）到达离场（彩色）航点时触发离场。
 - 降落航点将指示飞机首先到达低（`v`）并发出降落许可。
 - 地形（红色区域）不会影响高（`^`）的飞机。但是，限制区（黄色区域）会影响。
+- 当两架飞机即将碰撞时, TCAS会命令其中一架爬升，另一架下降。
+- 当飞机即将收到地形（红色区域）影响时，GWPS会命令飞机爬升。
 
 可以通过以下方式控制飞机的高度:
 - 在指挥飞机或鼠标悬浮于飞机上时按`W`或滚轮`scroll up`会增加其高度。
@@ -124,9 +125,7 @@ Medium aircraft have the following behavior:
 轻型飞机拥有以下特性:
 - 飞机图标尺寸变小。
 - 最大速度为正常（`|`）。如果通过具有快（`>`）的航点，速度也只会变为正常（`|`）。
-- 进场的轻型飞机只有在慢（`<`）时才能降落。
-- 如果当前速度为快（`>`），降落航点将指示轻型飞机达到慢（`<`）并发出降落许可。
-- 轻型飞机转弯半径为其他类型的50%。
+- 轻型飞机转弯速度比其他类型快50%。
 - 占所有飞机的5%。
 
 重型飞机具有以下特性：
