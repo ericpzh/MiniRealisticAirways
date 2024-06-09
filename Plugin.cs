@@ -1,7 +1,7 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -29,10 +29,13 @@ namespace MiniRealisticAirways
             Logger.LogInfo($"Scene loaded: {scene.name}");
 
             if ((scene.name == "MapPlayer" || scene.name == "London") &&
-                AircraftManager.Instance != null && WaypointPropsManager.Instance != null)
+                AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
                 Logger.LogInfo("Hooking AircraftManager");
                 AircraftManager.Instance.AircraftCreateEvent.AddListener(HookAircraft);
+
+                Logger.LogInfo("Hooking UpgradeManager");
+                UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
             }
         }
         
@@ -53,5 +56,22 @@ namespace MiniRealisticAirways
                 }
             }
         }
+        
+        private void HookUpgrade(UpgradeOpt upgrade)
+        {
+            Logger.LogInfo("Upgrade selected: " + upgrade);
+            
+            if (upgrade == UpgradeOpt.AUTO_HEADING_PROP)
+            {
+                StartCoroutine(SpawnWaypointAutoHeadingCoroutine());
+            }
+        }
+
+        private IEnumerator SpawnWaypointAutoHeadingCoroutine()
+        {
+            yield return new WaitForFixedUpdate();
+            WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
+        }
+
     }
 }

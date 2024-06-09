@@ -71,6 +71,7 @@ Medium aircraft have the following behavior:
 
 # Other Changes
 - You now get upgrades twice as fast.
+- You now get 2 waypoints per upgrade selection.
 
 ***
 
@@ -142,3 +143,4 @@ Medium aircraft have the following behavior:
 
 # 其他特性
 - 升级现在每半天刷新一次。
+- 航点升级现在会给予两个航点。
