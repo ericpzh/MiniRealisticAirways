@@ -6,6 +6,11 @@ namespace MiniRealisticAirways
 {
     public class AircraftState : MonoBehaviour
     {
+        public bool IsLanding()
+        {
+            return aircraft_.state == Aircraft.State.Landing;
+        }
+
         private void StartText(ref TMP_Text text, float fontSize, float x, float y, float z)
         {
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
@@ -25,6 +30,24 @@ namespace MiniRealisticAirways
             sg.sortingOrder = 1;
         }
 
+        public void Initialize()
+        {
+            if (aircraft_ == null)
+            {
+                return;
+            }
+
+            // Initialize states.
+            aircraftAltitude_ = aircraft_.gameObject.AddComponent<AircraftAltitude>();
+            aircraftAltitude_.aircraft_ = aircraft_;
+
+            aircraftSpeed_ = aircraft_.gameObject.AddComponent<AircraftSpeed>();
+            aircraftSpeed_.aircraft_ = aircraft_;
+
+            aircraftType_ = aircraft_.gameObject.AddComponent<AircraftType>();
+            aircraftType_.aircraft_ = aircraft_;
+        }
+
         void Start()
         {
             if (aircraft_ == null)
@@ -36,16 +59,6 @@ namespace MiniRealisticAirways
             StartText(ref speedText_,           2f, 2.5f, -2.6f, 5f);
             StartText(ref altitudeLevelText_, 3.5f, 1.5f, -2.3f, 5f);
             StartText(ref speedLevelText_,    3.5f,   4f, -2.3f, 5f);
-            
-            // Initialize states.
-            aircraftAltitude_ = aircraft_.gameObject.AddComponent<AircraftAltitude>();
-            aircraftAltitude_.aircraft_ = aircraft_;
-
-            aircraftSpeed_ = aircraft_.gameObject.AddComponent<AircraftSpeed>();
-            aircraftSpeed_.aircraft_ = aircraft_;
-
-            aircraftType_ = aircraft_.gameObject.AddComponent<AircraftType>();
-            aircraftType_.aircraft_ = aircraft_;
         }
 
         void Update()

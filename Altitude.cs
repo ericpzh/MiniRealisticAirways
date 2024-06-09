@@ -164,8 +164,11 @@ namespace MiniRealisticAirways
             if (UnityEngine.Time.time >= transitionTime)
             {
                 altitude_ = targetAltitude_;
-                // Reset TCAS status.
-                tcasAction_ = TCASAction.None;
+                if (tcasAction_ != TCASAction.None)
+                {
+                    // Reset TCAS status.
+                    tcasAction_ = TCASAction.None;
+                }
             }
         }
 

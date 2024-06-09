@@ -10,7 +10,7 @@ namespace MiniRealisticAirways
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
     {
-        internal static new ManualLogSource Log;
+        internal static ManualLogSource Log;
     
         private void Awake()
         {
@@ -40,8 +40,18 @@ namespace MiniRealisticAirways
         {
             Logger.LogInfo("Aircraft created: " + aircraft.name);
             
-            AircraftState aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
-            aircraftState.aircraft_ = aircraft;
+            AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
+                aircraftState.aircraft_ = aircraft;
+                aircraftState.Initialize();
+                AircraftType aircraftType = aircraftState.aircraftType_;
+                if (aircraftType != null)
+                {
+                    aircraftState.aircraftType_.weight_ = BaseAircraftType.RandomWeight();
+                }
+            }
         }
     }
 }

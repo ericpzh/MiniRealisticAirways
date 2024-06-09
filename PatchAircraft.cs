@@ -564,7 +564,7 @@ namespace MiniRealisticAirways
                         __result = false;
                         return;
                     }
-                    else if (altitude.tcasAction_ == TCASAction.None)
+                    else if (__instance.state != Aircraft.State.Landing && altitude.tcasAction_ == TCASAction.None)
                     {
                         // Active GPWS on aircrafts if there is no TCAS action.
                         Plugin.Log.LogInfo("GPWS activated.");
@@ -609,28 +609,46 @@ namespace MiniRealisticAirways
             {
                 // Active TCAS on aircrafts if there is no previous action.
                 Plugin.Log.LogInfo("TCAS activated.");
-                if (altitude1.targetAltitude_ == AltitudeLevel.High && (altitude2.targetAltitude_ == AltitudeLevel.High || altitude2.altitude_ == AltitudeLevel.High))
+                if (aircraftState1.IsLanding() && aircraftState2.IsLanding())
                 {
+                    // Both at landing, do nothing.
+                }
+                else if (aircraftState1.IsLanding())
+                {
+                    altitude2.TCASClimb();
+                }
+                else if (aircraftState2.IsLanding())
+                {
+                    altitude1.TCASClimb();
+                }
+                else if (altitude1.targetAltitude_ == AltitudeLevel.High && (altitude2.targetAltitude_ == AltitudeLevel.High || altitude2.altitude_ == AltitudeLevel.High))
+                {
+                    // 2 (about to be)at High, 1 about to be at high, command 1 to desend.
                     altitude1.TCASDesend();
                 }
                 else if (altitude2.targetAltitude_ == AltitudeLevel.High && (altitude1.targetAltitude_ == AltitudeLevel.High || altitude1.altitude_ == AltitudeLevel.High))
                 {
+                    // 1 (about to be)at High, 2 about to be at high, command 2 to desend.
                     altitude2.TCASDesend();
                 }
                 else if (altitude1.targetAltitude_ == AltitudeLevel.Low && (altitude2.targetAltitude_ == AltitudeLevel.Low || altitude2.altitude_ == AltitudeLevel.Low))
                 {
+                    // 2 (about to be)at low, 1 about to be at low, command 1 to climb.
                     altitude1.TCASClimb();
                 }
                 else if (altitude2.targetAltitude_ == AltitudeLevel.Low && (altitude1.targetAltitude_ == AltitudeLevel.Low || altitude1.altitude_ == AltitudeLevel.Low))
                 {
+                    // 1 (about to be)at low, 2 about to be at low, command 2 to climb.
                     altitude2.TCASClimb();
                 }
                 else if (altitude1.altitude_ == AltitudeLevel.Low && altitude2.altitude_ == AltitudeLevel.Low)
                 {
+                    // Both at high, command 2 to climb.
                     altitude2.TCASClimb();
                 }
                 else if (altitude1.altitude_ == AltitudeLevel.High && altitude2.altitude_ == AltitudeLevel.High)
                 {
+                    // Both at high, command 2 to desend.
                     altitude2.TCASDesend();
                 }
                 else

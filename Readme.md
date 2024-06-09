@@ -19,6 +19,7 @@ Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`�
 - Terrain (Red) will not affect aircraft in high (`^`) altitude. Restricted area (yellow), however, will.
 - When two aircraft are about to crash, TCAS will command one to climb and another to descend when possible.
 - When aircraft is about to crash into terrain (Red), GPWS will command aircraft to climb.
+- Landing aircraft are not commanded by TCAS or GPWS.
 
 You can control the altitude of the aircraft by:
 - Press `W` while hovering mouse over or commanding an aircraft will increase its altitude, when animation is completed.
@@ -92,6 +93,7 @@ Medium aircraft have the following behavior:
 - 地形（红色区域）不会影响高（`^`）的飞机。但是，限制区（黄色区域）会影响。
 - 当两架飞机即将碰撞时, TCAS会命令其中一架爬升，另一架下降。
 - 当飞机即将收到地形（红色区域）影响时，GWPS会命令飞机爬升。
+- 即将降落的飞机不受TCAS和GWPS影响。
 
 可以通过以下方式控制飞机的高度:
 - 在指挥飞机或鼠标悬浮于飞机上时按`W`或滚轮`scroll up`会增加其高度。

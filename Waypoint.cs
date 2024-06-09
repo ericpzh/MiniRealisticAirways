@@ -9,11 +9,6 @@ namespace MiniRealisticAirways
 
     public class WaypointState : MonoBehaviour
     {
-        private TMP_Text altitudeText_;
-        private TMP_Text speedText_;
-    
-        public Waypoint waypoint_;
-
         private void StartText(ref TMP_Text text, float x, float y, float z)
         {
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
@@ -34,8 +29,8 @@ namespace MiniRealisticAirways
 
         void Start()
         {
-            StartText(ref altitudeText_, 1, -2f, 5);
-            StartText(ref speedText_, 2.75f, -2f, 5);
+            StartText(ref altitudeText_, 1, -1.5f, 5);
+            StartText(ref speedText_, 2.75f, -1.5f, 5);
 
             if (waypoint_ == null) return;
         }
@@ -64,10 +59,15 @@ namespace MiniRealisticAirways
                 speedText_.text = "\nSPD: " + waypointSpeed.ToString();       
             }
         }
+
+        private TMP_Text altitudeText_;
+        private TMP_Text speedText_;
+    
+        public Waypoint waypoint_;
     }
 
     [HarmonyPatch(typeof(PlaceableWaypoint), "Start", new Type[] {})]
-    class PatchStart
+    class PatchPlaceableWaypointStart
     {
         static bool Prefix(ref PlaceableWaypoint __instance)
         {

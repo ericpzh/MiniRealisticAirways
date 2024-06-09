@@ -62,4 +62,45 @@ namespace MiniRealisticAirways
 
         }
     }
+
+    [HarmonyPatch(typeof(AircraftManager), "Start", new Type[] {})]
+    class PatchAircraftManagerStart
+    {
+        static bool Prefix(ref AircraftManager __instance)
+        {
+            ActiveAircraftType activeAircraftType = __instance.gameObject.AddComponent<ActiveAircraftType>();
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(AircraftManager), "CreateOutboundAircraft", new Type[] {
+        typeof(Runway), typeof(Vector3), typeof(float), typeof(float), typeof(string), typeof(ColorCode.Option), typeof(ShapeCode.Option)})]
+    class PatchCreateOutboundAircraft
+    {
+        static void Postfix(Runway runway, Vector3 position, float heading, float nominalHeading, string lr,
+                            ColorCode.Option colorCode, ShapeCode.Option shapeCode,
+                            ref AircraftManager __instance, ref Aircraft __result)
+        {
+
+            AircraftState aircraftState = __result.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                aircraftState = __result.gameObject.AddComponent<AircraftState>();
+                aircraftState.aircraft_ = __result;
+                aircraftState.Initialize();
+            }
+
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            ActiveAircraftType activeAircraftType = __instance.GetComponent<ActiveAircraftType>();
+            if(aircraftType == null) {
+                Plugin.Log.LogInfo("aircraftType is null");
+            }
+            if (aircraftType != null && activeAircraftType != null && activeAircraftType.active_)
+            {
+                // Transfer weight from apron to aircraft.
+                aircraftType.weight_ = activeAircraftType.weight_;
+                Plugin.Log.LogInfo("aircraft weight:" + aircraftType.weight_);
+            }
+        }
+    }
 }
