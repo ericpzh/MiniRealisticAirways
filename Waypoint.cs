@@ -43,7 +43,8 @@ namespace MiniRealisticAirways
 
         void Update()
         {
-            if (waypoint_ == null){
+            if (waypoint_ == null)
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -66,7 +67,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(PlaceableWaypoint), "Start", new Type[] {})]
     class PatchStart
     {
-        static bool Prefix(ref PlaceableWaypoint __instance) {
+        static bool Prefix(ref PlaceableWaypoint __instance)
+        {
             Plugin.Log.LogInfo("PlaceableWaypoint created.");
 
             GameObject obj = GameObject.Instantiate(new GameObject("WaypointState"));

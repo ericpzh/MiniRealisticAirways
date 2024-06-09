@@ -31,22 +31,26 @@ namespace MiniRealisticAirways
 
         public static SpeedLevel ToModSpeed(float speed)
         {
-            if (speed < ToGameSpeed(SpeedLevel.Slow) - SPEED_DELTA) {
+            if (speed < ToGameSpeed(SpeedLevel.Slow) - SPEED_DELTA)
+            {
                 return SpeedLevel.Stopped;
             }
 
-            if (speed < ToGameSpeed(SpeedLevel.Normal) - SPEED_DELTA) {
+            if (speed < ToGameSpeed(SpeedLevel.Normal) - SPEED_DELTA)
+            {
                 return SpeedLevel.Slow;
             }
 
-            if (speed < ToGameSpeed(SpeedLevel.Fast) - SPEED_DELTA) {
+            if (speed < ToGameSpeed(SpeedLevel.Fast) - SPEED_DELTA)
+            {
                 return SpeedLevel.Normal;
             }
 
             return SpeedLevel.Fast;
         }
 
-        public static string ToString(SpeedLevel speed) {
+        public static string ToString(SpeedLevel speed) 
+        {
             switch(speed)
             {
                 case SpeedLevel.Slow:
@@ -58,28 +62,45 @@ namespace MiniRealisticAirways
             }
             return "";
         }
+
+        public static bool InputSpeedUp() 
+        {
+            return Input.GetKeyDown(KeyCode.D) || 
+                   (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f);
+        }
+
+        public static bool InputSlowDown() 
+        {
+            return Input.GetKeyDown(KeyCode.A) || 
+                   (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f);
+        }
     }
 
     public class AircraftSpeed : Speed
     {
         
-        public bool CanLand() {
+        public bool CanLand()
+        {
             return ToModSpeed(aircraft_.targetSpeed) <= SpeedLevel.Normal;
         }
 
-        public SpeedLevel MaxSpeed() {
+        public SpeedLevel MaxSpeed()
+        {
             AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
             AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null && aircraftType.weight_ == Weight.Light) {
+            if (aircraftType != null && aircraftType.weight_ == Weight.Light)
+            {
                 // Light acraft only have max speed to Normal.
                 return SpeedLevel.Normal;
             }
             return SpeedLevel.Fast;
         }
 
-        public void AircraftSpeedUp() {
+        public void AircraftSpeedUp()
+        {
             AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) {
+            if (aircraftState == null)
+            {
                 return;
             }
 
@@ -89,16 +110,20 @@ namespace MiniRealisticAirways
             }
         }
 
-        public void AircraftSlowDown() {
+        public void AircraftSlowDown()
+        {
             if (aircraft_.targetSpeed > ToGameSpeed(SpeedLevel.Slow))
             {
                 aircraft_.targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
             }
         }
 
-        override public string ToString() {
+        override public string ToString()
+        {
             float SpeedDiff = Math.Abs(aircraft_.speed - aircraft_.targetSpeed);
-            if (Math.Abs(SpeedDiff) > SPEED_DELTA && Math.Abs(SpeedDiff) % 0.5 < 0.25) {
+            if (Math.Abs(SpeedDiff) > SPEED_DELTA && 
+                DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 250)
+            {
                 // Trainsitional blink.
                 return " ";
             }
@@ -106,59 +131,63 @@ namespace MiniRealisticAirways
             return ToString(ToModSpeed(aircraft_.speed));
         }
 
-        public Aircraft aircraft_;
-
-        public SpeedLevel GetSpeed() { return ToModSpeed(aircraft_.speed); }
+        public SpeedLevel GetSpeed() 
+        { 
+            return ToModSpeed(aircraft_.speed); 
+        }
 
         void Start()
         {
-            if (aircraft_ == null) {
+            if (aircraft_ == null)
+            {
                 return;
             }
 
             // Initialize speed.
             aircraft_.TakeOffSpeedFactor = Speed.ToGameSpeed(SpeedLevel.Normal);
 
-            if (aircraft_.direction == Aircraft.Direction.Outbound) {
+            if (aircraft_.direction == Aircraft.Direction.Outbound)
+            {
                 aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
             }
-            if (aircraft_.direction == Aircraft.Direction.Inbound) {
+            if (aircraft_.direction == Aircraft.Direction.Inbound)
+            {
                 aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
             }
         }
 
         private void Update()
         {
-            if (aircraft_ == null){
+            if (aircraft_ == null)
+            {
                 Destroy(gameObject);
                 return;
             }
                        
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
-                if (Input.GetKeyDown(KeyCode.A))
+                if (InputSlowDown())
                 {
                     AircraftSlowDown();
                 }
 
-                if (Input.GetKeyDown(KeyCode.D))
+                if (InputSpeedUp())
                 {
                     AircraftSpeedUp();
                 }
             }
         }
+
+        public Aircraft aircraft_;
     }
 
     public class WaypointSpeed : Speed
     {
         
-        override public string ToString() {
+        override public string ToString()
+        {
             return ToString(speed_);
         }
-
-        public Waypoint waypoint_;
-
-        public SpeedLevel speed_;
 
         private void Start()
         {
@@ -167,7 +196,8 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
-            if (waypoint_ == null){
+            if (waypoint_ == null)
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -177,20 +207,20 @@ namespace MiniRealisticAirways
             Vector3 waypointPosition = ((Component)waypoint_).transform.position;
             if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
             {
-                if (speed_ > SpeedLevel.Slow && (
-                    Input.GetKeyDown(KeyCode.A) || 
-                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f)))
+                if (speed_ > SpeedLevel.Slow && InputSlowDown())
                 {
                     speed_--;
                 }
 
-                if (speed_ < SpeedLevel.Fast && (
-                    Input.GetKeyDown(KeyCode.D) || 
-                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f)))
+                if (speed_ < SpeedLevel.Fast && InputSpeedUp())
                 {
                     speed_++;
                 }
             }
         }
+
+        public Waypoint waypoint_;
+
+        public SpeedLevel speed_;
     }
 }

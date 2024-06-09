@@ -65,7 +65,6 @@ Medium aircraft have the following behavior:
 
 # Other Changes
 - You now get upgrades twice as fast.
-- You now get 2 waypoints per upgrade selection. (x)
 
 ***
 

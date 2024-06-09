@@ -6,14 +6,6 @@ namespace MiniRealisticAirways
 {
     public class AircraftState : MonoBehaviour
     {
-
-        public AircraftAltitude aircraftAltitude_;
-        public AircraftSpeed aircraftSpeed_;
-        public AircraftType aircraftType_;
-        public Aircraft aircraft_;
-        private TMP_Text altitudeText_;
-        private TMP_Text speedText_;
-
         private void StartText(ref TMP_Text text, float x, float y, float z)
         {
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
@@ -35,10 +27,7 @@ namespace MiniRealisticAirways
 
         void Start()
         {
-            if (aircraft_ == null) 
-            {
-                return;
-            }
+            if (aircraft_ == null) return;
 
             StartText(ref altitudeText_, 1, -2f, 5);
             StartText(ref speedText_, 2.75f, -2f, 5);
@@ -77,8 +66,16 @@ namespace MiniRealisticAirways
             if (aircraftAltitude != null && aircraftSpeed != null && aircraftAltitude.altitude_ > AltitudeLevel.Ground)
             {
                 altitudeText_.text = "\nALT: " + aircraftAltitude.ToString(); 
-                speedText_.text = "\nSPD: " + aircraftSpeed.ToString();
+                speedText_.text = "\nSPD: " + aircraftSpeed.ToString(); 
             }
         }
+
+        public AircraftAltitude aircraftAltitude_;
+        public AircraftSpeed aircraftSpeed_;
+        public AircraftType aircraftType_;
+        public Aircraft aircraft_;
+        private TMP_Text altitudeText_;
+        private TMP_Text speedText_;
+        public PlaceableWaypoint commandingWaypoint_;
     }
 }

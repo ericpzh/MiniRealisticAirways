@@ -13,7 +13,8 @@ namespace MiniRealisticAirways
 
     public class Altitude : MonoBehaviour
     {
-        public static string ToString(AltitudeLevel altitude) {
+        public static string ToString(AltitudeLevel altitude)
+        {
             switch(altitude)
             {
                 case AltitudeLevel.Low:
@@ -25,12 +26,28 @@ namespace MiniRealisticAirways
             }
             return "";
         }
+
+        public static bool InputClimb()
+        {
+            return Input.GetKeyDown(KeyCode.W) || 
+                   (!Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f);
+        }
+
+        public static bool InputDesend()
+        {
+            return Input.GetKeyDown(KeyCode.S) ||
+                   (!Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f);
+        }
     }
 
     public class AircraftAltitude : Altitude
     {
-        override public string ToString() {
-            if (altitude_ != targetAltitude_ && transitionTimer_ % 50 < 25) {
+        override public string ToString()
+        {
+            
+            if (altitude_ != targetAltitude_ && 
+                DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 250)
+            {
                 // Trainsitional blink.
                 return " ";
             }
@@ -38,34 +55,29 @@ namespace MiniRealisticAirways
             return ToString(altitude_);
         }
 
-        public bool CanLand() {
+        public bool CanLand()
+        {
             return targetAltitude_ <= AltitudeLevel.Low;
         }
 
-        public void AircraftClimb() {
+        public void AircraftClimb()
+        {
             if (targetAltitude_ < AltitudeLevel.High)
             {
                 targetAltitude_ ++;
-                transitionTimer_ = REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
+                transitionTime = UnityEngine.Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
             }
         }
 
-        public void AircraftDesend() {
+        public void AircraftDesend()
+        {
             if (targetAltitude_ > AltitudeLevel.Low)
             {
                 targetAltitude_ --;
-                transitionTimer_ = REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
+                transitionTime = UnityEngine.Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
             }
         }
 
-        public Aircraft aircraft_;
-
-        public AltitudeLevel altitude_ { get; private set; }
-        public AltitudeLevel targetAltitude_ { get; private set; }
-        private const int TRANSITION_TIME = 200;
-        private const int REACTION_TIME = 100;
-        private int transitionTimer_ = 0;
-        
         private void Start()
         {
             if (aircraft_.direction == Aircraft.Direction.Outbound)
@@ -83,7 +95,8 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
-            if (aircraft_ == null) {
+            if (aircraft_ == null) 
+            {
                 Destroy(gameObject);
                 return;
             }
@@ -93,12 +106,12 @@ namespace MiniRealisticAirways
             
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
-                if (Input.GetKeyDown(KeyCode.W))
+                if (InputClimb())
                 {
                     AircraftClimb();
                 }
 
-                if (Input.GetKeyDown(KeyCode.S))
+                if (InputDesend())
                 {
                     AircraftDesend();
                 }
@@ -129,24 +142,28 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (--transitionTimer_ < 0)
+            if (UnityEngine.Time.time >= transitionTime)
             {
                 altitude_ = targetAltitude_;
             }
         }
 
+        public Aircraft aircraft_;
+
+        public AltitudeLevel altitude_ { get; private set; }
+        public AltitudeLevel targetAltitude_ { get; private set; }
+        private const float TRANSITION_TIME = 4f;
+        private const float REACTION_TIME = 2f;
+        private float transitionTime = 0f;
     }
     
     public class WaypointAltitude : Altitude
     {
-        override public string ToString() {
+        override public string ToString()
+        {
             return ToString(altitude_);
         }
 
-        public Waypoint waypoint_;
-
-        public AltitudeLevel altitude_ { get; private set; }
-        
         private void Start()
         {
             altitude_ = AltitudeLevel.Normal;
@@ -154,30 +171,30 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
-            if (waypoint_ == null) {
+            if (waypoint_ == null)
+            {
                 Destroy(gameObject);
                 return;
             }
-            
             // Waypoint would hard follow mouse position when placed.
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 waypointPosition = ((Component)waypoint_).transform.position;
             if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
             {
-                if (altitude_ < AltitudeLevel.High && (
-                    Input.GetKeyDown(KeyCode.W) || 
-                    (!Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f)))
+                if (altitude_ < AltitudeLevel.High && InputClimb())
                 {
                     altitude_++;
                 }
 
-                if (altitude_ > AltitudeLevel.Low && (
-                    Input.GetKeyDown(KeyCode.S) ||
-                    (!Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f)))
+                if (altitude_ > AltitudeLevel.Low && InputDesend())
                 {
                     altitude_--;
                 }
             }
         }
+
+        public Waypoint waypoint_;
+
+        public AltitudeLevel altitude_ { get; private set; }
     }
 }

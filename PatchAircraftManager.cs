@@ -28,39 +28,32 @@ namespace MiniRealisticAirways
             {
                 // Process aircraft action on hover.
                 AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
-                if (aircraftState == null) {
+                if (aircraftState == null)
+                {
                     return;
                 }
 
                 AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-                if (aircraftSpeed != null && (
-                    Input.GetKeyDown(KeyCode.A) ||
-                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") < 0f)))
+                if (aircraftSpeed != null && AircraftSpeed.InputSlowDown())
                 {
                     aircraftSpeed.AircraftSlowDown();
                     return;
                 }
 
-                if (aircraftSpeed != null && (
-                    Input.GetKeyDown(KeyCode.D) ||
-                    (Input.GetKey(KeyCode.LeftShift) && Input.GetAxis("Mouse ScrollWheel") > 0f)))
+                if (aircraftSpeed != null && AircraftSpeed.InputSpeedUp())
                 {
                     aircraftSpeed.AircraftSpeedUp();
                     return;
                 }
 
                 AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-                if (aircraftAltitude != null && (
-                    Input.GetKeyDown(KeyCode.W) ||
-                    Input.GetAxis("Mouse ScrollWheel") > 0f))
+                if (aircraftAltitude != null && AircraftAltitude.InputClimb())
                 {
                     aircraftAltitude.AircraftClimb();
                     return;
                 }
 
-                if (aircraftAltitude != null && (
-                    Input.GetKeyDown(KeyCode.S) ||
-                    Input.GetAxis("Mouse ScrollWheel") < 0f))
+                if (aircraftAltitude != null && AircraftAltitude.InputDesend())
                 {
                     aircraftAltitude.AircraftDesend();
                     return;

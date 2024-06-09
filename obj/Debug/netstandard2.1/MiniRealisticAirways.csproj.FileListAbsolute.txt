@@ -28,3 +28,4 @@ C:\Users\ericp\OneDrive\Desktop\MiniRealisticAirways\obj\Debug\netstandard2.1\Mi
 C:\Users\ericp\OneDrive\Desktop\MiniRealisticAirways\obj\Debug\netstandard2.1\MiniRealisticAirways.csproj.CopyComplete
 C:\Users\ericp\OneDrive\Desktop\MiniRealisticAirways\obj\Debug\netstandard2.1\MiniRealisticAirways.dll
 C:\Users\ericp\OneDrive\Desktop\MiniRealisticAirways\obj\Debug\netstandard2.1\MiniRealisticAirways.pdb
+C:\Users\ericp\OneDrive\Desktop\MiniRealisticAirways\bin\Debug\netstandard2.1\DOTween.dll

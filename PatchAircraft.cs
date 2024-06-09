@@ -10,7 +10,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {})]
     class PatchSetFlyHeading
     {
-        static bool Prefix(ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(ref Aircraft __instance, ref object[] __state)
+        {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
@@ -27,7 +28,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {typeof(float)})]
     class PatchSetFlyHeadingFloat
     {
-        static bool Prefix(float heading,  ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(float heading,  ref Aircraft __instance, ref object[] __state)
+        {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
@@ -44,7 +46,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(WaypointAutoHover)})]
     class PatchSetVectorToWaypointAutoHover
     {
-        static bool Prefix(WaypointAutoHover waypoint,  ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(WaypointAutoHover waypoint,  ref Aircraft __instance, ref object[] __state)
+        {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
@@ -61,7 +64,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(PlaceableWaypoint)})]
     class PatchSetVectorToPlaceableWaypoint
     {
-        static bool Prefix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
+        {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
@@ -78,7 +82,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "OnPointUp", new Type[] {typeof(bool)})]
     class PatchOnPointUp
     {
-        static bool Prefix(bool external, ref Aircraft __instance, ref object[] __state) {
+        static bool Prefix(bool external, ref Aircraft __instance, ref object[] __state)
+        {
             __state = new object[] {__instance.targetSpeed};
             return true;
         }
@@ -118,17 +123,20 @@ namespace MiniRealisticAirways
 
             // Stablize the approach first before trying to land.
             AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null) {
+            if (aircraftState == null)
+            {
                 return true;
             }
 
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            while (aircraftAltitude != null && !aircraftAltitude.CanLand()) {
+            while (aircraftAltitude != null && !aircraftAltitude.CanLand())
+            {
                 aircraftAltitude.AircraftDesend(); 
             }
 
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            while (aircraftSpeed != null && !aircraftSpeed.CanLand()) {
+            while (aircraftSpeed != null && !aircraftSpeed.CanLand())
+            {
                 aircraftSpeed.AircraftSlowDown(); 
             }
             return true;
@@ -137,40 +145,58 @@ namespace MiniRealisticAirways
         static void Postfix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP)
         {
 
-            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) {
+            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint)
+            {
                 return;
             }
 
-            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoHeading)) {
+            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoHeading))
+            {
+                return;
+            }
+
+
+
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return;
+            }
+
+            // Only control by waypoint once.
+            if (aircraftState.commandingWaypoint_ == ____HARWCurWP)
+            {
                 return;
             }
 
             Plugin.Log.LogInfo("WaypointAutoHeading commanded an aircraft.");
 
             // Altitude sync.
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null) {
-                return;
-            }
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             WaypointAltitude waypointAltitude = ____HARWCurWP.GetComponent<WaypointAltitude>();
-            if (aircraftAltitude != null && waypointAltitude != null) {
-                while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_) {
+            if (aircraftAltitude != null && waypointAltitude != null)
+            {
+                while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_)
+                {
                     aircraftAltitude.AircraftClimb();
                 }
 
-                while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_) {
+                while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_)
+                {
                     aircraftAltitude.AircraftDesend();
                 }
             }
 
             // Speed sync.
-            WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            if (aircraftSpeed != null && waypointSpeed != null) {
+            WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
+            if (aircraftSpeed != null && waypointSpeed != null)
+            {
                 __instance.targetSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
-                                                Speed.ToGameSpeed(waypointSpeed.speed_));
+                                                  Speed.ToGameSpeed(waypointSpeed.speed_));
             }
+
+            aircraftState.commandingWaypoint_ = ____HARWCurWP;
         }
     }
 
@@ -181,7 +207,8 @@ namespace MiniRealisticAirways
         {
             
             AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null) {
+            if (aircraftState == null)
+            {
                 return true;
             }
             
@@ -240,7 +267,8 @@ namespace MiniRealisticAirways
             // get altitude_ of both
             AircraftState aircraftState1 = aircraft1.GetComponent<AircraftState>();
             AircraftState aircraftState2 = aircraft2.GetComponent<AircraftState>();
-            if (aircraftState1 == null || aircraftState2 == null) {
+            if (aircraftState1 == null || aircraftState2 == null)
+            {
                 return true;
             }
             AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
@@ -279,7 +307,8 @@ namespace MiniRealisticAirways
                 if (___colorCode == waypoint.colorCode && ___shapeCode == waypoint.shapeCode)
                 {
                     AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
-                    if (aircraftState1 == null) {
+                    if (aircraftState1 == null)
+                    {
                         return true;
                     }
                     AircraftAltitude altitude = aircraftState1.aircraftAltitude_;
@@ -305,7 +334,8 @@ namespace MiniRealisticAirways
                 {
                     AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
                     AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
-                    if (aircraftState1 == null || aircraftState2 == null) {
+                    if (aircraftState1 == null || aircraftState2 == null)
+                    {
                         return true;
                     }
                     AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
@@ -326,7 +356,8 @@ namespace MiniRealisticAirways
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
                 
                 AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState == null) {
+                if (aircraftState == null)
+                {
                     return true;
                 }
                 AircraftAltitude altitude = aircraftState.aircraftAltitude_;
@@ -364,7 +395,8 @@ namespace MiniRealisticAirways
                 {
                     AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
                     AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
-                    if (aircraftState1 == null || aircraftState2 == null) {
+                    if (aircraftState1 == null || aircraftState2 == null)
+                    {
                         return true;
                     }
                     AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
@@ -377,13 +409,15 @@ namespace MiniRealisticAirways
                         return false;
                     }
                 }
-            } else if (other.gameObject.layer == LayerMask.NameToLayer("AircraftSafety")) {
-
+            }
+            else if (other.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
+            {
                 // Do collide with terrain below high altitude.
                 Vector2 vector = ____mainCamera.WorldToViewportPoint(__instance.gameObject.transform.position);
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
                 AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState == null) {
+                if (aircraftState == null)
+                {
                     return true;
                 }
                 AircraftAltitude altitude = aircraftState.aircraftAltitude_;
@@ -409,11 +443,13 @@ namespace MiniRealisticAirways
         static void Postfix(ref bool __result, ref Aircraft __instance)
         {
             AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null) {
+            if (aircraftState == null)
+            {
                 return;
             }
             AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-            if (altitude != null && altitude.altitude_ == AltitudeLevel.High && altitude.targetAltitude_ == AltitudeLevel.High) {
+            if (altitude != null && altitude.altitude_ == AltitudeLevel.High && altitude.targetAltitude_ == AltitudeLevel.High)
+            {
                 __result = false;
             }
         }

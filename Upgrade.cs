@@ -55,7 +55,8 @@ namespace MiniRealisticAirways
     //             // WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
     //             ((WaypointAutoHeading)__state[0]).Invoke("SetHeading", 0f);
     //         }
-    //         // if (upgradeOpt == UpgradeOpt.AUTO_HEADING_PROP) {
+    //         // if (upgradeOpt == UpgradeOpt.AUTO_HEADING_PROP)
+    //            {
     //         //     WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
     //         // }
     //     }
