@@ -10,7 +10,7 @@ namespace MiniRealisticAirways
         Heavy
     }
 
-    public class AircraftType : Altitude
+    public class AircraftType : MonoBehaviour
     {
         override public string ToString()
         {
@@ -26,9 +26,14 @@ namespace MiniRealisticAirways
             return "";
         }
 
-        public Aircraft aircraft_;
-        public Weight weight_;
-        public Vector3 initScale_;
+        public void PatchTurnSpeed()
+        {
+            if (weight_ == Weight.Light)
+            {
+                // Light aircraft turns twice as fast.
+                Aircraft.TurnSpeed *= LIGHT_TURN_FACTOR;
+            }
+        }
 
         private bool IsTakingOff() 
         {
@@ -111,7 +116,7 @@ namespace MiniRealisticAirways
             return 1f;
         }
 
-        void UpdateSize()
+        private void UpdateSize()
         {
             if (IsTakingOff())
             {
@@ -143,18 +148,11 @@ namespace MiniRealisticAirways
             }
 
             UpdateSize();
-
-            if (weight_ == Weight.Light)
-            {
-                // Light aircraft has smaller turning radius.
-                // aircraft_.SetFieldValue<float>("TurningRadius", aircraft_.TurningRadius / 5);
-
-            }
-            if (weight_ == Weight.Heavy)
-            {
-                // Light aircraft has smaller turning radius.
-                // aircraft_.SetFieldValue<float>("TurningRadius", aircraft_.TurningRadius * 5);
-            }
         }
+
+        public Aircraft aircraft_;
+        public Weight weight_;
+        public Vector3 initScale_;
+        public const int LIGHT_TURN_FACTOR = 2;
     }
 }

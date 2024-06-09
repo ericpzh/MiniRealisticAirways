@@ -40,11 +40,8 @@ namespace MiniRealisticAirways
         {
             Logger.LogInfo("Aircraft created: " + aircraft.name);
             
-            // GameObject obj = GameObject.Instantiate(new GameObject("AircraftState"));
             AircraftState aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
             aircraftState.aircraft_ = aircraft;
-            // aircraftState.transform.SetParent(obj.transform);
-            // obj.transform.SetParent(aircraft.transform);
         }
     }
 }

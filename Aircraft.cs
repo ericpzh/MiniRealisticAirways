@@ -6,13 +6,13 @@ namespace MiniRealisticAirways
 {
     public class AircraftState : MonoBehaviour
     {
-        private void StartText(ref TMP_Text text, float x, float y, float z)
+        private void StartText(ref TMP_Text text, float fontSize, float x, float y, float z)
         {
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
             text = obj.AddComponent<TextMeshPro>();
 
             
-            text.fontSize = 2f;
+            text.fontSize = fontSize;
             text.horizontalAlignment = HorizontalAlignmentOptions.Left;
             text.verticalAlignment = VerticalAlignmentOptions.Top;
             text.rectTransform.sizeDelta = new Vector2(2, 1);
@@ -27,11 +27,16 @@ namespace MiniRealisticAirways
 
         void Start()
         {
-            if (aircraft_ == null) return;
+            if (aircraft_ == null)
+            {
+                return;
+            }
 
-            StartText(ref altitudeText_, 1, -2f, 5);
-            StartText(ref speedText_, 2.75f, -2f, 5);
-
+            StartText(ref altitudeText_,        2f, 0.4f, -2.6f, 5f);
+            StartText(ref speedText_,           2f, 2.5f, -2.6f, 5f);
+            StartText(ref altitudeLevelText_, 3.5f, 1.5f, -2.3f, 5f);
+            StartText(ref speedLevelText_,    3.5f,   4f, -2.3f, 5f);
+            
             // Initialize states.
             aircraftAltitude_ = aircraft_.gameObject.AddComponent<AircraftAltitude>();
             aircraftAltitude_.aircraft_ = aircraft_;
@@ -65,8 +70,10 @@ namespace MiniRealisticAirways
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             if (aircraftAltitude != null && aircraftSpeed != null && aircraftAltitude.altitude_ > AltitudeLevel.Ground)
             {
-                altitudeText_.text = "\nALT: " + aircraftAltitude.ToString(); 
-                speedText_.text = "\nSPD: " + aircraftSpeed.ToString(); 
+                altitudeText_.text = "ALT: ";
+                speedText_.text = "SPD: ";
+                altitudeLevelText_.text = aircraftAltitude.ToString(); 
+                speedLevelText_.text = aircraftSpeed.ToString(); 
             }
         }
 
@@ -76,6 +83,8 @@ namespace MiniRealisticAirways
         public Aircraft aircraft_;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
+        private TMP_Text altitudeLevelText_;
+        private TMP_Text speedLevelText_;
         public PlaceableWaypoint commandingWaypoint_;
     }
 }

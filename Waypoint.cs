@@ -56,7 +56,10 @@ namespace MiniRealisticAirways
            
             WaypointAltitude waypointAltitude = waypoint_.GetComponent<WaypointAltitude>();
             WaypointSpeed waypointSpeed = waypoint_.GetComponent<WaypointSpeed>();
-            if (!waypoint_.Invisible && waypointAltitude != null && waypointSpeed != null && waypoint_ is WaypointAutoHeading)
+            if (!waypoint_.Invisible &&
+                waypointAltitude != null &&
+                waypointSpeed != null &&
+                waypoint_ is BaseWaypointAutoHeading)
             {
                 altitudeText_.text = "\nALT: " + waypointAltitude.ToString(); 
                 speedText_.text = "\nSPD: " + waypointSpeed.ToString();       

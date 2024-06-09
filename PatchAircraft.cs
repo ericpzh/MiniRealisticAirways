@@ -101,14 +101,28 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] {})]
     class PatchUpdateHeading
     {
-        static bool Prefix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP)
+        static bool Prefix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP, ref object[] __state)
         {
+
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return true;
+            }
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null)
+            {
+                __state = new object[] {Aircraft.TurnSpeed};
+                aircraftType.PatchTurnSpeed();
+            }
+
             if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) 
             {
                 return true;
             }
 
-            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoLanding)) 
+            if (____HARWCurWP == null ||
+                !(____HARWCurWP is WaypointAutoLanding || ____HARWCurWP is WaypointTakingOff)) 
             {
                 return true;
             }
@@ -122,11 +136,6 @@ namespace MiniRealisticAirways
             Plugin.Log.LogInfo("WaypointAutoLanding commanded an aircraft.");
 
             // Stablize the approach first before trying to land.
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
-            {
-                return true;
-            }
 
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             while (aircraftAltitude != null && !aircraftAltitude.CanLand())
@@ -135,27 +144,30 @@ namespace MiniRealisticAirways
             }
 
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            while (aircraftSpeed != null && !aircraftSpeed.CanLand())
+            while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_))
             {
                 aircraftSpeed.AircraftSlowDown(); 
             }
             return true;
         }
 
-        static void Postfix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP)
+        static void Postfix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP, ref object[] __state)
         {
+            if (__state != null && __state.Length > 0)
+            {
+                // Restore the global turning speed.
+                Aircraft.TurnSpeed = (float)__state[0];
+            }
 
             if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint)
             {
                 return;
             }
 
-            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoHeading))
+            if (____HARWCurWP == null || !(____HARWCurWP is BaseWaypointAutoHeading))
             {
                 return;
             }
-
-
 
             AircraftState aircraftState = __instance.GetComponent<AircraftState>();
             if (aircraftState == null)
@@ -169,7 +181,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            Plugin.Log.LogInfo("WaypointAutoHeading commanded an aircraft.");
+            Plugin.Log.LogInfo("BaseWaypointAutoHeading commanded an aircraft.");
 
             // Altitude sync.
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
@@ -200,10 +212,87 @@ namespace MiniRealisticAirways
         }
     }
 
+    // Patching turning speed.
+    [HarmonyPatch(typeof(Aircraft), "GenerateFlyingPath", new Type[] {})]
+    class PatchGenerateFlyingPath
+    {
+        static bool Prefix(ref Aircraft __instance, ref object[] __state)
+        {
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return true;
+            }
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null)
+            {
+                __state = new object[] {Aircraft.TurnSpeed};
+                aircraftType.PatchTurnSpeed();
+            }
+            return true;
+        }
+
+        static void Postfix(ref Aircraft __instance, ref object[] __state)
+        {
+            if (__state != null && __state.Length > 0)
+            {
+                // Restore the global turning speed.
+                Aircraft.TurnSpeed = (float)__state[0];
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "PredictPosAfterTurn", new Type[] {typeof(float)})]
+    class PatchPredictPosAfterTurn
+    {
+        static bool Prefix(float angle, ref Aircraft __instance, ref object[] __state)
+        {
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return true;
+            }
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null)
+            {
+                __state = new object[] {Aircraft.TurnSpeed};
+                aircraftType.PatchTurnSpeed();
+            }
+            return true;
+        }
+
+        static void Postfix(float angle, ref Aircraft __instance, ref object[] __state)
+        {
+            if (__state != null && __state.Length > 0)
+            {
+                // Restore the global turning speed.
+                Aircraft.TurnSpeed = (float)__state[0];
+            }
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "TurningRadius", MethodType.Getter)]
+    class PatchTurningRadius
+    {
+        static void Postfix(ref Aircraft __instance, ref float __result)
+        {
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return;
+            }
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null && aircraftType.weight_ == Weight.Light)
+            {
+                __result /= AircraftType.LIGHT_TURN_FACTOR;
+            }
+        }
+    }
+
     [HarmonyPatch(typeof(Aircraft), "TrySetupLanding", new Type[] {typeof(Runway), typeof(bool)})]
     class PatchTrySetupLanding
     {
-        static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance)
+        static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance, ref object[] __state)
         {
             
             AircraftState aircraftState = __instance.GetComponent<AircraftState>();
@@ -211,12 +300,19 @@ namespace MiniRealisticAirways
             {
                 return true;
             }
-            
+
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftType != null)
+            {
+                __state = new object[] {Aircraft.TurnSpeed};
+                aircraftType.PatchTurnSpeed();
+            }
+
             Plugin.Log.LogInfo("TrySetupLanding invoked.");
 
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand())
+            if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand(aircraftType.weight_))
             {
                 Runway runway2 = (runway ? runway : Aircraft.CurrentCommandingRunway);
 
@@ -241,6 +337,15 @@ namespace MiniRealisticAirways
             }
 
             return true;
+        }
+
+        static void Postfix(Runway runway, bool doLand, ref Aircraft __instance, ref object[] __state)
+        {
+            if (__state != null && __state.Length > 0)
+            {
+                // Restore the global turning speed.
+                Aircraft.TurnSpeed = (float)__state[0];
+            }
         }
     }
 

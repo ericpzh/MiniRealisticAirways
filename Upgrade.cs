@@ -50,7 +50,7 @@ namespace MiniRealisticAirways
     //     static void Postfix(UpgradeOpt upgradeOpt, ref UpgradeManager __instance, ref object[] __state)
     //     {
     //         Plugin.Log.LogInfo("Here:" + upgradeOpt);
-    //         if (__state.Length > 0)
+    //         if (__state != null && __state.Length > 0)
     //         {
     //             // WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
     //             ((WaypointAutoHeading)__state[0]).Invoke("SetHeading", 0f);
