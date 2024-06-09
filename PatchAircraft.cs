@@ -1,7 +1,9 @@
+using DG.Tweening;
 using HarmonyLib;
 using System;
-using System.Reflection;
+using System.Collections;
 using System.Collections.Generic;
+using System.Reflection;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -19,7 +21,7 @@ namespace MiniRealisticAirways
         static void Postfix(ref Aircraft __instance, ref object[] __state)
         {
             if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            {  // Sanity check.
+            { 
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -37,7 +39,7 @@ namespace MiniRealisticAirways
         static void Postfix(float heading,  ref Aircraft __instance, ref object[] __state)
         {
             if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            {  // Sanity check.
+            { 
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -54,8 +56,8 @@ namespace MiniRealisticAirways
 
         static void Postfix(WaypointAutoHover waypoint, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            {  // Sanity check.
+            if (__instance.targetSpeed > 0 && __state.Length == 1)
+            {
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -73,7 +75,7 @@ namespace MiniRealisticAirways
         static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
         {
             if (__instance.targetSpeed > 0 && __state.Length == 1)
-            {  // Sanity check.
+            { 
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -91,12 +93,69 @@ namespace MiniRealisticAirways
         static void Postfix(bool external, ref Aircraft __instance, ref object[] __state)
         {
             if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            {  // Sanity check.
+            { 
                 __instance.targetSpeed = (float)__state[0];
             }
         }
     }
 
+    [HarmonyPatch]
+    public class Patch
+    {
+        [HarmonyPatch(typeof(Aircraft), "LandCoroutine")]
+        [HarmonyPrefix]
+        public static bool LandCoroutinePrefix(Aircraft __instance, ref object[] __state)
+        {
+            __state = new object[] {__instance.targetSpeed};
+            return true;
+        }
+
+        [HarmonyPatch(typeof(Aircraft), "LandCoroutine")]
+        [HarmonyPostfix]
+        public static IEnumerator LandCoroutinePostfix(IEnumerator result, Aircraft __instance, object[] __state)
+        {
+            while (result.MoveNext())
+            {
+                if (__instance.targetSpeed > 0 && __state.Length == 1) 
+                { 
+                    __instance.targetSpeed = (float)__state[0];
+                }
+
+                // Go around when final landing altitude/speed did not meet requirement.
+                AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+                if (aircraftState != null)
+                {
+                    AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
+                    AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+                    AircraftType aircraftType = aircraftState.aircraftType_;
+                    if ((aircraftAltitude != null && !aircraftAltitude.CanLand()) ||
+                        (aircraftSpeed != null && aircraftType != null && !aircraftSpeed.CanLand(aircraftType.weight_)))
+                    {
+                        __instance.aircraftVoiceAndSubtitles.PlayFailedToLand();
+                        __instance.targetSpeed = 24f;
+                        if (__state.Length == 1) 
+                        { 
+                            __state[0] = 24f;
+                        }
+                        __instance.state = Aircraft.State.GoingAround;
+                        if (__instance.GoAroundWarner != null)
+                        {
+                            __instance.GoAroundWarner.SetActive(value: true);
+                            Sequence sequence = DOTween.Sequence();
+                            sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f));
+                            sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f).OnComplete(delegate
+                            {
+                                __instance.GoAroundWarner.SetActive(value: false);
+                            }));
+                            sequence.Play();
+                        }
+                    }
+                }
+
+                yield return result.Current;
+            }
+        }
+    }
     
     [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] {})]
     class PatchUpdateHeading
@@ -135,7 +194,6 @@ namespace MiniRealisticAirways
             Plugin.Log.LogInfo("WaypointAutoLanding commanded an aircraft.");
 
             // Stablize the approach first before trying to land.
-
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             while (aircraftAltitude != null && !aircraftAltitude.CanLand())
             {

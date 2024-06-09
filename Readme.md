@@ -57,6 +57,8 @@ Aircraft will have the following three types: Light, Medium, and Heavy.
 Light aircraft have the following behavior:
 - Plane icon size is small.
 - Will only have speed of slow (`<`), normal (`|`). If passing through a waypoint with fast (`>`), it will only go up to normal (`|`).
+- Light aircraft can only land with slow (`<`).
+- Landing waypoint will insturct light aircraft to reach slow (`<`) and then issue the landing clearance.
 - Light aircraft has 50% faster turning speed.
 - 5% of all random aircraft (arrival & departure) spawn.
 
@@ -127,7 +129,8 @@ Medium aircraft have the following behavior:
 轻型飞机拥有以下特性:
 - 飞机图标尺寸变小。
 - 最大速度为正常（`|`）。如果通过具有快（`>`）的航点，速度也只会变为正常（`|`）。
-- 轻型飞机转弯速度比其他类型快50%。
+- 只有在速度为慢（`<`）时才能降落，通过降落航点时速度会变为慢（`<`）。
+- 转弯速度比其他类型快50%。
 - 占所有飞机的5%。
 
 重型飞机具有以下特性：
