@@ -73,12 +73,12 @@ namespace MiniRealisticAirways
             }
         }
 
-        private bool IsTakingOff() 
+        public bool IsTakingOff() 
         {
             return aircraft_.state == Aircraft.State.TakingOff;
         }
 
-        private bool IsTouchedDown() 
+        public bool IsTouchedDown() 
         {
             return aircraft_.state == Aircraft.State.TouchedDown;
         }
@@ -122,10 +122,10 @@ namespace MiniRealisticAirways
 
         private float TakeoffLandingProgress()
         {
-            return Math.Min(1f + onGroundPrecent_, (UnityEngine.Time.time - takeoffLandingStartTime_) / (Aircraft.TakeOffTime * Runway.MinimumRunwayLengthMultiplier));
+            return Math.Min(1f + ON_GROUND_THRES, (UnityEngine.Time.time - takeoffLandingStartTime_) / (Aircraft.TakeOffTime * Runway.MinimumRunwayLengthMultiplier));
         }
 
-        private void UpdateSize()
+        private void UpdateSIZE()
         {
             if (IsTakingOff())
             {
@@ -137,14 +137,14 @@ namespace MiniRealisticAirways
                 {
                     Vector3 scale = new Vector3(initScale_.x, initScale_.y, initScale_.z);
                     float progess = TakeoffLandingProgress();
-                    if (progess < onGroundPrecent_)
+                    if (progess < ON_GROUND_THRES)
                     {
-                        // Constant size.
-                        aircraft_.AP.gameObject.transform.localScale = scale * GetScaleFactor() * initTakeoffScale_;
+                        // Constant SIZE.
+                        aircraft_.AP.gameObject.transform.localScale = scale * GetScaleFactor() * INIT_TAKEOFF_SCALE;
                     }
                     else
                     {
-                        aircraft_.AP.gameObject.transform.localScale = scale * GetScaleFactor() * (initTakeoffScale_ + (1f - initTakeoffScale_) * (progess - onGroundPrecent_));
+                        aircraft_.AP.gameObject.transform.localScale = scale * GetScaleFactor() * (INIT_TAKEOFF_SCALE + (1f - INIT_TAKEOFF_SCALE) * (progess - ON_GROUND_THRES));
                     }
                 }
             }
@@ -160,7 +160,7 @@ namespace MiniRealisticAirways
                     float progess = TakeoffLandingProgress();
                     if (progess > 1)
                     {
-                        // Constant size.
+                        // Constant SIZE.
                         aircraft_.AP.gameObject.transform.localScale = scale * GetScaleFactor() * finalLandingScale_;
                     }
                     else
@@ -177,11 +177,50 @@ namespace MiniRealisticAirways
             }
         }
 
+        public float GetFuelTime()
+        {
+            float fuel = 1f;
+            switch (weight_)
+            {
+                case Weight.Light:
+                    fuel = 3f;
+                    break;
+                case Weight.Medium:
+                    fuel = 3.5f;
+                    break;
+                case Weight.Heavy:
+                    fuel = 4f;
+                    break;
+            }
+            return fuel * 300 /* Time per clock round */;
+        }
+
+        public float GetFuelOutTime()
+        {
+            return UnityEngine.Time.time + GetFuelTime();
+        }
+
+        private void UpdateFuel()
+        {
+            if (fuelOutTime_ <= 0)
+            {
+                return;
+            }
+
+            if (!IsTouchedDown() && UnityEngine.Time.time > fuelOutTime_)
+            {
+                // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
+                // MethodInfo AircraftTerrainGameOver = __instance.GetType().GetMethod("AircraftTerrainGameOver", 
+                //     BindingFlags.NonPublic | BindingFlags.Instance);
+                // AircraftTerrainGameOver.Invoke(__instance, new object[] { __instance });
+                LevelManager.Instance.CrashGameOver(aircraft_, null);
+            }
+        }
+
         private void Start()
         {
             if (aircraft_ == null)
             {
-                Destroy(gameObject);
                 return;
             }
             initScale_ = aircraft_.AP.gameObject.transform.localScale;
@@ -195,15 +234,17 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            UpdateSize();
+            UpdateSIZE();
+            UpdateFuel();
         }
 
         public Aircraft aircraft_;
         public Vector3 initScale_;
+        public float fuelOutTime_ = 0;
         public const float LIGHT_TURN_FACTOR = 1.5f;
         public float takeoffLandingStartTime_ = 0;
-        private const float onGroundPrecent_ = 0.5f;
-        private const float initTakeoffScale_ = 0.57f;
+        private const float ON_GROUND_THRES = 0.5f;
+        private const float INIT_TAKEOFF_SCALE = 0.57f;
         private const float finalLandingScale_ = 0.5f;
     }
 }

@@ -15,7 +15,6 @@ namespace MiniRealisticAirways
         {
             GameObject obj = GameObject.Instantiate(new GameObject("Text"));
             text = obj.AddComponent<TextMeshPro>();
-
             
             text.fontSize = fontSize;
             text.horizontalAlignment = HorizontalAlignmentOptions.Left;
@@ -59,6 +58,13 @@ namespace MiniRealisticAirways
             StartText(ref speedText_,           2f, 2.5f, -2.6f, 5f);
             StartText(ref altitudeLevelText_, 3.5f, 1.5f, -2.3f, 5f);
             StartText(ref speedLevelText_,    3.5f,   4f, -2.3f, 5f);
+
+            if (aircraft_.direction == Aircraft.Direction.Inbound)
+            {
+                // Add fuel gauge to only arrivals.
+                fuelGauge_ = aircraft_.gameObject.AddComponent<FuelGauge>();
+                fuelGauge_.aircraft_ = aircraft_;
+            }
         }
 
         void Update()
@@ -69,7 +75,7 @@ namespace MiniRealisticAirways
                 return;
             }
             
-            if (altitudeText_ == null || speedText_ == null)
+            if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || speedLevelText_ == null)
             {
                 return;
             }
@@ -98,6 +104,7 @@ namespace MiniRealisticAirways
         private TMP_Text speedText_;
         private TMP_Text altitudeLevelText_;
         private TMP_Text speedLevelText_;
+        private FuelGauge fuelGauge_;
         public PlaceableWaypoint commandingWaypoint_;
     }
 }

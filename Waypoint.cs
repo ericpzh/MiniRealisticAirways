@@ -71,8 +71,6 @@ namespace MiniRealisticAirways
     {
         static bool Prefix(ref PlaceableWaypoint __instance)
         {
-            Plugin.Log.LogInfo("PlaceableWaypoint created.");
-
             GameObject obj = GameObject.Instantiate(new GameObject("WaypointState"));
             WaypointState waypointState = __instance.gameObject.AddComponent<WaypointState>();
             waypointState.waypoint_ = __instance;

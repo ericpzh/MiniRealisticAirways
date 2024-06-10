@@ -4,6 +4,7 @@ using HarmonyLib;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UI;
 
 namespace MiniRealisticAirways
 {
@@ -36,27 +37,37 @@ namespace MiniRealisticAirways
 
                 Logger.LogInfo("Hooking UpgradeManager");
                 UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
+
+                // Pre-load fuel gauge textures for global use.
+                FuelGaugeTextures.PreLoadTextures();
             }
         }
         
+        private void OnDestroy()
+        {
+            FuelGaugeTextures.DestoryTextures();
+        }
+
         private void HookAircraft(Vector2 pos, Aircraft aircraft)
         {
-            Logger.LogInfo("Aircraft created: " + aircraft.name);
-            
-            AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            if (aircraft.direction == Aircraft.Direction.Inbound)
             {
-                aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
+                Logger.LogInfo("Aircraft created via HookAircraft: " + aircraft.name);
+
+                AircraftState aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
                 aircraftState.aircraft_ = aircraft;
                 aircraftState.Initialize();
                 AircraftType aircraftType = aircraftState.aircraftType_;
                 if (aircraftType != null)
                 {
-                    aircraftState.aircraftType_.weight_ = BaseAircraftType.RandomWeight();
+                    aircraftType.weight_ = BaseAircraftType.RandomWeight();
+                    Logger.LogInfo("Aircraft created with weight: " + aircraftType.weight_);
+                    // Only arrival aircraft have fuel limit.
+                    aircraftType.fuelOutTime_ = aircraftType.GetFuelOutTime();
                 }
             }
         }
-        
+
         private void HookUpgrade(UpgradeOpt upgrade)
         {
             Logger.LogInfo("Upgrade selected: " + upgrade);
@@ -72,6 +83,5 @@ namespace MiniRealisticAirways
             yield return new WaitForFixedUpdate();
             WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
         }
-
     }
 }

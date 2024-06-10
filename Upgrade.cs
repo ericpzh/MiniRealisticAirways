@@ -12,6 +12,21 @@ namespace MiniRealisticAirways
             ___upgradeInterval /= 2;
             return true;
         }
+
+        static void Postfix(ref UpgradeManager __instance, ref int[] ___counter)
+        {
+            if (___counter.Length == 0)
+            {
+                return;
+            }
+
+            // Starts with 3 apron upgrade.
+            for (int i = 0; i < 3; i++)
+            {
+                ___counter[(int)UpgradeOpt.LONGER_TAXIWAY]++;
+                TakeoffTaskManager.Instance.AddApron();
+            }
+        }
     }
 
     [HarmonyPatch(typeof(UpgradeManager), "ProcessUpgrade", new Type[] {typeof(UpgradeOpt)})]

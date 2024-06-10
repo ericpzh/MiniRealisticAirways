@@ -53,7 +53,7 @@ namespace MiniRealisticAirways
         {
             
             if (altitude_ != targetAltitude_ && 
-                DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 250)
+                Animation.Blink())
             {
                 // Trainsitional blink.
                 return " ";

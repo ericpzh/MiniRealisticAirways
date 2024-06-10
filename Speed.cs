@@ -126,7 +126,7 @@ namespace MiniRealisticAirways
         {
             float SpeedDiff = Math.Abs(aircraft_.speed - aircraft_.targetSpeed);
             if (Math.Abs(SpeedDiff) > SPEED_DELTA && 
-                DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 250)
+                Animation.Blink())
             {
                 // Trainsitional blink.
                 return " ";

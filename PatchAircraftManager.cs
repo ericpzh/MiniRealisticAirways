@@ -83,7 +83,7 @@ namespace MiniRealisticAirways
         {
 
             AircraftState aircraftState = __result.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            if (aircraftState == null && __result.direction == Aircraft.Direction.Outbound)
             {
                 aircraftState = __result.gameObject.AddComponent<AircraftState>();
                 aircraftState.aircraft_ = __result;
@@ -92,9 +92,6 @@ namespace MiniRealisticAirways
 
             AircraftType aircraftType = aircraftState.aircraftType_;
             ActiveAircraftType activeAircraftType = __instance.GetComponent<ActiveAircraftType>();
-            if(aircraftType == null) {
-                Plugin.Log.LogInfo("aircraftType is null");
-            }
             if (aircraftType != null && activeAircraftType != null && activeAircraftType.active_)
             {
                 // Transfer weight from apron to aircraft.

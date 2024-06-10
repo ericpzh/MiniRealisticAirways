@@ -15,7 +15,7 @@ Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`�
 - Arrival aircraft can only land when it is at low (`v`) altitude.
 - Departure aircraft will start at low (`v`) altitude after take-off sequence finishes.
 - Departure aircraft will only be able to reach departure (colored) waypoint at normal (`—`) or high (`^`) altitude.
-- Landing waypoint will instruct aircraft to first reach low (`v`) altitude and issue the landing clearance.
+- Landing waypoint will instruct aircraft to reach low (`v`) altitude and issue the landing clearance.
 - Terrain (Red) will not affect aircraft in high (`^`) altitude. Restricted area (yellow), however, will.
 - When two aircraft are about to crash, TCAS will command one to climb and another to descend when possible.
 - When aircraft is about to crash into terrain (Red), GPWS will command aircraft to climb.
@@ -36,7 +36,7 @@ Waypoint/take-off waypoint can command aircraft's altitude. You can control the 
 Aircraft in the air may be in one of the three speeds, slow (`<`), normal (`|`), and fast (`>`). The current speed of an aircraft is displayed as: `SPD: >`. Aircraft and upgrades interact with altitude in the following ways:
 - Arrival aircraft from outside of the screen arrives at normal (`|`) speed.
 - Arrival aircraft can land when it is in slow (`<`) or normal (`|`) speed.
-- Arrival aircraft going around will lift-off with normal (`|`) speed.
+- Arrival aircraft going around will lift off at normal (`|`) speed.
 - Departure aircraft will start at normal (`|`) speed after take-off sequence finishes.
 - Landing waypoint will instruct aircraft to first reach normal (`|`) speed if the current speed is fast (`>`) and then issue the landing clearance.
 
@@ -52,7 +52,8 @@ Waypoint/take-off waypoint can command aircraft's speeds. You can control the al
 
 # Aircraft Type
 
-Aircraft will have the following three types: Light, Medium, and Heavy.
+Aircraft will have the following three types: Light, Medium, and Heavy. You can tell their difference by the size of aircraft icon.
+Each arrival aircraft type carries a different amount of fuel, if fuel runs out and the aircraft is still in the air, the game will end. You can tell their remaining fuel amount by the droplet-shaped fuel gauge located on the top-right of each arrival aircraft. When an aircraft's fuel tank is less than 20%, its fuel gauge will blink.
 
 Light aircraft have the following behavior:
 - Plane icon size is small.
@@ -61,15 +62,20 @@ Light aircraft have the following behavior:
 - Landing waypoint will insturct light aircraft to reach slow (`<`) and then issue the landing clearance.
 - Light aircraft has 50% faster turning speed.
 - 5% of all random aircraft (arrival & departure) spawn.
+- Light aircraft has 3 in-game days worth of fuel.
 
 Heavy aircraft have the following behavior:
 - Plane icon size is large.
 - 30% of all random aircraft (arrival & departure) spawn.
+- Heavy aircraft when landing, will cause subseqent aircraft to go around if there is not enough spacing. (x)
+- Heavy aircraft has 4 in-game days worth of fuel.
 
 Medium aircraft have the following behavior:
 - 65% of all random aircraft (arrival & departure) spawn.
+- Medium aircraft has 3.5 in-game days worth of fuel.
 
 # Other Changes
+- You now starts with 3 waiting area upgrades.
 - You now get upgrades twice as fast.
 - You now get 2 waypoints per upgrade selection.
 
@@ -125,22 +131,28 @@ Medium aircraft have the following behavior:
 
 # 机型系统
 
-飞机会属于以下三种机型：轻、中、重。
+飞机会属于以下三种机型：轻、中、重。可以通过飞机图标的大小来区分它们。
+进场飞机会拥有燃油限制，如果燃油耗尽前飞机没有降落的话游戏就会结束。可以通过右上角的水滴图标判断剩余燃料，当剩余燃料不足20%时，此图标会闪烁。
 
 轻型飞机拥有以下特性:
 - 飞机图标尺寸变小。
 - 最大速度为正常（`|`）。如果通过具有快（`>`）的航点，速度也只会变为正常（`|`）。
 - 只有在速度为慢（`<`）时才能降落，通过降落航点时速度会变为慢（`<`）。
 - 转弯速度比其他类型快50%。
+- 进场时携带3（游戏）日的燃料。
 - 占所有飞机的5%。
 
 重型飞机具有以下特性：
 - 飞机图标尺寸较大。
+- 进场时携带4（游戏）日的燃料。
 - 占所有飞机的30%。
 
 中型飞机具有以下特性：
+- 进场时携带3.5（游戏）日的燃料。
 - 占所有飞机的65%。
 
+
 # 其他特性
+- 开场时自动获得3个等待区升级。
 - 升级现在每半天刷新一次。
 - 航点升级现在会给予两个航点。

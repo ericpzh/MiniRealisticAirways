@@ -364,8 +364,6 @@ namespace MiniRealisticAirways
                 aircraftType.PatchTurnSpeed();
             }
 
-            Plugin.Log.LogInfo("TrySetupLanding invoked.");
-
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand(aircraftType.weight_))
@@ -583,8 +581,6 @@ namespace MiniRealisticAirways
                 AircraftAltitude altitude = aircraftState.aircraftAltitude_;
                 if (Inbound && altitude != null && altitude.altitude_ < AltitudeLevel.High)
                 {
-                    Plugin.Log.LogInfo("AircraftTerrainGameOver invoked.");
-
                     // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
                     // MethodInfo AircraftTerrainGameOver = __instance.GetType().GetMethod("AircraftTerrainGameOver", 
                     //     BindingFlags.NonPublic | BindingFlags.Instance);
