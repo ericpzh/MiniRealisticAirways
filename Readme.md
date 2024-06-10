@@ -67,7 +67,6 @@ Light aircraft have the following behavior:
 Heavy aircraft have the following behavior:
 - Plane icon size is large.
 - 30% of all random aircraft (arrival & departure) spawn.
-- Heavy aircraft when landing, will cause subseqent aircraft to go around if there is not enough spacing. (x)
 - Heavy aircraft has 4 in-game days worth of fuel.
 
 Medium aircraft have the following behavior:
@@ -139,16 +138,16 @@ Medium aircraft have the following behavior:
 - 最大速度为正常（`|`）。如果通过具有快（`>`）的航点，速度也只会变为正常（`|`）。
 - 只有在速度为慢（`<`）时才能降落，通过降落航点时速度会变为慢（`<`）。
 - 转弯速度比其他类型快50%。
-- 进场时携带3（游戏）日的燃料。
+- 进场时携带游戏内3天的燃料。
 - 占所有飞机的5%。
 
 重型飞机具有以下特性：
 - 飞机图标尺寸较大。
-- 进场时携带4（游戏）日的燃料。
+- 进场时携带游戏内4天的燃料。
 - 占所有飞机的30%。
 
 中型飞机具有以下特性：
-- 进场时携带3.5（游戏）日的燃料。
+- 进场时携带游戏内3.5天的燃料。
 - 占所有飞机的65%。
 
 
