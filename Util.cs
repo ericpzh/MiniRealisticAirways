@@ -1,5 +1,6 @@
 using System;
 using System.Reflection;
+using UnityEngine;
 
 namespace MiniRealisticAirways
 {
@@ -33,5 +34,19 @@ namespace MiniRealisticAirways
         {
             return DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 100;
         }
+
+        public static void SetPixel(bool cond, int x, int y, Color color, ref Texture2D texture)
+        {
+            if (cond)
+            {
+                texture.SetPixel(x, y, color);
+            }
+            else
+            {
+                texture.SetPixel(x, y, Color.clear);
+            }
+        }
+
+        public static Color gaugeColor = new Color(255, 255, 255, 0.3f);
     }
 }

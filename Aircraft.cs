@@ -54,10 +54,12 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            StartText(ref altitudeText_,        2f, 0.4f, -2.6f, 5f);
-            StartText(ref speedText_,           2f, 2.5f, -2.6f, 5f);
-            StartText(ref altitudeLevelText_, 3.5f, 1.5f, -2.3f, 5f);
-            StartText(ref speedLevelText_,    3.5f,   4f, -2.3f, 5f);
+            StartText(ref altitudeText_,        2f, 0.4f, -3.6f, 5f);
+            StartText(ref speedText_,           2f, 2.5f, -3.6f, 5f);
+            StartText(ref altitudeLevelText_, 3.5f, 1.5f, -3.3f, 5f);
+            StartText(ref speedLevelText_,    3.5f,   4f, -3.3f, 5f);
+            StartText(ref fuelText_,          2.1f, 0.4f,   -4.6f, 5f);
+            StartText(ref weightText_,        2.5f,   3f,   -4.5f, 5f);
 
             if (aircraft_.direction == Aircraft.Direction.Inbound)
             {
@@ -65,6 +67,10 @@ namespace MiniRealisticAirways
                 fuelGauge_ = aircraft_.gameObject.AddComponent<FuelGauge>();
                 fuelGauge_.aircraft_ = aircraft_;
             }
+            altitudeGauge_ = aircraft_.gameObject.AddComponent<AltitudeGauge>();
+            altitudeGauge_.aircraft_ = aircraft_;
+            speedGauge_ = aircraft_.gameObject.AddComponent<SpeedGauge>();
+            speedGauge_.aircraft_ = aircraft_;
         }
 
         void Update()
@@ -74,12 +80,25 @@ namespace MiniRealisticAirways
                 Destroy(gameObject);
                 return;
             }
-            
-            if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || speedLevelText_ == null)
+
+
+            if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || 
+                speedLevelText_ == null || weightText_ == null || fuelText_ == null)
             {
                 return;
             }
-           
+
+            if (!Plugin.showText_)
+            {
+                altitudeText_.text = "";
+                speedText_.text = "";
+                altitudeLevelText_.text = ""; 
+                speedLevelText_.text = ""; 
+                fuelText_.text = "";
+                weightText_.text = "";
+                return;
+            }
+
             AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
             if (aircraftState == null) 
             {
@@ -87,12 +106,16 @@ namespace MiniRealisticAirways
             }
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            if (aircraftAltitude != null && aircraftSpeed != null && aircraftAltitude.altitude_ > AltitudeLevel.Ground)
+            AircraftType aircraftType = aircraftState.aircraftType_;
+            if (aircraftAltitude != null && aircraftSpeed != null && aircraftType != null && 
+                aircraftAltitude.altitude_ > AltitudeLevel.Ground)
             {
                 altitudeText_.text = "ALT: ";
                 speedText_.text = "SPD: ";
                 altitudeLevelText_.text = aircraftAltitude.ToString(); 
-                speedLevelText_.text = aircraftSpeed.ToString(); 
+                speedLevelText_.text = aircraftSpeed.ToString();
+                fuelText_.text = aircraftType.GetFuelString();
+                weightText_.text = aircraftType.weight_.ToString();
             }
         }
 
@@ -100,11 +123,16 @@ namespace MiniRealisticAirways
         public AircraftSpeed aircraftSpeed_;
         public AircraftType aircraftType_;
         public Aircraft aircraft_;
+        public PlaceableWaypoint commandingWaypoint_;
+        private bool showText_ = false;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
         private TMP_Text altitudeLevelText_;
         private TMP_Text speedLevelText_;
+        private TMP_Text fuelText_;
+        private TMP_Text weightText_;
         private FuelGauge fuelGauge_;
-        public PlaceableWaypoint commandingWaypoint_;
+        private AltitudeGauge altitudeGauge_;
+        private SpeedGauge speedGauge_;
     }
 }

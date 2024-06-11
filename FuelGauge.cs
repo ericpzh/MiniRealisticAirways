@@ -6,18 +6,6 @@ namespace MiniRealisticAirways
 {
     public static class FuelGaugeTextures
     {
-        private static void SetPixel(bool cond, int x, int y, Color color, ref Texture2D texture)
-        {
-            if (cond)
-            {
-                texture.SetPixel(x, y, color);
-            }
-            else
-            {
-                texture.SetPixel(x, y, Color.clear);
-            }
-        }
-
         private static void DrawDropletX(int y, Color color, ref Texture2D texture)
         {
             for (int x = 0; x < texture.width; x++)
@@ -27,12 +15,12 @@ namespace MiniRealisticAirways
                     // Circle.
                     int i = x - SIZE / 2;
                     int j = y - SIZE / 2;
-                    SetPixel(Math.Sqrt(i * i + j * j) < SIZE / 2, x, y, color, ref texture);
+                    Animation.SetPixel(Math.Sqrt(i * i + j * j) < SIZE / 2, x, y, color, ref texture);
                 }
                 else
                 {
                     // Magic of desmos calculator.
-                    SetPixel(Math.Sin((float)x / 12 + 3.25) + 0.05 < Math.Sin((float)y / 17.5 + 2.4),
+                    Animation.SetPixel(Math.Sin((float)x / 12 + 3.25) + 0.05 < Math.Sin((float)y / 17.5 + 2.4),
                              x, y, color, ref texture);
                 }
 
@@ -43,7 +31,6 @@ namespace MiniRealisticAirways
         {
             int percent = (int)(step * SIZE / REFRESH_GRADIENT);
             Texture2D texture = new Texture2D(SIZE, SIZE);
-            // Get me a circle.
             for (int y = 0; y < percent; y++)
             {
                 DrawDropletX(y, Color.white, ref texture);
@@ -118,7 +105,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            int percentFuelLeft = (int)((aircraftType.fuelOutTime_ - UnityEngine.Time.time) / aircraftType.GetFuelTime() * 100);
+            int percentFuelLeft = aircraftType.GetFuelOutPercent();
             if (percentFuelLeft % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0)
             {
                 // Blink fuel gauge when fuel is low.

@@ -4,7 +4,6 @@ using HarmonyLib;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UI;
 
 namespace MiniRealisticAirways
 {
@@ -12,6 +11,8 @@ namespace MiniRealisticAirways
     public class Plugin : BaseUnityPlugin
     {
         internal static ManualLogSource Log;
+
+        public static bool showText_ = true;
     
         private void Awake()
         {
@@ -25,6 +26,14 @@ namespace MiniRealisticAirways
             harmony.PatchAll();
         }
         
+        private void Update()
+        {
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                showText_ = !showText_;
+            }
+        }
+
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Logger.LogInfo($"Scene loaded: {scene.name}");
@@ -40,12 +49,16 @@ namespace MiniRealisticAirways
 
                 // Pre-load fuel gauge textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
+                GaugeArrowTexture.PreLoadTexture();
+                GaugeLineTexture.PreLoadTexture();
             }
         }
         
         private void OnDestroy()
         {
             FuelGaugeTextures.DestoryTextures();
+            GaugeArrowTexture.DestoryTexture();
+            GaugeLineTexture.DestoryTexture();
         }
 
         private void HookAircraft(Vector2 pos, Aircraft aircraft)

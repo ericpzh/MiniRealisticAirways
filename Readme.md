@@ -2,6 +2,8 @@
 
 A mini-realisitc mod for Mini Airways.
 
+- You can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
+
 # How to Install
 
 - Switch the game to `mod_feat - Mod` test version on steam.
@@ -10,7 +12,8 @@ A mini-realisitc mod for Mini Airways.
 
 # Altitude
 
-Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`—`), and high (`^`). The current altitude of an aircraft is displayed as: `ALT: ^`. Aircraft and upgrades interact with altitude in the following ways:
+Aircraft in the air may be in one of the three altitudes, low (`v`), normal (`—`), and high (`^`). The current altitude of an aircraft is displayed on the top & bottom of aircraft icon and is displayed below the aircraft as: `ALT: ^` and arrow on top/bottom of an aircraft.
+Aircraft and upgrades interact with altitude in the following ways:
 - Arrival aircraft from outside of the screen arrives at high (`^`) altitude.
 - Arrival aircraft can only land when it is at low (`v`) altitude.
 - Departure aircraft will start at low (`v`) altitude after take-off sequence finishes.
@@ -33,7 +36,8 @@ Waypoint/take-off waypoint can command aircraft's altitude. You can control the 
 
 # Speed
 
-Aircraft in the air may be in one of the three speeds, slow (`<`), normal (`|`), and fast (`>`). The current speed of an aircraft is displayed as: `SPD: >`. Aircraft and upgrades interact with altitude in the following ways:
+Aircraft in the air may be in one of the three speeds, slow (`<`), normal (`|`), and fast (`>`). The current speed of an aircraft is displayed on the left & right of aircraft icon and is displayed below the aircraft as: `SPD: >` and arrow on left/right of an aircraft.
+Aircraft and upgrades interact with altitude in the following ways:
 - Arrival aircraft from outside of the screen arrives at normal (`|`) speed.
 - Arrival aircraft can land when it is in slow (`<`) or normal (`|`) speed.
 - Arrival aircraft going around will lift off at normal (`|`) speed.
@@ -84,6 +88,8 @@ Medium aircraft have the following behavior:
 
 这是一个既迷你又真实的迷你空管Mod。
 
+- 使用`Tab`可以关闭高度、速度、机型和燃料的文字提示。
+
 # 安装
 
 - 右键库中的Mini Airways Playtest，属性 - 测试版 - mod_feat, 更新。
@@ -92,7 +98,7 @@ Medium aircraft have the following behavior:
 
 # 高度系统
 
-飞机会处于以下三种高度：低（`v`）、正常（`—`）和高（`^`）。飞机的当前高度会显示为：`ALT: ^`。飞机有以下的高度特性：
+飞机会处于以下三种高度：低（`v`）、正常（`—`）和高（`^`）。飞机的当前高度会在飞机图标的上下显示，并且在信息区显示为：`ALT: ^`。飞机有以下的高度特性：
 - 屏幕外进场的飞机会以高（`^`）进场。
 - 进场的飞机只有在低（`v`）时才能降落。
 - 离场飞机将从低（`v`）起飞。
@@ -113,7 +119,7 @@ Medium aircraft have the following behavior:
 
 # 速度系统
 
-飞机会处于以下三种速度：慢（`<`）、正常（`|`）和快（`>`）。飞机的当前速度会显示为：`SPD: >`。飞机有以下的速度特性：
+飞机会处于以下三种速度：慢（`<`）、正常（`|`）和快（`>`）。飞机的当前速度会在飞机图标的左右显示，并且在信息区显示为：`SPD: >`。飞机有以下的速度特性：
 - 屏幕外进场的飞机会以正常（`|`）进场。
 - 进场的飞机只有在慢（`<`）或正常（`|`）时才能降落。
 - 复飞的飞机会以正常（`|`）起飞。

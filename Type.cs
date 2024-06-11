@@ -200,6 +200,21 @@ namespace MiniRealisticAirways
             return UnityEngine.Time.time + GetFuelTime();
         }
 
+        public int GetFuelOutPercent()
+        {
+            return (int)((fuelOutTime_ - UnityEngine.Time.time) / GetFuelTime() * 100);
+        }
+
+        public string GetFuelString()
+        {
+            int fuelOut = GetFuelOutPercent();
+            if (fuelOut >= 0)
+            {
+                return "Fuel: " + fuelOut.ToString() + "%";
+            }
+            return "Fuel: ∞";
+        }
+
         private void UpdateFuel()
         {
             if (fuelOutTime_ <= 0)
