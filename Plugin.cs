@@ -9,11 +9,7 @@ namespace MiniRealisticAirways
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
-    {
-        internal static ManualLogSource Log;
-
-        public static bool showText_ = true;
-    
+    {   
         private void Awake()
         {
             Log = Logger;
@@ -51,6 +47,16 @@ namespace MiniRealisticAirways
                 FuelGaugeTextures.PreLoadTextures();
                 GaugeArrowTexture.PreLoadTexture();
                 GaugeLineTexture.PreLoadTexture();
+
+                // Our windsock.
+                GameObject esc_button = GameObject.Find("ESC_Button");
+                if (esc_button != null)
+                {
+                    Logger.LogInfo("esc_button found, " + esc_button.name);
+                    windsock_ = esc_button.gameObject.AddComponent<WindSock>();
+                    windsock_.windsock_ = esc_button;
+                    windsock_.InitializeText();
+                }
             }
         }
         
@@ -96,5 +102,9 @@ namespace MiniRealisticAirways
             yield return new WaitForFixedUpdate();
             WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
         }
+
+        internal static ManualLogSource Log;
+        internal static bool showText_ = true;
+        internal static WindSock windsock_;
     }
 }

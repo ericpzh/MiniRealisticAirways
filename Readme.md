@@ -2,7 +2,7 @@
 
 A mini-realisitc mod for Mini Airways.
 
-- You can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
+You can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
 
 # How to Install
 
@@ -65,17 +65,33 @@ Light aircraft have the following behavior:
 - Light aircraft can only land with slow (`<`).
 - Landing waypoint will insturct light aircraft to reach slow (`<`) and then issue the landing clearance.
 - Light aircraft has 50% faster turning speed.
-- 5% of all random aircraft (arrival & departure) spawn.
+- 2.5% of all random aircraft (arrival & departure) spawn.
 - Light aircraft has 3 in-game days worth of fuel.
 
 Heavy aircraft have the following behavior:
 - Plane icon size is large.
 - 30% of all random aircraft (arrival & departure) spawn.
 - Heavy aircraft has 4 in-game days worth of fuel.
+- Heavy aircraft when landing, will cause subseqent aircraft to go around if there is not enough spacing. (x)
 
 Medium aircraft have the following behavior:
-- 65% of all random aircraft (arrival & departure) spawn.
 - Medium aircraft has 3.5 in-game days worth of fuel.
+
+# Wind
+
+Wind can affect aircraft's takeoff / landing performance. When aircraft are landing in a tailwind, the go-around chance increases significantly. When aircraft takes off in a tailwind, the reject takeoff chance increases significantly. Wind direction is displayed as the arrow direction on the top-left corner of the screen. Yes, it used to be just a back button! 
+The reject takeoff / go-around probability has the following behavior:
+- When aircraft are landing with a full tailwind, the go-around probability is very high.
+- When aircraft are taking off with a full tailwind, the reject takeoff probability is very high.
+- Reject takeoff / go-around probability drops to 0% when the wind direction is at or below 90 degrees of the runway (full cross-wind).
+- The probabilities are not linear between full tail-wind and full cross-wind.
+- Lighter aircraft are more susceptible to wind conditions.
+
+# Rare Events (x)
+
+Sometimes, accident does happen. These rare events shows up on average every ten days:
+- Plane crashed on a runway leading to a runway closure. In this case, the runway will be colored black, and all landing aircraft will go-around, and plane cannot take-off from this runway.
+- Weather pattern can also show up in some area, forcing all aircraft to go to high (`^`) to avoid bad weather.
 
 # Other Changes
 - You now starts with 3 waiting area upgrades.
@@ -88,7 +104,7 @@ Medium aircraft have the following behavior:
 
 这是一个既迷你又真实的迷你空管Mod。
 
-- 使用`Tab`可以关闭高度、速度、机型和燃料的文字提示。
+使用`Tab`可以关闭高度、速度、机型和燃料的具体数字。
 
 # 安装
 
@@ -145,7 +161,7 @@ Medium aircraft have the following behavior:
 - 只有在速度为慢（`<`）时才能降落，通过降落航点时速度会变为慢（`<`）。
 - 转弯速度比其他类型快50%。
 - 进场时携带游戏内3天的燃料。
-- 占所有飞机的5%。
+- 占所有飞机的2.5%。
 
 重型飞机具有以下特性：
 - 飞机图标尺寸较大。
@@ -154,8 +170,16 @@ Medium aircraft have the following behavior:
 
 中型飞机具有以下特性：
 - 进场时携带游戏内3.5天的燃料。
-- 占所有飞机的65%。
 
+# 风向系统
+
+风向会影响飞机的起降性能。当飞机在顺风中降落时，复飞几率会提高。当飞机在顺风中起飞时，拒绝起飞几率也会提高。你可以在屏幕左上角看见当前风向。
+起飞降落具有以下特性:
+- 当飞机在顺风中着陆时，复飞概率将变得非常高。
+- 当飞机在顺风中起飞时，拒绝起飞概率也变得非常高。
+- 当风向与跑道成 90 度（侧风）或以下时，中断起飞/复飞概率接近于零。
+- 顺风和侧风之间的复飞概率是非线性的。
+- 较轻的飞机更容易受到风向影响。
 
 # 其他特性
 - 开场时自动获得3个等待区升级。

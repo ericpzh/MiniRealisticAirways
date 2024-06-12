@@ -31,8 +31,8 @@ namespace MiniRealisticAirways
         public static Weight RandomWeight() 
         {
             float rand = UnityEngine.Random.value;
-            if (rand <= 0.05f) 
-            { // 5% Light aircrafts.
+            if (rand <= 0.025f) 
+            { // 2.5% Light aircrafts.
                 return Weight.Light;
             } else if (rand >= 0.7f) 
             { // 30% Heavy aircrafts.
@@ -254,6 +254,7 @@ namespace MiniRealisticAirways
         }
 
         public Aircraft aircraft_;
+        public bool windChecked_ = false;
         public Vector3 initScale_;
         public float fuelOutTime_ = 0;
         public const float LIGHT_TURN_FACTOR = 1.5f;

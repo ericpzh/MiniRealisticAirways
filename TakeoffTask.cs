@@ -1,8 +1,6 @@
 using DG.Tweening;
 using HarmonyLib;
 using System;
-using TMPro;
-using UnityEngine;
 using UnityEngine.UI;
 
 namespace MiniRealisticAirways
@@ -52,13 +50,66 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(TakeoffTask), "HasConflictLandingAircraft", new Type[] {})]
-    class PatchHasConflictLandingAircraft
+
+    [HarmonyPatch(typeof(TakeoffTask), "OnPointUp", new Type[] {})]
+    class PatchTakeoffTaskOnPointUp
     {
-        static void Postfix(ref TakeoffTask __instance)
+        static void RejectTakeoff(ref TakeoffTask __instance)
         {
+            float duration2 = 0.5f;
+            __instance.Panel.transform.DOScale(1f, duration2).SetUpdate(isIndependentUpdate: true);
+            __instance.transform.DOMove(__instance.apron.gameObject.transform.position, duration2).SetUpdate(isIndependentUpdate: true);
+            AudioManager.instance.PlayRejectTakeoff();
+
+            __instance.inCommand = false;
+            TakeoffTask.CurrentCommandingTakeoffTask = null;
+            TakeoffTask.CurrentCommandingTakeoffPoint = null;
+            TakeoffTask.CurrentCommandingRunway = null;
+            foreach (Runway runway_ in Runway.Runways)
+            {
+                runway_.HideTakeoffPoints();
+            }
+        }
+
+        static bool Prefix(ref TakeoffTask __instance)
+        {
+            if (!__instance.inCommand)
+            {
+                return false;
+            }
+            if (TakeoffTask.CurrentCommandingTakeoffPoint == null && __instance.apron != null && __instance.apron.gameObject != null)
+            {
+                return true;
+            }
+
+            // Can't take-off when wind isn't right.
+            BaseAircraftType currentAircraftType = __instance.GetComponent<BaseAircraftType>();
+            if (currentAircraftType == null)
+            {
+                return true;
+            }
+
+            WindSock windSock = Plugin.windsock_;
+            Runway runway = TakeoffTask.CurrentCommandingTakeoffPoint.GetComponent<RunwayRef>().runway;
+            if (windSock == null || runway == null)
+            {
+                return true;
+            }
+
+            float heading = runway.heading;
+            if (TakeoffTask.CurrentCommandingTakeoffPoint == runway.TakeoffEnd.gameObject)
+            {
+                heading = (heading + 180f) % 360f;
+            }
+            if (!windSock.CanLand(heading, currentAircraftType.weight_))
+            {
+                RejectTakeoff(ref __instance);
+                return false;
+            }
+
             // TODO: Type based takeoff checking.
+
+            return true;
         }
     }
-    
 }

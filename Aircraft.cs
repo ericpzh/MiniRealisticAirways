@@ -124,7 +124,6 @@ namespace MiniRealisticAirways
         public AircraftType aircraftType_;
         public Aircraft aircraft_;
         public PlaceableWaypoint commandingWaypoint_;
-        private bool showText_ = false;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
         private TMP_Text altitudeLevelText_;

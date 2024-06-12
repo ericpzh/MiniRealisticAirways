@@ -102,6 +102,28 @@ namespace MiniRealisticAirways
     [HarmonyPatch]
     public class Patch
     {
+        private static void GoAround(Aircraft __instance, ref object[] __state)
+        {
+            __instance.aircraftVoiceAndSubtitles.PlayFailedToLand();
+            __instance.targetSpeed = 24f;
+            if (__state.Length == 1) 
+            { 
+                __state[0] = 24f;
+            }
+            __instance.state = Aircraft.State.GoingAround;
+            if (__instance.GoAroundWarner != null)
+            {
+                __instance.GoAroundWarner.SetActive(value: true);
+                Sequence sequence = DOTween.Sequence();
+                sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f));
+                sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f).OnComplete(delegate
+                {
+                    __instance.GoAroundWarner.SetActive(value: false);
+                }));
+                sequence.Play();
+            }
+        }
+
         [HarmonyPatch(typeof(Aircraft), "LandCoroutine")]
         [HarmonyPrefix]
         public static bool LandCoroutinePrefix(Aircraft __instance, ref object[] __state)
@@ -121,33 +143,37 @@ namespace MiniRealisticAirways
                     __instance.targetSpeed = (float)__state[0];
                 }
 
-                // Go around when final landing altitude/speed did not meet requirement.
                 AircraftState aircraftState = __instance.GetComponent<AircraftState>();
                 if (aircraftState != null)
                 {
                     AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
                     AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
                     AircraftType aircraftType = aircraftState.aircraftType_;
+                    // Go around when final landing altitude/speed did not meet requirement.
                     if ((aircraftAltitude != null && !aircraftAltitude.CanLand()) ||
                         (aircraftSpeed != null && aircraftType != null && !aircraftSpeed.CanLand(aircraftType.weight_)))
                     {
-                        __instance.aircraftVoiceAndSubtitles.PlayFailedToLand();
-                        __instance.targetSpeed = 24f;
-                        if (__state.Length == 1) 
-                        { 
-                            __state[0] = 24f;
-                        }
-                        __instance.state = Aircraft.State.GoingAround;
-                        if (__instance.GoAroundWarner != null)
+                        GoAround(__instance, ref __state);
+                        aircraftType.windChecked_ = false;
+                    }
+
+                    // Go around due to wind direction.
+                    if (__instance.state == Aircraft.State.Landing)
+                    {
+                        float distanceFromLanding = ((Vector2)__instance.gameObject.transform.position - __instance.landingStartPoint).magnitude;
+                        if (distanceFromLanding < 0.2f)
                         {
-                            __instance.GoAroundWarner.SetActive(value: true);
-                            Sequence sequence = DOTween.Sequence();
-                            sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f));
-                            sequence.Append(__instance.GoAroundWarner.transform.DOScale(2f, 1f).OnComplete(delegate
+                            WindSock windSock = Plugin.windsock_;
+                            if (aircraftType != null && windSock != null && !aircraftType.windChecked_)
                             {
-                                __instance.GoAroundWarner.SetActive(value: false);
-                            }));
-                            sequence.Play();
+                                aircraftType.windChecked_ = true;
+                                if (!windSock.CanLand(__instance.heading, aircraftType.weight_))
+                                {
+                                    Plugin.Log.LogInfo("Going around due to wind with heading: " + __instance.heading);
+                                    GoAround(__instance, ref __state);
+                                    aircraftType.windChecked_ = false;
+                                }
+                            }
                         }
                     }
                 }
