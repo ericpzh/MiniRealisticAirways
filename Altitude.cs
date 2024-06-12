@@ -218,7 +218,6 @@ namespace MiniRealisticAirways
         }
 
         public Waypoint waypoint_;
-
         public AltitudeLevel altitude_ { get; private set; }
     }
 }

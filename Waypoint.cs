@@ -29,10 +29,15 @@ namespace MiniRealisticAirways
 
         void Start()
         {
-            StartText(ref altitudeText_, 1, -1.5f, 5);
-            StartText(ref speedText_, 2.75f, -1.5f, 5);
-
             if (waypoint_ == null) return;
+
+            StartText(ref altitudeText_, 1f, -2f, 5);
+            StartText(ref speedText_, 2.75f, -2f, 5);
+
+            altitudeGauge_ = waypoint_.gameObject.AddComponent<WaypointAltitudeGauge>();
+            altitudeGauge_.waypoint_ = waypoint_;
+            speedGauge_ = waypoint_.gameObject.AddComponent<WaypointSpeedGauge>();
+            speedGauge_.waypoint_ = waypoint_;
         }
 
         void Update()
@@ -48,6 +53,13 @@ namespace MiniRealisticAirways
                 return;
             }
            
+            if (!Plugin.showText_)
+            {
+                altitudeText_.text = "";
+                speedText_.text = "";
+                return;
+            }
+
             WaypointAltitude waypointAltitude = waypoint_.GetComponent<WaypointAltitude>();
             WaypointSpeed waypointSpeed = waypoint_.GetComponent<WaypointSpeed>();
             if (!waypoint_.Invisible &&
@@ -62,8 +74,9 @@ namespace MiniRealisticAirways
 
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
-    
-        public Waypoint waypoint_;
+        private WaypointAltitudeGauge altitudeGauge_;
+        private WaypointSpeedGauge speedGauge_;
+        public PlaceableWaypoint waypoint_;
     }
 
     [HarmonyPatch(typeof(PlaceableWaypoint), "Start", new Type[] {})]

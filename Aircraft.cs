@@ -67,9 +67,9 @@ namespace MiniRealisticAirways
                 fuelGauge_ = aircraft_.gameObject.AddComponent<FuelGauge>();
                 fuelGauge_.aircraft_ = aircraft_;
             }
-            altitudeGauge_ = aircraft_.gameObject.AddComponent<AltitudeGauge>();
+            altitudeGauge_ = aircraft_.gameObject.AddComponent<AircraftAltitudeGauge>();
             altitudeGauge_.aircraft_ = aircraft_;
-            speedGauge_ = aircraft_.gameObject.AddComponent<SpeedGauge>();
+            speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
             speedGauge_.aircraft_ = aircraft_;
         }
 
@@ -131,7 +131,7 @@ namespace MiniRealisticAirways
         private TMP_Text fuelText_;
         private TMP_Text weightText_;
         private FuelGauge fuelGauge_;
-        private AltitudeGauge altitudeGauge_;
-        private SpeedGauge speedGauge_;
+        private AircraftAltitudeGauge altitudeGauge_;
+        private AircraftSpeedGauge speedGauge_;
     }
 }

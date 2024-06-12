@@ -47,6 +47,6 @@ namespace MiniRealisticAirways
             }
         }
 
-        public static Color gaugeColor = new Color(255, 255, 255, 0.3f);
+        public static Color gaugeColor = new Color(255, 255, 255, 0.5f);
     }
 }

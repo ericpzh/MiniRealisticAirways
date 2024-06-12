@@ -72,6 +72,7 @@ Heavy aircraft have the following behavior:
 - Plane icon size is large.
 - 30% of all random aircraft (arrival & departure) spawn.
 - Heavy aircraft has 4 in-game days worth of fuel.
+- Heavy aircraft when landing, will cause subseqent aircraft to go around if there is not enough spacing. (x)
 
 Medium aircraft have the following behavior:
 - Medium aircraft has 3.5 in-game days worth of fuel.
@@ -85,6 +86,12 @@ The reject takeoff / go-around probability has the following behavior:
 - Reject takeoff / go-around probability drops to 0% when the wind direction is at or below 90 degrees of the runway (full cross-wind).
 - The probabilities are not linear between full tail-wind and full cross-wind.
 - Lighter aircraft are more susceptible to wind conditions.
+
+# Rare Events (x)
+
+Sometimes, accident does happen. These rare events shows up on average every ten days:
+- Plane crashed on a runway leading to a runway closure. In this case, the runway will be colored black, and all landing aircraft will go-around, and plane cannot take-off from this runway.
+- Weather pattern can also show up in some area, forcing all aircraft to go to high (`^`) to avoid bad weather.
 
 # Other Changes
 - You now starts with 3 waiting area upgrades.
