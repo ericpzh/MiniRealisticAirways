@@ -155,7 +155,7 @@ namespace MiniRealisticAirways
         private float startTime_ = 0;
         private float endTime_ = 0;
         private const float WIND_RANDOM_OFFSET_LIMIT = 30f;
-        private const float WIND_BASE_TIME = 4f * 300f /* Time per day */;
+        private const float WIND_BASE_TIME = 6f * 300f /* Time per day */;
         private const float WIND_RANDOM_TIME_OFFSET_LIMIT = 0.5f * 300f /* Time per day */;
         private const float EQUAL_THRES = 0.5f;
     }

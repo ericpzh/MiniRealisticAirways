@@ -108,8 +108,17 @@ namespace MiniRealisticAirways
             int percentFuelLeft = aircraftType.GetFuelOutPercent();
             if (percentFuelLeft % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0)
             {
-                // Blink fuel gauge when fuel is low.
-                spriteRenderer_.enabled = !aircraftType.IsTouchedDown() && (percentFuelLeft > LOW_FUEL_WARNING_PERCENT || !Animation.BlinkLong());
+                // Blink if is special low fuel aircraft.
+                if (aircraftType.lowFuelAircraft_)
+                {
+                    spriteRenderer_.enabled = Animation.Blink();
+                }
+                else
+                {
+                    // Blink fuel gauge when fuel is low.
+                    spriteRenderer_.enabled = !aircraftType.IsTouchedDown() && (
+                        percentFuelLeft > LOW_FUEL_WARNING_PERCENT || !Animation.BlinkLong());
+                }
                 if (spriteRenderer_.enabled && FuelGaugeTextures.fuelTextures_.Count >= percentFuelLeft)
                 {
                     Destroy(spriteRenderer_.sprite);

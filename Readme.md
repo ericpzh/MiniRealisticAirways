@@ -86,10 +86,17 @@ The reject takeoff / go-around probability has the following behavior:
 - The probabilities are not linear between full tail-wind and full cross-wind.
 - Lighter aircraft are more susceptible to wind conditions.
 
+# Rare Events
+
+Sometimes, accidents do happen. These rare events show up on average every 8 days:
+- Aircraft may arrive with emergency fuel, diverted from a nearby airport, and they need to land immediately.
+- Runway excursion happened leading to a runway closure. The runway will be colored red, and all landing aircraft will automatically go around prior to touching down, and aircraft cannot take off from this runway. Note that if the stopped aircraft partially blocked another runway, it effectively closed the other one as well.
+
 # Other Changes
 - You now starts with 3 waiting area upgrades.
 - You now get upgrades twice as fast.
 - You now get 2 waypoints per upgrade selection.
+- Aircraft flying out-of-bound now count as restricted area violations instead of an instant game-over.
 
 ***
 
@@ -113,7 +120,7 @@ The reject takeoff / go-around probability has the following behavior:
 - 离场飞机将从低（`v`）起飞。
 - 离场飞机只有正常（`—`）或高（`^`）到达离场（彩色）航点时触发离场。
 - 降落航点将指示飞机首先到达低（`v`）并发出降落许可。
-- 地形（红色区域）不会影响高（`^`）的飞机。但是，限制区（黄色区域）会影响。
+- 地形（红色区域）不会影响高（`^`）的飞机。但是，禁飞区（黄色区域）会影响。
 - 当两架飞机即将碰撞时, TCAS会命令其中一架爬升，另一架下降。
 - 当飞机即将收到地形（红色区域）影响时，GWPS会命令飞机爬升。
 - 即将降落的飞机不受TCAS和GWPS影响。
@@ -174,7 +181,13 @@ The reject takeoff / go-around probability has the following behavior:
 - 顺风和侧风之间的复飞概率是非线性的。
 - 较轻的飞机更容易受到风向影响。
 
+# 特殊事件
+以下特殊事件平均每8天发生一次：
+- 一架低油量飞机备降到本场，需要优先安排降落。
+- 跑道因各种原因关闭，此时跑道将变成红色，所有即将降落的飞机都会自动复飞，而且飞机也无法从该跑道起飞。要注意的是停在跑道上的飞机如果部分阻塞了另一条跑道，飞机降落到该跑道也会有碰撞判定。
+
 # 其他特性
 - 开场时自动获得3个等待区升级。
 - 升级现在每半天刷新一次。
 - 航点升级现在会给予两个航点。
+- 飞出屏幕和飞入禁飞区现在拥有同样效果。

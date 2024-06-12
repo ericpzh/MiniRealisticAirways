@@ -107,6 +107,14 @@ namespace MiniRealisticAirways
                 return false;
             }
 
+            // Can't take-off when runway is closed.
+            if (EventManager.closedRunway_ != null && EventManager.closedRunway_ == runway)
+            {
+                Plugin.Log.LogInfo("Rejected due to runway closed event.");
+                RejectTakeoff(ref __instance);
+                return false;
+            }
+
             // TODO: Type based takeoff checking.
 
             return true;

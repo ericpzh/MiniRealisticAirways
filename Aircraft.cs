@@ -81,6 +81,11 @@ namespace MiniRealisticAirways
                 return;
             }
 
+            if (desotryTime_ > 0 && UnityEngine.Time.time > desotryTime_)
+            {
+                aircraft_.ConditionalDestroy();
+                return;
+            }
 
             if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || 
                 speedLevelText_ == null || weightText_ == null || fuelText_ == null)
@@ -124,6 +129,7 @@ namespace MiniRealisticAirways
         public AircraftType aircraftType_;
         public Aircraft aircraft_;
         public PlaceableWaypoint commandingWaypoint_;
+        public float desotryTime_ = 0f;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
         private TMP_Text altitudeLevelText_;

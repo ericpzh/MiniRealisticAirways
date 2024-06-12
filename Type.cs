@@ -125,7 +125,7 @@ namespace MiniRealisticAirways
             return Math.Min(1f + ON_GROUND_THRES, (UnityEngine.Time.time - takeoffLandingStartTime_) / (Aircraft.TakeOffTime * Runway.MinimumRunwayLengthMultiplier));
         }
 
-        private void UpdateSIZE()
+        private void UpdateSize()
         {
             if (IsTakingOff())
             {
@@ -192,7 +192,7 @@ namespace MiniRealisticAirways
                     fuel = 4f;
                     break;
             }
-            return fuel * 300 /* Time per clock round */;
+            return fuel * 300f /* Time per clock round */;
         }
 
         public float GetFuelOutTime()
@@ -249,7 +249,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            UpdateSIZE();
+            UpdateSize();
             UpdateFuel();
         }
 
@@ -257,6 +257,7 @@ namespace MiniRealisticAirways
         public bool windChecked_ = false;
         public Vector3 initScale_;
         public float fuelOutTime_ = 0;
+        public bool lowFuelAircraft_ = false;
         public const float LIGHT_TURN_FACTOR = 1.5f;
         public float takeoffLandingStartTime_ = 0;
         private const float ON_GROUND_THRES = 0.5f;

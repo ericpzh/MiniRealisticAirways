@@ -56,10 +56,14 @@ namespace MiniRealisticAirways
                     windsock_ = esc_button.gameObject.AddComponent<WindSock>();
                     windsock_.windsock_ = esc_button;
                     windsock_.InitializeText();
+
+                    
+                    // Borrow esc_button to bind event manager.
+                    eventManager_ = esc_button.gameObject.AddComponent<EventManager>();
                 }
             }
         }
-        
+
         private void OnDestroy()
         {
             FuelGaugeTextures.DestoryTextures();
@@ -106,5 +110,6 @@ namespace MiniRealisticAirways
         internal static ManualLogSource Log;
         internal static bool showText_ = true;
         internal static WindSock windsock_;
+        internal static EventManager eventManager_;
     }
 }

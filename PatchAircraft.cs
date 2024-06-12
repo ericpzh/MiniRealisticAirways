@@ -100,7 +100,7 @@ namespace MiniRealisticAirways
     }
 
     [HarmonyPatch]
-    public class Patch
+    public class PatchLandCoroutine
     {
         private static void GoAround(Aircraft __instance, ref object[] __state)
         {
@@ -157,12 +157,12 @@ namespace MiniRealisticAirways
                         aircraftType.windChecked_ = false;
                     }
 
-                    // Go around due to wind direction.
                     if (__instance.state == Aircraft.State.Landing)
                     {
                         float distanceFromLanding = ((Vector2)__instance.gameObject.transform.position - __instance.landingStartPoint).magnitude;
                         if (distanceFromLanding < 0.2f)
                         {
+                            // Go around due to wind direction.
                             WindSock windSock = Plugin.windsock_;
                             if (aircraftType != null && windSock != null && !aircraftType.windChecked_)
                             {
@@ -174,10 +174,36 @@ namespace MiniRealisticAirways
                                     aircraftType.windChecked_ = false;
                                 }
                             }
+
+                            // Go around due to runway close event.
+                            if (EventManager.closedRunway_ != null && EventManager.closedRunway_ == __instance.LandingRunway)
+                            {
+                                Plugin.Log.LogInfo("Going around due to runway closed event.");
+                                GoAround(__instance, ref __state);
+                                aircraftType.windChecked_ = false;
+                            }
                         }
                     }
                 }
 
+                yield return result.Current;
+            }
+        }
+    }
+
+    [HarmonyPatch]
+    public class PatchTakeoffCoroutine
+    {      
+        [HarmonyPatch(typeof(Aircraft), "TakeOffCoroutine")]
+        [HarmonyPostfix]
+        public static IEnumerator TakeOffCoroutinePostfix(IEnumerator result, Aircraft __instance)
+        {
+            while (result.MoveNext())
+            {
+                if (EventManager.stoppedAircraft_ != null && EventManager.stoppedAircraft_ == __instance)
+                {
+                    yield return new WaitForSeconds(999999999999999999f);
+                }
                 yield return result.Current;
             }
         }
@@ -368,6 +394,30 @@ namespace MiniRealisticAirways
             {
                 __result /= AircraftType.LIGHT_TURN_FACTOR;
             }
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "AircraftOOBGameOver", new Type[] {typeof(Aircraft)})]
+    class PatchAircraftOOBGameOver
+    {
+        static bool Prefix(Aircraft aircraft)
+        {
+            // Turn OOB into warnings.
+            if (RestrictedAreaManager.Instance.counter > 1)
+            {
+                AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
+                if (aircraftState == null)
+                {
+                    return true;
+                }
+                // Give it some time for animation to complete.
+                aircraftState.desotryTime_ = UnityEngine.Time.time + 5f;
+
+                RestrictedAreaManager.Instance.AreaEnter(aircraft);
+                aircraft.aircraftEverInView = false;
+                return false;
+            }
+            return true;
         }
     }
 
@@ -647,7 +697,6 @@ namespace MiniRealisticAirways
                     else if (__instance.state != Aircraft.State.Landing && altitude.tcasAction_ == TCASAction.None)
                     {
                         // Active GPWS on aircrafts if there is no TCAS action.
-                        Plugin.Log.LogInfo("GPWS activated.");
                         altitude.TCASClimb();
                     }
                 }
@@ -688,7 +737,6 @@ namespace MiniRealisticAirways
             if (altitude1.tcasAction_ == TCASAction.None && altitude2.tcasAction_ == TCASAction.None)
             {
                 // Active TCAS on aircrafts if there is no previous action.
-                Plugin.Log.LogInfo("TCAS activated.");
                 if (aircraftState1.IsLanding() && aircraftState2.IsLanding())
                 {
                     // Both at landing, do nothing.
