@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
 
@@ -48,5 +49,21 @@ namespace MiniRealisticAirways
         }
 
         public static Color gaugeColor = new Color(255, 255, 255, 0.5f);
+    }
+
+    public static class Utils
+    {
+        public static void Shuffle<T>(ref List<T> list)
+        {   
+            System.Random rng = new System.Random();
+            int n = list.Count;  
+            while (n > 1) {  
+                n--;  
+                int k = rng.Next(n + 1);  
+                T item = list[k];  
+                list[k] = list[n];  
+                list[n] = item;  
+            }  
+        }
     }
 }

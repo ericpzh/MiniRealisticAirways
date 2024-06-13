@@ -130,6 +130,7 @@ namespace MiniRealisticAirways
         public Aircraft aircraft_;
         public PlaceableWaypoint commandingWaypoint_;
         public float desotryTime_ = 0f;
+        public bool weatherAffected_ = false;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
         private TMP_Text altitudeLevelText_;

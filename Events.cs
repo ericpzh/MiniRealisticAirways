@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -140,23 +141,54 @@ namespace MiniRealisticAirways
         }
     }
 
+    public class BadWeather : Event
+    {
+        public override bool Trigger()
+        {
+            GameObject esc_button = GameObject.Find("ESC_Button");
+            if (esc_button == null)
+            {
+                return false;
+            }
+
+            weather_ = esc_button.gameObject.AddComponent<Weather>();
+            if (weather_ == null)
+            {
+                return false;
+            }
+
+            Plugin.Log.LogInfo("Weather enabled.");
+            weather_.enabled = true;
+            EventManager.weather_ = weather_;
+            return true;
+        }
+
+        public override void Restore()
+        {
+            Plugin.Log.LogInfo("Weather disabled.");
+            weather_.enabled_ = false;
+            EventManager.weather_ = null;
+            Destroy(weather_);
+            weather_ = null;
+        }
+
+        Weather weather_;
+    }
+
     public class EventManager : MonoBehaviour
     {
         private void Start()
         {
             nextEventTime_ = GetNextEventTime();
-            RunwayClose runwayClose = new RunwayClose();
-            LowFuelArrival lowFuelArrival = new LowFuelArrival();
-            events_ = new Event[] { runwayClose, lowFuelArrival };
-            RandomizeEvents();
+            events_ = new List<Event>{new RunwayClose(), new LowFuelArrival(), new BadWeather()};
+            Utils.Shuffle(ref events_);
         }
 
         private void Update()
         {
             if (eventRestoreTime_ > 0 && UnityEngine.Time.time > eventRestoreTime_)
             {
-                int lastEventIndex = GetIndex(index_ - 1);
-                events_[lastEventIndex].Restore();
+                events_[GetIndex(index_ - 1)].Restore();
                 eventRestoreTime_ = 0;
             }
 
@@ -175,20 +207,7 @@ namespace MiniRealisticAirways
 
         private int GetIndex(int index)
         {
-            return Math.Abs(index % events_.Length);
-        }
-
-        private void RandomizeEvents()
-        {   
-            System.Random rng = new System.Random();
-            int n = events_.Length;  
-            while (n > 1) {  
-                n--;  
-                int k = rng.Next(n + 1);  
-                Event event_ = events_[k];  
-                events_[k] = events_[n];  
-                events_[n] = event_;  
-            }  
+            return Math.Abs(index % events_.Count);
         }
 
         private float GetNextEventTime()
@@ -199,13 +218,14 @@ namespace MiniRealisticAirways
 
         public static Runway closedRunway_ = null;
         public static Aircraft stoppedAircraft_ = null;
-        private Event[] events_;
+        public static Weather weather_ = null;
+        private List<Event> events_;
         private int index_ = 0;
         private float nextEventTime_ = 0;
         private float eventRestoreTime_ = 0;
         private const float EVENT_BASE_TIME = 8f * 300f /* Time per day */;
         private const float EVENT_RANDOM_TIME_OFFSET_LIMIT = 1f * 300f /* Time per day */;
         private const float EVENT_RETRIGGER_INTERVAL = 1f;
-        private const float EVENT_RESTORE_TIME = 0.33f * 300f /* Time per day */;
+        private const float EVENT_RESTORE_TIME = 0.5f * 300f /* Time per day */;
     }
 }

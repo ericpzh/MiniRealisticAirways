@@ -43,10 +43,11 @@ namespace MiniRealisticAirways
                 Logger.LogInfo("Hooking UpgradeManager");
                 UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
 
-                // Pre-load fuel gauge textures for global use.
+                // Pre-load textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
                 GaugeArrowTexture.PreLoadTexture();
                 GaugeLineTexture.PreLoadTexture();
+                WeatherCellTextures.PreLoadTextures();
 
                 // Our windsock.
                 GameObject esc_button = GameObject.Find("ESC_Button");
@@ -57,8 +58,7 @@ namespace MiniRealisticAirways
                     windsock_.windsock_ = esc_button;
                     windsock_.InitializeText();
 
-                    
-                    // Borrow esc_button to bind event manager.
+                    // Borrow esc_button to bind event/weather manager.
                     eventManager_ = esc_button.gameObject.AddComponent<EventManager>();
                 }
             }
@@ -69,6 +69,7 @@ namespace MiniRealisticAirways
             FuelGaugeTextures.DestoryTextures();
             GaugeArrowTexture.DestoryTexture();
             GaugeLineTexture.DestoryTexture();
+            WeatherCellTextures.DestoryTextures();
         }
 
         private void HookAircraft(Vector2 pos, Aircraft aircraft)

@@ -489,6 +489,45 @@ namespace MiniRealisticAirways
             {
                 __instance.Invoke("UpdateSpeed", 0);
             }
+
+            // Weather aircraft had enter weather cell.
+            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+            if (aircraftState == null)
+            {
+                return true;
+            }
+
+            if (EventManager.weather_ == null || !EventManager.weather_.enabled_)
+            {
+                // Reset weather flag once the current weather had passed.
+                aircraftState.weatherAffected_ = false;
+                return true;
+            }
+            if (aircraftState.weatherAffected_)
+            {
+                return true;
+            }
+            AircraftAltitude altitude = aircraftState.aircraftAltitude_;
+            if (altitude == null)
+            {
+                return true;
+            }
+
+            if (altitude.altitude_ < AltitudeLevel.High &&
+                EventManager.weather_.InCell(__instance.AP.transform.position))
+            {
+                Plugin.Log.LogInfo("Aircraft entered weather cell.");
+                aircraftState.weatherAffected_ = true;
+                RestrictedAreaManager.Instance.AreaEnter(__instance);
+                if (__instance.state != Aircraft.State.Landing && altitude.tcasAction_ == TCASAction.None)
+                {
+                    // Climb the aircraft if there is no TCAS action.
+                    for (int i = (int)altitude.altitude_; i < (int)AltitudeLevel.High; i++)
+                    {
+                        altitude.TCASClimb();
+                    }
+                }
+            }
             return true;
         }
     }
@@ -518,15 +557,8 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "OnTriggerEnter2D", new Type[] {typeof(Collider2D)})]
     class PatchOnTriggerEnter2D
     {
-        static bool Prefix(
-            Collider2D other,
-            ref bool ___mainMenuMode,
-            ref ColorCode.Option ___colorCode,
-            ref ShapeCode.Option ___shapeCode,
-            ref Aircraft __instance,
-            ref bool ___reachExit,
-            ref Camera ____mainCamera
-            )
+        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref ColorCode.Option ___colorCode, 
+                           ref ShapeCode.Option ___shapeCode, ref Aircraft __instance, ref bool ___reachExit)
         {
 
             if (___mainMenuMode || !((Component)(object)other).CompareTag("CollideCheck"))
@@ -538,7 +570,7 @@ namespace MiniRealisticAirways
             {
                 // Do not allow aircraft to exit unless higher than normal.
                 Waypoint waypoint = ((Component)(object)other).GetComponent<WaypointRef>().waypoint;
-                if (___colorCode == waypoint.colorCode && ___shapeCode == waypoint.shapeCode)
+                if (waypoint != null && ___colorCode == waypoint.colorCode && ___shapeCode == waypoint.shapeCode)
                 {
                     AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
                     if (aircraftState1 == null)
@@ -554,12 +586,11 @@ namespace MiniRealisticAirways
                         ___reachExit = true;
                         __instance.Invoke("ConditionalDestroy", 2f);
                     }
-                   
+
                     return false;
                 }
             }
 
-   
             if (other.GetComponent<AircraftRef>() != null)
             {
                 // Do not sound TCAS when altitudes are different.
@@ -586,7 +617,7 @@ namespace MiniRealisticAirways
             else if (other.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
             {
                 // Do not collide with terrain in high altitude.
-                Vector2 vector = ____mainCamera.WorldToViewportPoint(__instance.gameObject.transform.position);
+                Vector2 vector = Camera.main.WorldToViewportPoint(__instance.gameObject.transform.position);
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
                 
                 AircraftState aircraftState = __instance.GetComponent<AircraftState>();
@@ -608,12 +639,7 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "OnTriggerStay2D", new Type[] {typeof(Collider2D)})]
     class PatchOnTriggerStay2D
     {
-        static bool Prefix(
-            Collider2D other,
-            ref bool ___mainMenuMode,
-            ref Aircraft __instance,
-            ref Camera ____mainCamera
-            )
+        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref Aircraft __instance)
         {
 
             if (___mainMenuMode || !((Component)(object)other).CompareTag("CollideCheck"))
@@ -647,7 +673,7 @@ namespace MiniRealisticAirways
             else if (other.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
             {
                 // Do collide with terrain below high altitude.
-                Vector2 vector = ____mainCamera.WorldToViewportPoint(__instance.gameObject.transform.position);
+                Vector2 vector = Camera.main.WorldToViewportPoint(__instance.gameObject.transform.position);
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
                 AircraftState aircraftState = __instance.GetComponent<AircraftState>();
                 if (aircraftState == null)
@@ -696,8 +722,11 @@ namespace MiniRealisticAirways
                     }
                     else if (__instance.state != Aircraft.State.Landing && altitude.tcasAction_ == TCASAction.None)
                     {
-                        // Active GPWS on aircrafts if there is no TCAS action.
-                        altitude.TCASClimb();
+                        // Active GPWS on aircraft if there is no TCAS action.
+                        for (int j = (int)altitude.altitude_; j < (int)AltitudeLevel.High; j++)
+                        {
+                            altitude.TCASClimb();
+                        }
                     }
                 }
             }
