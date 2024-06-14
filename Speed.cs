@@ -196,6 +196,12 @@ namespace MiniRealisticAirways
         private void Start()
         {
             speed_ = SpeedLevel.Normal;
+
+            if (waypoint_ != null)
+            {
+                speedGauge_ = waypoint_.gameObject.AddComponent<WaypointSpeedGauge>();
+                speedGauge_.waypoint_ = waypoint_;
+            }
         }
 
         private void Update()
@@ -213,18 +219,18 @@ namespace MiniRealisticAirways
             {
                 if (speed_ > SpeedLevel.Slow && InputSlowDown())
                 {
-                    speed_--;
+                    speedGauge_.UpdateWaypointSpeedGauge(--speed_);
                 }
 
                 if (speed_ < SpeedLevel.Fast && InputSpeedUp())
                 {
-                    speed_++;
+                    speedGauge_.UpdateWaypointSpeedGauge(++speed_);
                 }
             }
         }
 
-        public Waypoint waypoint_;
-
+        public PlaceableWaypoint waypoint_;
         public SpeedLevel speed_;
+        private WaypointSpeedGauge speedGauge_;
     }
 }

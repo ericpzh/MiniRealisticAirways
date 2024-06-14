@@ -33,11 +33,6 @@ namespace MiniRealisticAirways
 
             StartText(ref altitudeText_, 1f, -2f, 5);
             StartText(ref speedText_, 2.75f, -2f, 5);
-
-            altitudeGauge_ = waypoint_.gameObject.AddComponent<WaypointAltitudeGauge>();
-            altitudeGauge_.waypoint_ = waypoint_;
-            speedGauge_ = waypoint_.gameObject.AddComponent<WaypointSpeedGauge>();
-            speedGauge_.waypoint_ = waypoint_;
         }
 
         void Update()
@@ -74,8 +69,6 @@ namespace MiniRealisticAirways
 
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
-        private WaypointAltitudeGauge altitudeGauge_;
-        private WaypointSpeedGauge speedGauge_;
         public PlaceableWaypoint waypoint_;
     }
 

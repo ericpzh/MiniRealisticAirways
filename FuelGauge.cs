@@ -78,10 +78,10 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            obj_ = new GameObject();
-            obj_.transform.SetParent(aircraft_.transform);
-            obj_.transform.localPosition = new Vector3(1, 1, -5f);
-            spriteRenderer_ = obj_.AddComponent<SpriteRenderer>();
+            gameObject_ = new GameObject();
+            gameObject_.transform.SetParent(aircraft_.transform);
+            gameObject_.transform.localPosition = new Vector3(1, 1, -5f);
+            spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
             spriteRenderer_.sprite = Sprite.Create(FuelGaugeTextures.fuelTextures_[FuelGaugeTextures.REFRESH_GRADIENT],
                                                    FuelGaugeTextures.rect_, Vector2.zero);
         }
@@ -92,7 +92,7 @@ namespace MiniRealisticAirways
         }
 
         public Aircraft aircraft_;
-        private GameObject obj_;
+        private GameObject gameObject_;
         public SpriteRenderer spriteRenderer_;
     }
 }

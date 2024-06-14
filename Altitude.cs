@@ -261,6 +261,14 @@ namespace MiniRealisticAirways
         private void Start()
         {
             altitude_ = AltitudeLevel.Normal;
+
+            if (waypoint_ == null)
+            {
+                return;
+            }
+
+            altitudeGauge_ = waypoint_.gameObject.AddComponent<WaypointAltitudeGauge>();
+            altitudeGauge_.waypoint_ = waypoint_;
         }
 
         private void Update()
@@ -277,17 +285,18 @@ namespace MiniRealisticAirways
             {
                 if (altitude_ < AltitudeLevel.High && InputClimb())
                 {
-                    altitude_++;
+                    altitudeGauge_.UpdateWaypointAltitudeGauge(++altitude_);
                 }
 
                 if (altitude_ > AltitudeLevel.Low && InputDesend())
                 {
-                    altitude_--;
+                    altitudeGauge_.UpdateWaypointAltitudeGauge(--altitude_);
                 }
             }
         }
 
-        public Waypoint waypoint_;
+        public PlaceableWaypoint waypoint_;
         public AltitudeLevel altitude_ { get; private set; }
+        private WaypointAltitudeGauge altitudeGauge_;
     }
 }

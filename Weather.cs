@@ -12,7 +12,7 @@ namespace MiniRealisticAirways
         }
 
         public Vector2 cell_;
-        public GameObject obj_;
+        public GameObject gameObject_;
         public SpriteRenderer spriteRenderer_;
     }
 
@@ -175,7 +175,7 @@ namespace MiniRealisticAirways
                 {
                     GameObject obj = new GameObject();
                     obj.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
-                    cell.obj_ = obj;
+                    cell.gameObject_ = obj;
 
                     SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
                     cell.spriteRenderer_ = spriteRenderer;
