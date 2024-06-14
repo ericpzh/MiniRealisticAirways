@@ -192,7 +192,7 @@ namespace MiniRealisticAirways
             events_[GetIndex(index_)].Restore();
             index_++;
 
-            StartCoroutine(StartEventCoroutine());
+            yield return StartEventCoroutine();
         }
 
         private void Start()

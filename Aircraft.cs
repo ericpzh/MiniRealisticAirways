@@ -1,4 +1,5 @@
 using TMPro;
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -13,7 +14,7 @@ namespace MiniRealisticAirways
 
         private void StartText(ref TMP_Text text, float fontSize, float x, float y, float z)
         {
-            GameObject obj = GameObject.Instantiate(new GameObject("Text"));
+            GameObject obj = Instantiate(new GameObject("Text"));
             text = obj.AddComponent<TextMeshPro>();
             
             text.fontSize = fontSize;
@@ -47,6 +48,12 @@ namespace MiniRealisticAirways
             aircraftType_.aircraft_ = aircraft_;
         }
 
+        public IEnumerator DelayDestoryCoroutine()
+        {
+            yield return new WaitForSeconds(5f);
+            aircraft_.ConditionalDestroy();
+        }
+
         void Start()
         {
             if (aircraft_ == null)
@@ -61,8 +68,6 @@ namespace MiniRealisticAirways
             StartText(ref fuelText_,          2.1f, 0.4f,   -4.6f, 5f);
             StartText(ref weightText_,        2.5f,   3f,   -4.5f, 5f);
 
-            altitudeGauge_ = aircraft_.gameObject.AddComponent<AircraftAltitudeGauge>();
-            altitudeGauge_.aircraft_ = aircraft_;
             speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
             speedGauge_.aircraft_ = aircraft_;
         }
@@ -72,12 +77,6 @@ namespace MiniRealisticAirways
             if (aircraft_ == null)
             {
                 Destroy(gameObject);
-                return;
-            }
-
-            if (desotryTime_ > 0 && Time.time > desotryTime_)
-            {
-                aircraft_.ConditionalDestroy();
                 return;
             }
 
@@ -123,7 +122,6 @@ namespace MiniRealisticAirways
         public AircraftType aircraftType_;
         public Aircraft aircraft_;
         public PlaceableWaypoint commandingWaypoint_;
-        public float desotryTime_ = 0f;
         public bool weatherAffected_ = false;
         private TMP_Text altitudeText_;
         private TMP_Text speedText_;
@@ -131,7 +129,6 @@ namespace MiniRealisticAirways
         private TMP_Text speedLevelText_;
         private TMP_Text fuelText_;
         private TMP_Text weightText_;
-        private AircraftAltitudeGauge altitudeGauge_;
         private AircraftSpeedGauge speedGauge_;
     }
 }

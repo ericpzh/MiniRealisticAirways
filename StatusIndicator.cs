@@ -84,7 +84,7 @@ namespace MiniRealisticAirways
     public class Gauge : MonoBehaviour
     {
         protected GameObject obj_;
-        protected SpriteRenderer spriteRenderer_;
+        public SpriteRenderer spriteRenderer_;
     }
 
     public class AircraftSpeedGauge : Gauge
@@ -236,6 +236,38 @@ namespace MiniRealisticAirways
 
     public class AircraftAltitudeGauge : Gauge
     {
+        public void UpdateGauge(AltitudeLevel altitude)
+        {
+            if (spriteRenderer_ == null)
+            {
+                return;
+            }
+
+            if(spriteRenderer_.sprite != null)
+            {
+                Destroy(spriteRenderer_.sprite);
+            }
+
+            switch (altitude)
+            {
+                case AltitudeLevel.Low:
+                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
+                    obj_.transform.localPosition = new Vector3(1.15f, -1.1f, -9f);
+                    obj_.transform.rotation = Quaternion.AngleAxis(180, Vector3.back);
+                    return;
+                case AltitudeLevel.Normal:
+                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
+                    obj_.transform.localPosition = new Vector3(-1.15f, 1f, -9f);
+                    obj_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
+                    return;
+                case AltitudeLevel.High:
+                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
+                    obj_.transform.localPosition = new Vector3(-1.15f, 1.25f, -9f);
+                    obj_.transform.rotation = Quaternion.identity;
+                    return;
+            }
+        }
+
         private void Start()
         {
             if (aircraft_ == null)
@@ -246,57 +278,7 @@ namespace MiniRealisticAirways
             obj_ = new GameObject();
             obj_.transform.SetParent(aircraft_.transform);
             spriteRenderer_ = obj_.AddComponent<SpriteRenderer>();
-            
             spriteRenderer_.enabled = false;
-        }
-
-        private void Update()
-        {
-            if (aircraft_ == null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-            
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) 
-            {
-                return;
-            }
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            if (aircraftAltitude == null)
-            {
-                return;
-            }
-
-            bool AltitudeChanged = aircraftAltitude.altitude_ != aircraftAltitude.targetAltitude_;
-            spriteRenderer_.enabled = aircraftAltitude.altitude_ > AltitudeLevel.Ground &&
-                                      !(AltitudeChanged && Animation.BlinkLong());
-
-            if(spriteRenderer_.sprite != null)
-            {
-                Destroy(spriteRenderer_.sprite);
-            }
-            switch (aircraftAltitude.altitude_)
-            {
-                case AltitudeLevel.Low:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    obj_.transform.localPosition = new Vector3(1.15f, -1.1f, -9f);
-                    obj_.transform.rotation = Quaternion.AngleAxis(180, Vector3.back);
-                    return;
-                case AltitudeLevel.Normal:
-
-                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
-                    obj_.transform.localPosition = new Vector3(-1.15f, 1f, -9f);
-                    obj_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
-                    
-                    return;
-                case AltitudeLevel.High:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    obj_.transform.localPosition = new Vector3(-1.15f, 1.25f, -9f);
-                    obj_.transform.rotation = Quaternion.identity;
-                    return;
-            }
         }
 
         private void OnDestroy()

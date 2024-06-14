@@ -11,7 +11,7 @@ namespace MiniRealisticAirways
     {
         private void StartText(ref TMP_Text text, float x, float y, float z)
         {
-            GameObject obj = GameObject.Instantiate(new GameObject("Text"));
+            GameObject obj = Instantiate(new GameObject("Text"));
             text = obj.AddComponent<TextMeshPro>();
 
             text.fontSize = 2f;
