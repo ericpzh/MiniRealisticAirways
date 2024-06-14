@@ -441,6 +441,13 @@ namespace MiniRealisticAirways
 
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+
+            // Auto slow down for aircraft to land.
+            while (!aircraftSpeed.CanLand(aircraftType.weight_))
+            {
+                aircraftSpeed.AircraftSlowDown();
+            }
+
             if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand(aircraftType.weight_))
             {
                 Runway runway2 = (runway ? runway : Aircraft.CurrentCommandingRunway);

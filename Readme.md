@@ -62,7 +62,7 @@ Each arrival aircraft type carries a different amount of fuel, if fuel runs out 
 Light aircraft have the following behavior:
 - Plane icon size is small.
 - Will only have speed of slow (`<`), normal (`|`). If passing through a waypoint with fast (`>`), it will only go up to normal (`|`).
-- Light aircraft can only land with slow (`<`).
+- Light aircraft can only land with slow (`<`), when instructed to land, will slow down to slow (`<`) automatically.
 - Landing waypoint will insturct light aircraft to reach slow (`<`) and then issue the landing clearance.
 - Light aircraft has 50% faster turning speed.
 - 2.5% of all random aircraft (arrival & departure) spawn.
@@ -159,7 +159,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 轻型飞机拥有以下特性:
 - 飞机图标尺寸变小。
 - 最大速度为正常（`|`）。如果通过具有快（`>`）的航点，速度也只会变为正常（`|`）。
-- 只有在速度为慢（`<`）时才能降落，通过降落航点时速度会变为慢（`<`）。
+- 只有在速度为慢（`<`）时才能降落，引导到跑道时会自动减速到慢（`<`），通过降落航点时也会减速到慢（`<`）。
 - 转弯速度比其他类型快50%。
 - 进场时携带游戏内3天的燃料。
 - 占所有飞机的2.5%。
