@@ -72,7 +72,7 @@ namespace MiniRealisticAirways
             if (targetAltitude_ < AltitudeLevel.High)
             {
                 targetAltitude_ ++;
-                transitionTime = UnityEngine.Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
+                transitionTime = Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
             }
         }
 
@@ -81,7 +81,7 @@ namespace MiniRealisticAirways
             if (targetAltitude_ > AltitudeLevel.Low)
             {
                 targetAltitude_ --;
-                transitionTime = UnityEngine.Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
+                transitionTime = Time.time + REACTION_TIME + TRANSITION_TIME * Math.Abs(targetAltitude_ - altitude_);
             }
         }
 
@@ -161,7 +161,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (UnityEngine.Time.time >= transitionTime)
+            if (Time.time >= transitionTime)
             {
                 altitude_ = targetAltitude_;
                 if (tcasAction_ != TCASAction.None)

@@ -27,7 +27,7 @@ namespace MiniRealisticAirways
             }
         }
 
-        private static Texture2D DrawCircle(int step)
+        private static Texture2D DrawDroplet(int step)
         {
             int percent = (int)(step * SIZE / REFRESH_GRADIENT);
             Texture2D texture = new Texture2D(SIZE, SIZE);
@@ -49,7 +49,7 @@ namespace MiniRealisticAirways
             fuelTextures_ = new List<Texture2D>(REFRESH_GRADIENT + 1);
             for (int i = 0; i < REFRESH_GRADIENT + 1; i++)
             {
-                fuelTextures_.Add(DrawCircle(i));
+                fuelTextures_.Add(DrawDroplet(i));
             }
             rect_ = new Rect(0, 0, SIZE, SIZE);
         }
@@ -86,49 +86,6 @@ namespace MiniRealisticAirways
                                                    FuelGaugeTextures.rect_, Vector2.zero);
         }
 
-        private void Update()
-        {
-            if (aircraft_ == null)
-            {
-                Destroy(gameObject);
-                return;
-            }
-
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) 
-            {
-                return;
-            }
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType == null)
-            {
-                return;
-            }
-
-            int percentFuelLeft = aircraftType.GetFuelOutPercent();
-            if (percentFuelLeft % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0)
-            {
-                // Blink if is special low fuel aircraft.
-                if (aircraftType.lowFuelAircraft_)
-                {
-                    spriteRenderer_.enabled = Animation.Blink();
-                }
-                else
-                {
-                    // Blink fuel gauge when fuel is low.
-                    spriteRenderer_.enabled = !aircraftType.IsTouchedDown() && (
-                        percentFuelLeft > LOW_FUEL_WARNING_PERCENT || !Animation.BlinkLong());
-                }
-                if (spriteRenderer_.enabled && FuelGaugeTextures.fuelTextures_.Count >= percentFuelLeft)
-                {
-                    Destroy(spriteRenderer_.sprite);
-                    spriteRenderer_.sprite = Sprite.Create(FuelGaugeTextures.fuelTextures_[percentFuelLeft],
-                                                           FuelGaugeTextures.rect_, Vector2.zero);
-                }
-            }
-
-        }
-
         private void OnDestroy()
         {
             Destroy(spriteRenderer_.sprite);
@@ -136,7 +93,6 @@ namespace MiniRealisticAirways
 
         public Aircraft aircraft_;
         private GameObject obj_;
-        private SpriteRenderer spriteRenderer_;
-        private const int LOW_FUEL_WARNING_PERCENT = 20;
+        public SpriteRenderer spriteRenderer_;
     }
 }

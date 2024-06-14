@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Reflection;
 using UnityEngine;
@@ -26,6 +27,30 @@ namespace MiniRealisticAirways
 
     public static class Animation
     {
+        public static IEnumerator BlinkCoroutine(SpriteRenderer spriteRenderer)
+        {
+            while (true)
+            {
+                spriteRenderer.enabled = false;
+                yield return new WaitForSecondsRealtime(0.4f);
+                spriteRenderer.enabled = true;
+                yield return new WaitForSecondsRealtime(0.4f);
+            }
+
+        }
+
+        public static IEnumerator BlinkFastCoroutine(SpriteRenderer spriteRenderer)
+        {
+            while (true)
+            {
+                spriteRenderer.enabled = false;
+                yield return new WaitForSecondsRealtime(0.2f);
+                spriteRenderer.enabled = true;
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
+
+        }
+
         public static bool Blink()
         {
             return DateTimeOffset.Now.ToUnixTimeMilliseconds() % 500 < 250;

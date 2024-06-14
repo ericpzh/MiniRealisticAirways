@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -63,6 +64,63 @@ namespace MiniRealisticAirways
 
     public class AircraftType : BaseAircraftType
     {
+        public IEnumerator FuelManagementCoroutine()
+        {
+            while (aircraft_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            fuelGauge_ = aircraft_.gameObject.AddComponent<FuelGauge>();
+            fuelGauge_.aircraft_ = aircraft_;
+
+            IEnumerator blinkCoroutine = null;
+
+            float fuelOutTime = GetFuelTime();
+            for (percentFuelLeft_ = 99; percentFuelLeft_ >= 0; percentFuelLeft_--)
+            {
+                if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT && blinkCoroutine == null)
+                {
+                    // Blink when fuel is slow.
+                    blinkCoroutine = Animation.BlinkCoroutine(fuelGauge_.spriteRenderer_);
+                    StartCoroutine(blinkCoroutine);
+                }
+
+                if (percentFuelLeft_ == LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null)
+                {
+                    // Blink faster when fuel is super low.
+                    StopCoroutine(blinkCoroutine);
+                    blinkCoroutine = Animation.BlinkFastCoroutine(fuelGauge_.spriteRenderer_);
+                    StartCoroutine(blinkCoroutine);
+                }
+
+                if (percentFuelLeft_ % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0 && 
+                    fuelGauge_.spriteRenderer_ != null && FuelGaugeTextures.fuelTextures_.Count >= percentFuelLeft_)
+                {
+                    // Re-render fuel gauge to update the fuel amount.
+                    Destroy(fuelGauge_.spriteRenderer_.sprite);
+                    fuelGauge_.spriteRenderer_.sprite = Sprite.Create(FuelGaugeTextures.fuelTextures_[percentFuelLeft_],
+                                                                        FuelGaugeTextures.rect_, Vector2.zero);
+                }
+
+                yield return new WaitForSeconds(fuelOutTime / 100f);
+            }
+
+            if (blinkCoroutine != null)
+            {
+                StopCoroutine(blinkCoroutine);
+                fuelGauge_.spriteRenderer_.enabled = true;
+            }
+
+            if (!IsTouchedDown())
+            {
+                // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
+                // MethodInfo AircraftTerrainGameOver = __instance.GetType().GetMethod("AircraftTerrainGameOver", 
+                //     BindingFlags.NonPublic | BindingFlags.Instance);
+                // AircraftTerrainGameOver.Invoke(__instance, new object[] { __instance });
+                LevelManager.Instance.CrashGameOver(aircraft_, null);
+            }
+        }
 
         public void PatchTurnSpeed()
         {
@@ -122,7 +180,7 @@ namespace MiniRealisticAirways
 
         private float TakeoffLandingProgress()
         {
-            return Math.Min(1f + ON_GROUND_THRES, (UnityEngine.Time.time - takeoffLandingStartTime_) / (Aircraft.TakeOffTime * Runway.MinimumRunwayLengthMultiplier));
+            return Math.Min(1f + ON_GROUND_THRES, (Time.time - takeoffLandingStartTime_) / (Aircraft.TakeOffTime * Runway.MinimumRunwayLengthMultiplier));
         }
 
         private void UpdateSize()
@@ -131,7 +189,7 @@ namespace MiniRealisticAirways
             {
                 if (takeoffLandingStartTime_ == 0)
                 {
-                    takeoffLandingStartTime_  = UnityEngine.Time.time;
+                    takeoffLandingStartTime_  = Time.time;
                 }
                 else
                 {
@@ -152,7 +210,7 @@ namespace MiniRealisticAirways
             {
                 if (takeoffLandingStartTime_ == 0)
                 {
-                    takeoffLandingStartTime_  = UnityEngine.Time.time;
+                    takeoffLandingStartTime_  = Time.time;
                 }
                 else
                 {
@@ -195,41 +253,13 @@ namespace MiniRealisticAirways
             return fuel * 300f /* Time per clock round */;
         }
 
-        public float GetFuelOutTime()
-        {
-            return UnityEngine.Time.time + GetFuelTime();
-        }
-
-        public int GetFuelOutPercent()
-        {
-            return (int)((fuelOutTime_ - UnityEngine.Time.time) / GetFuelTime() * 100);
-        }
-
         public string GetFuelString()
         {
-            int fuelOut = GetFuelOutPercent();
-            if (fuelOut >= 0)
+            if (percentFuelLeft_ >= 0)
             {
-                return "Fuel: " + fuelOut.ToString() + "%";
+                return "Fuel: " + percentFuelLeft_ + "%";
             }
             return "Fuel: ∞";
-        }
-
-        private void UpdateFuel()
-        {
-            if (fuelOutTime_ <= 0)
-            {
-                return;
-            }
-
-            if (!IsTouchedDown() && UnityEngine.Time.time > fuelOutTime_)
-            {
-                // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
-                // MethodInfo AircraftTerrainGameOver = __instance.GetType().GetMethod("AircraftTerrainGameOver", 
-                //     BindingFlags.NonPublic | BindingFlags.Instance);
-                // AircraftTerrainGameOver.Invoke(__instance, new object[] { __instance });
-                LevelManager.Instance.CrashGameOver(aircraft_, null);
-            }
         }
 
         private void Start()
@@ -238,6 +268,7 @@ namespace MiniRealisticAirways
             {
                 return;
             }
+
             initScale_ = aircraft_.AP.gameObject.transform.localScale;
         }
 
@@ -250,16 +281,16 @@ namespace MiniRealisticAirways
             }
 
             UpdateSize();
-            UpdateFuel();
         }
 
         public Aircraft aircraft_;
         public bool windChecked_ = false;
         public Vector3 initScale_;
-        public float fuelOutTime_ = 0;
-        public bool lowFuelAircraft_ = false;
         public const float LIGHT_TURN_FACTOR = 1.5f;
         public float takeoffLandingStartTime_ = 0;
+        public int percentFuelLeft_ = -1;
+        public const int LOW_FUEL_WARNING_PERCENT = 30;
+        private FuelGauge fuelGauge_;
         private const float ON_GROUND_THRES = 0.5f;
         private const float INIT_TAKEOFF_SCALE = 0.57f;
         private const float finalLandingScale_ = 0.5f;

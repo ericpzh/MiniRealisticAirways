@@ -88,7 +88,7 @@ The reject takeoff / go-around probability has the following behavior:
 
 # Rare Events
 
-Sometimes, accidents do happen. These rare events show up on average every 8 days:
+Sometimes, accidents do happen. These rare events show up on average every 6 days:
 - Aircraft may arrive with emergency fuel, diverted from a nearby airport, and they need to land immediately.
 - Runway excursion happened leading to a runway closure. The runway will be colored red, and all landing aircraft will automatically go around prior to touching down, and aircraft cannot take off from this runway. Note that if the stopped aircraft partially blocked another runway, it effectively closed the other one as well.
 - Weather patterns can also show up in some areas, forcing all aircraft to go to high (`^`) to avoid bad weather. If an aircraft enters the weather cell, it would count as a restricted area violation.
@@ -183,7 +183,7 @@ Sometimes, accidents do happen. These rare events show up on average every 8 day
 - 较轻的飞机更容易受到风向影响。
 
 # 特殊事件
-以下特殊事件平均每8天发生一次：
+以下特殊事件平均每6天发生一次：
 - 一架低油量飞机备降到本场，需要优先安排降落。
 - 跑道因各种原因关闭，此时跑道将变成红色，所有即将降落的飞机都会自动复飞，而且飞机也无法从该跑道起飞。要注意的是停在跑道上的飞机如果部分阻塞了另一条跑道，飞机降落到该跑道也会有碰撞判定。
 - 恶劣天气会使经过的飞机飞到高（`^`），飞机进入恶劣天气和飞入禁飞区拥有同样效果。

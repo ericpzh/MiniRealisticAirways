@@ -411,7 +411,7 @@ namespace MiniRealisticAirways
                     return true;
                 }
                 // Give it some time for animation to complete.
-                aircraftState.desotryTime_ = UnityEngine.Time.time + 5f;
+                aircraftState.desotryTime_ = Time.time + 5f;
 
                 RestrictedAreaManager.Instance.AreaEnter(aircraft);
                 aircraft.aircraftEverInView = false;

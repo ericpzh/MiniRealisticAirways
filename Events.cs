@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -135,8 +136,7 @@ namespace MiniRealisticAirways
             }
 
             Plugin.Log.LogInfo("Generated emergency low fuel aircraft.");
-            aircraftType.fuelOutTime_ = UnityEngine.Time.time + 1f * 300 /* Time per clock round */;
-            aircraftType.lowFuelAircraft_ = true;
+            aircraftType.percentFuelLeft_ = AircraftType.LOW_FUEL_WARNING_PERCENT;
             return true;
         }
     }
@@ -166,9 +166,8 @@ namespace MiniRealisticAirways
         public override void Restore()
         {
             Plugin.Log.LogInfo("Weather disabled.");
-            weather_.enabled_ = false;
+            weather_.DestoryWeather();
             EventManager.weather_ = null;
-            Destroy(weather_);
             weather_ = null;
         }
 
@@ -177,32 +176,31 @@ namespace MiniRealisticAirways
 
     public class EventManager : MonoBehaviour
     {
-        private void Start()
+
+        private IEnumerator StartEventCoroutine()
         {
-            nextEventTime_ = GetNextEventTime();
-            events_ = new List<Event>{new RunwayClose(), new LowFuelArrival(), new BadWeather()};
-            Utils.Shuffle(ref events_);
+            yield return new WaitForSeconds(
+                EVENT_BASE_TIME + 2 * EVENT_RANDOM_TIME_OFFSET_LIMIT * UnityEngine.Random.value - EVENT_RANDOM_TIME_OFFSET_LIMIT);
+
+            while (!events_[GetIndex(index_)].Trigger())
+            {
+                yield return new WaitForSeconds(EVENT_RETRIGGER_INTERVAL);
+            }
+
+            yield return new WaitForSeconds(EVENT_RESTORE_TIME);
+
+            events_[GetIndex(index_)].Restore();
+            index_++;
+
+            StartCoroutine(StartEventCoroutine());
         }
 
-        private void Update()
+        private void Start()
         {
-            if (eventRestoreTime_ > 0 && UnityEngine.Time.time > eventRestoreTime_)
-            {
-                events_[GetIndex(index_ - 1)].Restore();
-                eventRestoreTime_ = 0;
-            }
+            events_ = new List<Event>{new RunwayClose(), new LowFuelArrival(), new BadWeather()};
+            Utils.Shuffle(ref events_);
 
-            if (nextEventTime_ > 0 && UnityEngine.Time.time > nextEventTime_)
-            {
-                if (!events_[GetIndex(index_)].Trigger())
-                {
-                    nextEventTime_ = UnityEngine.Time.time + EVENT_RETRIGGER_INTERVAL;
-                    return;
-                }
-                index_++;
-                nextEventTime_ = UnityEngine.Time.time + GetNextEventTime();
-                eventRestoreTime_ = UnityEngine.Time.time + EVENT_RESTORE_TIME;
-            }
+            StartCoroutine(StartEventCoroutine());
         }
 
         private int GetIndex(int index)
@@ -210,22 +208,14 @@ namespace MiniRealisticAirways
             return Math.Abs(index % events_.Count);
         }
 
-        private float GetNextEventTime()
-        {
-            return UnityEngine.Time.time + EVENT_BASE_TIME + 
-                2 * EVENT_RANDOM_TIME_OFFSET_LIMIT * UnityEngine.Random.value - EVENT_RANDOM_TIME_OFFSET_LIMIT;
-        }
-
         public static Runway closedRunway_ = null;
         public static Aircraft stoppedAircraft_ = null;
         public static Weather weather_ = null;
+        public const float EVENT_RESTORE_TIME = 0.33f * 300f /* Time per day */;
         private List<Event> events_;
         private int index_ = 0;
-        private float nextEventTime_ = 0;
-        private float eventRestoreTime_ = 0;
-        private const float EVENT_BASE_TIME = 8f * 300f /* Time per day */;
+        private const float EVENT_BASE_TIME = 6f * 300f /* Time per day */;
         private const float EVENT_RANDOM_TIME_OFFSET_LIMIT = 1f * 300f /* Time per day */;
         private const float EVENT_RETRIGGER_INTERVAL = 1f;
-        private const float EVENT_RESTORE_TIME = 0.5f * 300f /* Time per day */;
     }
 }

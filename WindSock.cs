@@ -11,7 +11,7 @@ namespace MiniRealisticAirways
         public float GetWindDirection()
         {
             float duration = endTime_ - startTime_;
-            float timeTraveled = UnityEngine.Time.time - startTime_;
+            float timeTraveled = Time.time - startTime_;
             float assumedDirection = windTargetDirection_;
             if (windShiftDirection_ > 0 && windTargetDirection_ < windPreviousDirection_)
             {
@@ -98,7 +98,7 @@ namespace MiniRealisticAirways
         {
             windTargetDirection_ = RandomDirection();
             windShiftDirection_ = UnityEngine.Random.value > 0.5 ? 1 : -1;
-            startTime_ = UnityEngine.Time.time;
+            startTime_ = Time.time;
             endTime_ = startTime_ + WIND_BASE_TIME + RandomUniform(WIND_RANDOM_TIME_OFFSET_LIMIT);
             Plugin.Log.LogInfo("Wind updated, new direction: " + windTargetDirection_ + 
                                ", shifting direction: " + windShiftDirection_ + ", endtime: " + endTime_);

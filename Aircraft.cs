@@ -61,12 +61,6 @@ namespace MiniRealisticAirways
             StartText(ref fuelText_,          2.1f, 0.4f,   -4.6f, 5f);
             StartText(ref weightText_,        2.5f,   3f,   -4.5f, 5f);
 
-            if (aircraft_.direction == Aircraft.Direction.Inbound)
-            {
-                // Add fuel gauge to only arrivals.
-                fuelGauge_ = aircraft_.gameObject.AddComponent<FuelGauge>();
-                fuelGauge_.aircraft_ = aircraft_;
-            }
             altitudeGauge_ = aircraft_.gameObject.AddComponent<AircraftAltitudeGauge>();
             altitudeGauge_.aircraft_ = aircraft_;
             speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
@@ -81,7 +75,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (desotryTime_ > 0 && UnityEngine.Time.time > desotryTime_)
+            if (desotryTime_ > 0 && Time.time > desotryTime_)
             {
                 aircraft_.ConditionalDestroy();
                 return;
@@ -137,7 +131,6 @@ namespace MiniRealisticAirways
         private TMP_Text speedLevelText_;
         private TMP_Text fuelText_;
         private TMP_Text weightText_;
-        private FuelGauge fuelGauge_;
         private AircraftAltitudeGauge altitudeGauge_;
         private AircraftSpeedGauge speedGauge_;
     }

@@ -1,6 +1,5 @@
-using System;
+using System.Collections;
 using System.Collections.Generic;
-using System.Security.Cryptography.X509Certificates;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -30,7 +29,6 @@ namespace MiniRealisticAirways
 
     public class Weather : MonoBehaviour
     {
-
         public bool InCell(Vector2 position)
         {
             if (!enabled_)
@@ -49,6 +47,11 @@ namespace MiniRealisticAirways
             return false;
         }
         
+        public void DestoryWeather()
+        {
+            StartCoroutine(DestoryWeatherCoroutine());
+        }
+
         private void EnqueueRandom(ref List<Vector2> directions, ref Queue<Cell> queue, Cell current)
         {
             Utils.Shuffle<Vector2>(ref directions);
@@ -110,15 +113,56 @@ namespace MiniRealisticAirways
             return 2;
         }
 
-        private int GetOpacity()
+        private IEnumerator GenerateWeatherCoroutine()
         {
-            if (enabledTime_ > 0 && UnityEngine.Time.time > enabledTime_)
+            for (int i = 0; i < WeatherCellTextures.OPACITY_GRADIENT; i++)
             {
-                // Not transparent.
-                return WeatherCellTextures.OPACITY_GRADIENT - 1;
+                foreach (Cell cell in cells_)
+                {
+                    Destroy(cell.spriteRenderer_.sprite);
+                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell)],
+                                                                WeatherCellTextures.rect_, Vector2.zero);
+                    cell.spriteRenderer_.enabled = true;
+                }
+
+                yield return new WaitForSeconds(ENABLE_TIME / WeatherCellTextures.OPACITY_GRADIENT);
             }
-            float progess = 1f - (enabledTime_ - UnityEngine.Time.time) / ENABLE_TIME;
-            return (int)Math.Clamp(progess * WeatherCellTextures.OPACITY_GRADIENT, 0, WeatherCellTextures.OPACITY_GRADIENT - 1);
+
+            enabled_ = true;
+
+            yield return new WaitForSeconds(EventManager.EVENT_RESTORE_TIME - DISABLE_TIME);
+        }
+
+        private IEnumerator DestoryWeatherCoroutine()
+        {
+            enabled_ = false;
+
+            for (int i = WeatherCellTextures.OPACITY_GRADIENT - 1; i >= 0; i--)
+            {
+                foreach (Cell cell in cells_)
+                {
+                    if (cell.spriteRenderer_.sprite != null)
+                    {
+                        Destroy(cell.spriteRenderer_.sprite);
+                    }
+                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell)],
+                                                                WeatherCellTextures.rect_, Vector2.zero);
+                    cell.spriteRenderer_.enabled = true;
+                }
+
+                yield return new WaitForSeconds(DISABLE_TIME / WeatherCellTextures.OPACITY_GRADIENT);
+            }
+
+            foreach (Cell cell in cells_)
+            {
+                SpriteRenderer spriteRenderer = cell.spriteRenderer_;
+                if (spriteRenderer != null)
+                {
+                    Destroy(spriteRenderer.sprite);
+                }
+            }
+
+            Destroy(this);
         }
 
         private void Start()
@@ -130,64 +174,24 @@ namespace MiniRealisticAirways
                 if (cell.cell_ != null)
                 {
                     GameObject obj = new GameObject();
-
                     obj.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
                     cell.obj_ = obj;
 
                     SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
-                    spriteRenderer.sprite = Sprite.Create(WeatherCellTextures.textures_[0][GetColor(cell)],
-                                                          WeatherCellTextures.rect_, Vector2.zero);
                     cell.spriteRenderer_ = spriteRenderer;
                 }
             }
-            enabledTime_ = UnityEngine.Time.time + ENABLE_TIME;
-        }
 
-        private void Update()
-        {
-            if (cells_ == null)
-            {
-                return;
-            }
-
-            if (enabledTime_ > 0 && UnityEngine.Time.time > enabledTime_)
-            {
-                enabled_ = true;
-                enabledTime_ = 0;
-            }
-
-            foreach (Cell cell in cells_)
-            {
-                Destroy(cell.spriteRenderer_.sprite);
-                cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[GetOpacity()][GetColor(cell)],
-                                                            WeatherCellTextures.rect_, Vector2.zero);
-                cell.spriteRenderer_.enabled = true;
-            }
-        }
-
-        private void OnDestroy() {
-            if (cells_ == null)
-            {
-                return;
-            }
-
-            foreach (Cell cell in cells_)
-            {
-                SpriteRenderer spriteRenderer = cell.spriteRenderer_;
-                if (spriteRenderer != null)
-                {
-                    Destroy(spriteRenderer.sprite);
-                }
-            }
+            StartCoroutine(GenerateWeatherCoroutine());
         }
 
         // Weather are list of continous square cells for size SIZE.
         public SortedSet<Cell> cells_;
         public const float SIZE = 0.5f;
         public bool enabled_ = false;
-        private float enabledTime_ = 0;
         private const float ENABLE_TIME = 2 * WeatherCellTextures.OPACITY_GRADIENT;
         private const int GENERATE_NUMBER = 60;
+        private const float DISABLE_TIME = WeatherCellTextures.OPACITY_GRADIENT;
         private Vector2 center_;
     }
 
