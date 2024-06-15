@@ -2,8 +2,11 @@
 
 A mini-realisitc mod for Mini Airways.
 
-You can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
-<img src="img/detail.png" width=12.75% height=12.75%> <img src="img/nodetail.png" width=20% height=20%>
+Tips: you can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
+
+<img src="img/detail.png" width=12.75% height=12.75%> 
+
+<img src="img/nodetail.png" width=20% height=20%>
 
 # How to Install
 
@@ -129,8 +132,11 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 这是一个既迷你又真实的迷你空管Mod。
 
-使用`Tab`可以关闭高度、速度、机型和燃料的具体数字。
-<img src="img/detail.png" width=12.75% height=12.75%> <img src="img/nodetail.png" width=20% height=20%>
+温馨提示：使用`Tab`可以关闭高度、速度、机型和燃料的具体数值。
+
+<img src="img/detail.png" width=12.75% height=12.75%> 
+
+<img src="img/nodetail.png" width=20% height=20%>
 
 # 安装
 
