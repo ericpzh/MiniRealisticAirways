@@ -21,7 +21,9 @@ Aircraft and upgrades interact with altitude in the following ways:
 - Departure aircraft will only be able to reach departure (colored) waypoint at normal <img src="img/mid.png" width=2% height=2%> or high <img src="img/high.png" width=2% height=2%> altitude.
 - Landing waypoint will instruct aircraft to reach low <img src="img/low.png" width=2% height=2%> altitude and issue the landing clearance.
 - Terrain (Red) will not affect aircraft in high <img src="img/high.png" width=2% height=2%> altitude. Restricted area (yellow), however, will.
+
 <img src="img/terrain.png" width=20% height=20%>
+
 - When two aircraft are about to crash, TCAS will command one to climb and another to descend when possible.
 - When aircraft is about to crash into terrain (Red), GPWS will command aircraft to climb.
 - Landing aircraft are not commanded by TCAS or GPWS.
@@ -35,6 +37,7 @@ You can control the altitude of the aircraft by:
 Waypoint/take-off waypoint can command aircraft's altitude. You can control the altitude of the waypoint/take-off waypoint by:
 - Press `W` or `Scroll Up` and holding a waypoint will increase its altitude.
 - Press `S` or `Scroll Down` and holding a waypoint will decrease its altitude.
+
 <img src="img/waypoint.png" width=10% height=10%>
 
 # Speed
@@ -56,13 +59,17 @@ You can control the altitude of the aircraft by:
 Waypoint/take-off waypoint can command aircraft's speeds. You can control the altitude of the waypoint/take-off waypoint by:
 - Press `D` or hold `left shift` and `Scroll Up` while holding a waypoint will increase its speed.
 - Press `A` or hold `left shift` and `Scroll Down` while holding a waypoint will decrease its speed.
+
 <img src="img/waypoint.png" width=10% height=10%>
 
 # Aircraft Type
 
 Aircraft will have the following three types: Light<img src="img/light.png" width=5% height=5%>, Medium<img src="img/nodetail.png" width=6.5% height=6.5%>, and Heavy<img src="img/heavy.png" width=6% height=6%>.
+
 <img src="img/apronsize.png" width=20% height=20%>
+
 Each arrival aircraft type carries a different amount of fuel, if fuel runs out and the aircraft is still in the air, the game will end. You can tell their remaining fuel amount by the droplet-shaped fuel gauge located on the top-right of each arrival aircraft. When an aircraft's fuel tank is less than 30%, its fuel gauge will blink.
+
 <img src="img/fuel.png" width=10% height=10%>
 
 Light aircraft have the following behavior:
@@ -85,7 +92,9 @@ Medium aircraft have the following behavior:
 # Wind
 
 Wind can affect aircraft's takeoff / landing performance. When aircraft are landing in a tailwind, the go-around chance increases significantly. When aircraft takes off in a tailwind, the reject takeoff chance increases significantly. Wind direction is displayed as the arrow direction on the top-left corner of the screen. Yes, it used to be just a back button! 
+
 <img src="img/windsock.png" width=20% height=20%>
+
 The reject takeoff / go-around probability has the following behavior:
 - When aircraft are landing with a full tailwind, the go-around probability is very high.
 - When aircraft are taking off with a full tailwind, the reject takeoff probability is very high.
@@ -97,10 +106,15 @@ The reject takeoff / go-around probability has the following behavior:
 
 Sometimes, accidents do happen. These rare events show up on average every 6 days:
 - Aircraft may arrive with emergency fuel, diverted from a nearby airport, and they need to land immediately.
+
 <img src="img/fuel.png" width=20% height=20%>
+
 - Runway excursion happened leading to a runway closure. The runway will be colored red, and all landing aircraft will automatically go around prior to touching down, and aircraft cannot take off from this runway. Note that if the stopped aircraft partially blocked another runway, it effectively closed the other one as well.
+
 <img src="img/runway.png" width=20% height=20%>
+
 - Weather patterns can also show up in some areas, forcing all aircraft to go to high <img src="img/high.png" width=2% height=2%> to avoid bad weather. If an aircraft enters the weather cell, it would count as a restricted area violation.
+
 <img src="img/weather.png" width=20% height=20%>
 
 # Other Changes
@@ -145,6 +159,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 航点、起飞航点可以控制飞机改变高度：
 - 在放置航点时按`W`或滚轮`scroll up`会增加其高度。
 - 在放置航点时按`S`或滚轮`scroll down`会降低其高度。
+
 <img src="img/waypoint.png" width=10% height=10%>
 
 # 速度系统
@@ -163,13 +178,17 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 航点、起飞航点可以控制飞机改变速度：
 - 在放置航点时按`D`或滚轮`scroll up`并按住`left shift`会增加其速度。
 - 在放置航点时按`A`或滚轮`scroll down`并按住`left shift`会降低其速度。
+  
 <img src="img/waypoint.png" width=10% height=10%>
 
 # 机型系统
 
 飞机会属于以下三种机型：轻<img src="img/light.png" width=5% height=5%>、中<img src="img/nodetail.png" width=6.5% height=6.5%>、重<img src="img/heavy.png" width=6% height=6%>。
+
 <img src="img/apronsize.png" width=20% height=20%>
+
 进场飞机会拥有燃油限制，如果燃油耗尽前飞机没有降落的话游戏就会结束。可以通过右上角的水滴图标判断剩余燃料，当剩余燃料不足30%时，此图标会闪烁。
+
 <img src="img/fuel.png" width=10% height=10%>
 
 轻型飞机拥有以下特性:
@@ -189,7 +208,9 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # 风向系统
 
 风向会影响飞机的起降性能。当飞机在顺风中降落时，复飞几率会提高。当飞机在顺风中起飞时，拒绝起飞几率也会提高。你可以在屏幕左上角看见当前风向。
+
 <img src="img/windsock.png" width=20% height=20%>
+
 起飞降落具有以下特性:
 - 当飞机在顺风中着陆时，复飞概率将变得非常高。
 - 当飞机在顺风中起飞时，拒绝起飞概率也变得非常高。
@@ -200,10 +221,15 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # 特殊事件
 以下特殊事件平均每6天发生一次：
 - 一架低油量飞机备降到本场，需要优先安排降落。
+
 <img src="img/fuel.png" width=20% height=20%>
+
 - 跑道因各种原因关闭，此时跑道将变成红色，所有即将降落的飞机都会自动复飞，而且飞机也无法从该跑道起飞。要注意的是停在跑道上的飞机如果部分阻塞了另一条跑道，飞机降落到该跑道也会有碰撞判定。
+
 <img src="img/runway.png" width=20% height=20%>
+
 - 恶劣天气会使经过的飞机飞到高<img src="img/high.png" width=2% height=2%>，飞机进入恶劣天气和飞入禁飞区拥有同样效果。
+
 <img src="img/weather.png" width=20% height=20%>
 
 # 其他特性
