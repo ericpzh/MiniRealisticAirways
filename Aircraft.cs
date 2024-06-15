@@ -54,7 +54,16 @@ namespace MiniRealisticAirways
             aircraft_.ConditionalDestroy();
         }
 
-        void Start()
+        public bool IsAirborne()
+        {
+            if (aircraftAltitude_ == null)
+            {
+                return false;
+            }
+            return aircraftAltitude_.altitude_ > AltitudeLevel.Ground;
+        }
+
+        private void Start()
         {
             if (aircraft_ == null)
             {
@@ -63,16 +72,18 @@ namespace MiniRealisticAirways
 
             StartText(ref altitudeText_,        2f, 0.4f, -3.6f, 5f);
             StartText(ref speedText_,           2f, 2.5f, -3.6f, 5f);
-            StartText(ref altitudeLevelText_, 3.5f, 1.5f, -3.3f, 5f);
+            StartText(ref altitudeLevelText_, 3.5f, 0.2f, -1.3f, 5f);
             StartText(ref speedLevelText_,    3.5f,   4f, -3.3f, 5f);
-            StartText(ref fuelText_,          2.1f, 0.4f,   -4.6f, 5f);
-            StartText(ref weightText_,        2.5f,   3f,   -4.5f, 5f);
-
-            speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
-            speedGauge_.aircraft_ = aircraft_;
+            StartText(ref fuelText_,          2.1f, 0.4f, -4.6f, 5f);
+            StartText(ref weightText_,        2.5f,   3f, -4.5f, 5f);
+            // Hacking on altitue level's text here.
+            altitudeLevelText_.transform.localScale = new Vector3(1.5f,
+                                                                  altitudeLevelText_.transform.localScale.y, 
+                                                                  altitudeLevelText_.transform.localScale.z);
+            altitudeLevelText_.transform.rotation = Quaternion.AngleAxis(270, Vector3.back);
         }
 
-        void Update()
+        private void Update()
         {
             if (aircraft_ == null)
             {
@@ -105,8 +116,7 @@ namespace MiniRealisticAirways
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftAltitude != null && aircraftSpeed != null && aircraftType != null && 
-                aircraftAltitude.altitude_ > AltitudeLevel.Ground)
+            if (aircraftAltitude != null && aircraftSpeed != null && aircraftType != null && IsAirborne())
             {
                 altitudeText_.text = "ALT: ";
                 speedText_.text = "SPD: ";
@@ -129,6 +139,5 @@ namespace MiniRealisticAirways
         private TMP_Text speedLevelText_;
         private TMP_Text fuelText_;
         private TMP_Text weightText_;
-        private AircraftSpeedGauge speedGauge_;
     }
 }

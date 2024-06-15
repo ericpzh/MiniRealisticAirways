@@ -1,4 +1,6 @@
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -13,10 +15,10 @@ namespace MiniRealisticAirways
                 for (int x = 0; x < texture.width; x++)
                 {
                     // Magic of desmos calculator.
-                    Animation.SetPixel((y > 2 && x > y && x - STROKE < y) ||
-                             (y > 2 && -x + (WIDTH - STROKE) < y && -x + (WIDTH - STROKE) > y - STROKE),
-                             x, y, Animation.gaugeColor, ref texture);
-
+                    Animation.SetPixel(
+                        (x > y && x - STROKE < y) ||
+                        (-x + (WIDTH - STROKE) < y && -x + (WIDTH - STROKE) > y - STROKE),
+                        x, y, Animation.gaugeColor, ref texture);
                 }
             }
             texture.Apply();
@@ -27,7 +29,7 @@ namespace MiniRealisticAirways
         {
             Plugin.Log.LogInfo("Pre-rendered gauge texture.");
             texture_ = DrawArrow();
-            rect_ = new Rect(0, 0, WIDTH, HEIGHT - 7);
+            rect_ = new Rect(0, 3, WIDTH, HEIGHT - 15);
         }
 
         public static void DestoryTexture()
@@ -40,55 +42,118 @@ namespace MiniRealisticAirways
         public static Texture2D texture_;
         public const int HEIGHT = 45;
         public const int WIDTH = 90;
-        public const int STROKE = 15;
+        public const int STROKE = 20;
     }
 
-    public static class GaugeLineTexture
+    public abstract class Gauge : MonoBehaviour
     {
-        private static Texture2D DrawLine()
+        public bool Ready()
         {
-            Texture2D texture = new Texture2D(SIZE, SIZE);
-            for (int y = 0; y < texture.height; y++)
+            return spriteRenderers_ != null;
+        }
+
+        public void EnableSpriteRenderer(int count = GAUGE_COUNT)
+        {
+            if (spriteRenderers_ == null)
             {
-                for (int x = 0; x < texture.width; x++)
-                {
-                    // Magic of desmos calculator.
-                    Animation.SetPixel(x < SIZE / 2 && x > SIZE / 2 - STROKE,
-                                       x, y, Animation.gaugeColor, ref texture);
-
-                }
+                return;
             }
-            texture.Apply();
-            return texture;
+
+            for (int i = 0; i < Math.Min(spriteRenderers_.Count, count); i++)
+            {
+                spriteRenderers_[i].enabled = true;
+            }
         }
 
-        public static void PreLoadTexture()
+        public void DisableSpriteRenderer()
         {
-            Plugin.Log.LogInfo("Pre-rendered gauge texture.");
-            texture_ = DrawLine();
-            rect_ = new Rect(0, 0, SIZE, SIZE);
+            if (spriteRenderers_ == null)
+            {
+                return;
+            }
+
+            foreach(SpriteRenderer spriteRenderer in spriteRenderers_)
+            {
+                spriteRenderer.enabled = false;
+            }
         }
 
-        public static void DestoryTexture()
+        protected void Initialize()
         {
-            Plugin.Log.LogInfo("Gauge texture destoried.");
-            Texture2D.Destroy(texture_);
+            gameObjects_ = new List<GameObject>(GAUGE_COUNT);
+            spriteRenderers_ = new List<SpriteRenderer>(GAUGE_COUNT);
+            for(int i = 0; i < GAUGE_COUNT; i++)
+            {
+                GameObject gameObject = new GameObject();
+                SpriteRenderer spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+                spriteRenderer.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
+                spriteRenderer.enabled = false;
 
+                gameObjects_.Add(gameObject);
+                spriteRenderers_.Add(spriteRenderer);
+            }
         }
-        public static Rect rect_;
-        public static Texture2D texture_;
-        public const int SIZE = 90;
-        public const int STROKE = 15;
+
+        protected IEnumerator TransitioningCoroutine(int level, int targetLevel)
+        {
+            if (level == 1 && targetLevel == 2)
+            {
+                return Animation.BlinkCoroutine(spriteRenderers_[1]);
+            }
+            else if (level == 2 && targetLevel == 3)
+            {
+                return Animation.BlinkCoroutine(spriteRenderers_[2]);
+            }
+            else if (level == 3 && targetLevel == 2)
+            {
+                return Animation.BlinkCoroutine(spriteRenderers_[2]);
+            }
+            else if (level == 2 && targetLevel == 1)
+            {
+                return Animation.BlinkCoroutine(spriteRenderers_[1]);
+            }
+            return Animation.BlinkCoroutine(spriteRenderers_[2]);
+        }
+    
+        protected void UpdateGaugeSpriteRenderers(int level)
+        {
+            if (spriteRenderers_ == null || spriteRenderers_.Count < GAUGE_COUNT)
+            {
+                return;
+            }
+
+            for (int i = 0; i < GAUGE_COUNT; i++)
+            {
+                spriteRenderers_[i].enabled = i <= level;
+            }
+        }
+
+        private void OnDestroy()
+        {
+            foreach(SpriteRenderer spriteRenderer_ in spriteRenderers_)
+            {
+                Destroy(spriteRenderer_.sprite);
+            }
+        }
+
+        protected List<GameObject> gameObjects_;
+        protected List<SpriteRenderer> spriteRenderers_;
+        protected const int GAUGE_COUNT = 3;
+        protected const float GAUGE_OFFSET = 0.5f;
     }
 
-    public class Gauge : MonoBehaviour
+    public class AircraftAltitudeGauge : Gauge
     {
-        protected GameObject gameObject_;
-        public SpriteRenderer spriteRenderer_;
-    }
+        public IEnumerator GetTransitioningCoroutine(AltitudeLevel altitude, AltitudeLevel targetAltitude)
+        {
+            return TransitioningCoroutine((int)altitude, (int)targetAltitude);
+        }
 
-    public class AircraftSpeedGauge : Gauge
-    {
+        public void UpdateGauge(AltitudeLevel altitude)
+        {
+            UpdateGaugeSpriteRenderers((int)altitude - 1);
+        }
+
         private void Start()
         {
             if (aircraft_ == null)
@@ -96,69 +161,92 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            gameObject_ = new GameObject();
-            gameObject_.transform.SetParent(aircraft_.transform);
-            spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
-            spriteRenderer_.enabled = false;
-        }
-
-        private void Update()
-        {
-            if (aircraft_ == null)
+            Initialize();
+            for(int i = 0; i < GAUGE_COUNT; i++)
             {
-                Destroy(gameObject);
-                return;
+                gameObjects_[i].transform.SetParent(aircraft_.transform);
+                gameObjects_[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                gameObjects_[i].transform.localPosition = new Vector3(-2.8f, -1.5f + i * GAUGE_OFFSET, -9f);
             }
-
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) 
-            {
-                return;
-            }
-
-            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            if (aircraftSpeed == null || aircraftAltitude == null)
-            {
-                return;
-            }
-
-            float speedDiff = Math.Abs(aircraft_.speed - aircraft_.targetSpeed);
-            bool speedChanged = speedDiff > AircraftSpeed.SPEED_DELTA;
-            spriteRenderer_.enabled = aircraftAltitude.altitude_ > AltitudeLevel.Ground &&
-                                      !(speedChanged && Animation.BlinkLong());
-
-            if(spriteRenderer_.sprite != null)
-            {
-                Destroy(spriteRenderer_.sprite);
-            }
-            switch (aircraftSpeed.GetSpeed())
-            {
-                case SpeedLevel.Slow:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-1.15f, -1.15f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(270, Vector3.back);
-                    return;
-                case SpeedLevel.Normal:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-0.9f, -1.15f, -9f);
-                    gameObject_.transform.rotation = Quaternion.identity;
-                    return;
-                case SpeedLevel.Fast:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(1.15f, 1.15f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
-                    return;
-            }
-        }
-
-        private void OnDestroy()
-        {
-            Destroy(spriteRenderer_.sprite);
         }
 
         public Aircraft aircraft_;
+    }
 
+    public class AircraftSpeedGauge : Gauge
+    {
+        public IEnumerator GetTransitioningCoroutine(SpeedLevel speed, SpeedLevel targetSpeed)
+        {
+            return TransitioningCoroutine((int)speed, (int)targetSpeed);
+        }
+
+        public void UpdateGauge(SpeedLevel speed)
+        {
+            UpdateGaugeSpriteRenderers((int)speed - 1);
+        }
+
+        private void Start()
+        {
+            if (aircraft_ == null)
+            {
+                return;
+            }
+
+            Initialize();
+            for(int i = 0; i < GAUGE_COUNT; i++)
+            {
+                gameObjects_[i].transform.SetParent(aircraft_.transform);
+                gameObjects_[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
+                gameObjects_[i].transform.localPosition = new Vector3(1.5f + i * GAUGE_OFFSET, -0.5f, -9f);
+                gameObjects_[i].transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
+            }
+        }
+
+        public Aircraft aircraft_;
+    }
+
+    public class WaypointAltitudeGauge : Gauge
+    {
+        public void UpdateWaypointAltitudeGauge(AltitudeLevel altitude)
+        {
+            if (waypoint_.Invisible || !(waypoint_ is BaseWaypointAutoHeading))
+            {
+                return;
+            }
+
+            if (waypoint_.GetFieldValue<int>("state") != 2/*PlaceableWaypoint.State.WaitingForPlacing*/)
+            {
+                return;
+            }
+
+            Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            Vector3 waypointPosition = ((Component)waypoint_).transform.position;
+            if (waypointPosition.x != _mousePos.x || waypointPosition.y != _mousePos.y)
+            {
+                return;
+            }
+
+            UpdateGaugeSpriteRenderers((int)altitude - 1);
+        }
+
+        private void Start()
+        {
+            if (waypoint_ == null)
+            {
+                return;
+            }
+
+            Initialize();
+            for(int i = 0; i < GAUGE_COUNT; i++)
+            {
+                gameObjects_[i].transform.SetParent(waypoint_.transform);
+                gameObjects_[i].transform.localScale = new Vector3(1f, 1f, 1f);
+                gameObjects_[i].transform.localPosition = new Vector3(-1.5f, -0.5f + i * GAUGE_OFFSET * 0.5f, -9f);
+            }
+            EnableSpriteRenderer(2);
+        }
+
+        public PlaceableWaypoint waypoint_;
     }
 
     public class WaypointSpeedGauge : Gauge
@@ -177,33 +265,12 @@ namespace MiniRealisticAirways
 
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 waypointPosition = ((Component)waypoint_).transform.position;
-            if (waypointPosition.x != _mousePos.x ||  waypointPosition.y != _mousePos.y)
+            if (waypointPosition.x != _mousePos.x || waypointPosition.y != _mousePos.y)
             {
                 return;
             }
 
-            if(spriteRenderer_.sprite != null)
-            {
-                Destroy(spriteRenderer_.sprite);
-            }
-            switch (speed)
-            {
-                case SpeedLevel.Slow:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-0.68f, -0.73f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(270, Vector3.back);
-                    return;
-                case SpeedLevel.Normal:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-0.605f, -0.785f, -9f);
-                    gameObject_.transform.rotation = Quaternion.identity;
-                    return;
-                case SpeedLevel.Fast:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(0.6f, 0.75f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
-                    return;
-            }
+            UpdateGaugeSpriteRenderers((int)speed - 1);
         }
 
         private void Start()
@@ -213,138 +280,15 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            gameObject_ = new GameObject();
-            gameObject_.transform.SetParent(waypoint_.transform);
-            gameObject_.transform.localScale = new Vector3(1.5f, 1.5f, 1f);
-            spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
-            spriteRenderer_.enabled = true;
-        }
-
-        private void OnDestroy()
-        {
-            Destroy(spriteRenderer_.sprite);
-        }
-
-        public PlaceableWaypoint waypoint_;
-    }
-
-    public class AircraftAltitudeGauge : Gauge
-    {
-        public void UpdateGauge(AltitudeLevel altitude)
-        {
-            if (spriteRenderer_ == null)
+            Initialize();
+            for(int i = 0; i < GAUGE_COUNT; i++)
             {
-                return;
+                gameObjects_[i].transform.SetParent(waypoint_.transform);
+                gameObjects_[i].transform.localScale = new Vector3(1f, 1f, 1f);
+                gameObjects_[i].transform.localPosition = new Vector3(0.8f + i * GAUGE_OFFSET * 0.5f, 0.45f, -9f);
+                gameObjects_[i].transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
             }
-
-            if(spriteRenderer_.sprite != null)
-            {
-                Destroy(spriteRenderer_.sprite);
-            }
-
-            switch (altitude)
-            {
-                case AltitudeLevel.Low:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(1.15f, -1.1f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(180, Vector3.back);
-                    return;
-                case AltitudeLevel.Normal:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-1.15f, 1f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
-                    return;
-                case AltitudeLevel.High:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-1.15f, 1.25f, -9f);
-                    gameObject_.transform.rotation = Quaternion.identity;
-                    return;
-            }
-        }
-
-        private void Start()
-        {
-            if (aircraft_ == null)
-            {
-                return;
-            }
-
-            gameObject_ = new GameObject();
-            gameObject_.transform.SetParent(aircraft_.transform);
-            spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
-            spriteRenderer_.enabled = false;
-        }
-
-        private void OnDestroy()
-        {
-            Destroy(spriteRenderer_.sprite);
-        }
-
-        public Aircraft aircraft_;
-    }
-
-    public class WaypointAltitudeGauge : Gauge
-    {
-        public void UpdateWaypointAltitudeGauge(AltitudeLevel altitude)
-        {
-            if (waypoint_.Invisible || !(waypoint_ is BaseWaypointAutoHeading))
-            {
-                return;
-            }
-
-            if (waypoint_.GetFieldValue<int>("state") != 2 /*PlaceableWaypoint.State.WaitingForPlacing*/)
-            {
-                return;
-            }
-
-            Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 waypointPosition = ((Component)waypoint_).transform.position;
-            if (waypointPosition.x != _mousePos.x ||  waypointPosition.y != _mousePos.y)
-            {
-                return;
-            }
-
-            if(spriteRenderer_.sprite != null)
-            {
-                Destroy(spriteRenderer_.sprite);
-            }
-            switch (altitude)
-            {
-                case AltitudeLevel.Low:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(0.72f, -0.73f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(180, Vector3.back);
-                    return;
-                case AltitudeLevel.Normal:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeLineTexture.texture_, GaugeLineTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-0.725f, 0.63f, -9f);
-                    gameObject_.transform.rotation = Quaternion.AngleAxis(90, Vector3.back);
-                    return;
-                case AltitudeLevel.High:
-                    spriteRenderer_.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
-                    gameObject_.transform.localPosition = new Vector3(-0.69f, 0.68f, -9f);
-                    gameObject_.transform.rotation = Quaternion.identity;
-                    return;
-            }
-        }
-
-        private void Start()
-        {
-            if (waypoint_ == null)
-            {
-                return;
-            }
-
-            gameObject_ = new GameObject();
-            gameObject_.transform.SetParent(waypoint_.transform);
-            gameObject_.transform.localScale = new Vector3(1.5f, 1.5f, 1f);
-            spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
-            spriteRenderer_.enabled = true;
-        }
-
-        private void OnDestroy()
-        {
-            Destroy(spriteRenderer_.sprite);
+            EnableSpriteRenderer(2);
         }
 
         public PlaceableWaypoint waypoint_;

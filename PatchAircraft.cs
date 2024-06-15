@@ -312,6 +312,20 @@ namespace MiniRealisticAirways
             WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
             if (aircraftSpeed != null && waypointSpeed != null)
             {
+
+                float maxSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()), 
+                                          Speed.ToGameSpeed(waypointSpeed.speed_));
+                while (Speed.ToModSpeed(__instance.targetSpeed) < Speed.ToModSpeed(maxSpeed))
+                {
+                    aircraftSpeed.AircraftSpeedUp();
+                }
+
+                while (Speed.ToModSpeed(__instance.targetSpeed) > waypointSpeed.speed_)
+                {
+                    aircraftSpeed.AircraftSlowDown();
+                }
+                
+
                 __instance.targetSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
                                                   Speed.ToGameSpeed(waypointSpeed.speed_));
             }
@@ -442,10 +456,13 @@ namespace MiniRealisticAirways
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
 
-            // Auto slow down for aircraft to land.
-            while (!aircraftSpeed.CanLand(aircraftType.weight_))
+            // Auto slow down for aircraft to land when altitude is right.
+            if (aircraftAltitude.CanLand())
             {
-                aircraftSpeed.AircraftSlowDown();
+                while (!aircraftSpeed.CanLand(aircraftType.weight_))
+                {
+                    aircraftSpeed.AircraftSlowDown();
+                }
             }
 
             if (!aircraftAltitude.CanLand() || !aircraftSpeed.CanLand(aircraftType.weight_))

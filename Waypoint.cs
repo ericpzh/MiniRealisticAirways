@@ -31,7 +31,7 @@ namespace MiniRealisticAirways
         {
             if (waypoint_ == null) return;
 
-            StartText(ref altitudeText_, 1f, -2f, 5);
+            StartText(ref altitudeText_, 0.7f, -2f, 5);
             StartText(ref speedText_, 2.75f, -2f, 5);
         }
 

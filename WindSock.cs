@@ -65,10 +65,10 @@ namespace MiniRealisticAirways
             switch (weight)
             {
                 case Weight.Light:
-                    f += 0.2f;
+                    f += 0.1f;
                     break;
                 case Weight.Medium:
-                    f += 0.1f;
+                    f += 0.05f;
                     break;
                 case Weight.Heavy:
                     break;
@@ -88,7 +88,32 @@ namespace MiniRealisticAirways
             return WIND_RANDOM_BASE * windShiftDirection + randomOffset;
         }
 
-        private void UpdateWindText()
+        private IEnumerator UpdateWindCoroutine()
+        {
+            float updateTime = WIND_BASE_TIME + RandomUniform(WIND_RANDOM_TIME_OFFSET_LIMIT);
+            float timeGradient = updateTime / UPDATE_COUNT;
+            float windGradient = RandomDirection() / UPDATE_COUNT;
+            Plugin.Log.LogInfo("Wind updated towards " + windGradient);
+
+            for (int i = 0; i < UPDATE_COUNT; i++)
+            {
+                windDirection_ += windGradient;
+                CorrectWindDirection();
+
+                windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_ - 90, Vector3.back);
+                yield return new WaitForSeconds(timeGradient);
+            }
+
+            yield return UpdateWindCoroutine();
+        }
+
+        private void Start()
+        {
+            windDirection_ = UnityEngine.Random.value * 360f;
+            StartCoroutine(UpdateWindCoroutine());
+        }
+
+        private void Update()
         {
             if (text_ == null || textGameObject_ == null)
             {
@@ -105,32 +130,6 @@ namespace MiniRealisticAirways
             float width = height * Camera.main.aspect;
             textGameObject_.transform.localPosition = new Vector3(-width / 2f + 3f, height / 2f - 1.5f, 0f);
             text_.text = ToString();
-        }
-
-        private IEnumerator UpdateWindCoroutine()
-        {
-            float updateTime = WIND_BASE_TIME + RandomUniform(WIND_RANDOM_TIME_OFFSET_LIMIT);
-            float timeGradient = updateTime / UPDATE_COUNT;
-            float windGradient = RandomDirection() / UPDATE_COUNT;
-            Plugin.Log.LogInfo("Wind updated towards " + windGradient);
-
-            for (int i = 0; i < UPDATE_COUNT; i++)
-            {
-                windDirection_ += windGradient;
-                CorrectWindDirection();
-
-                windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_ - 90, Vector3.back);
-                UpdateWindText();
-                yield return new WaitForSeconds(timeGradient);
-            }
-
-            yield return UpdateWindCoroutine();
-        }
-
-        private void Start()
-        {
-            windDirection_ = UnityEngine.Random.value * 360f;
-            StartCoroutine(UpdateWindCoroutine());
         }
 
         public GameObject windsock_;

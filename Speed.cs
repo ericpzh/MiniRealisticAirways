@@ -1,4 +1,5 @@
 using System;
+using System.Collections;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -54,11 +55,11 @@ namespace MiniRealisticAirways
             switch(speed)
             {
                 case SpeedLevel.Slow:
-                    return "<";
-                case SpeedLevel.Normal:
-                    return "|";
-                case SpeedLevel.Fast:
                     return ">";
+                case SpeedLevel.Normal:
+                    return ">>";
+                case SpeedLevel.Fast:
+                    return ">>>";
             }
             return "";
         }
@@ -110,7 +111,12 @@ namespace MiniRealisticAirways
 
             if (aircraft_.targetSpeed < ToGameSpeed(MaxSpeed()))
             {
-                aircraft_.targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) + 1);
+                float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) + 1);
+                aircraft_.targetSpeed = targetSpeed;
+                if (!transitioning_)
+                {
+                    StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
+                }
             }
         }
 
@@ -118,15 +124,18 @@ namespace MiniRealisticAirways
         {
             if (aircraft_.targetSpeed > ToGameSpeed(SpeedLevel.Slow))
             {
-                aircraft_.targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
+                float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
+                aircraft_.targetSpeed = targetSpeed;
+                if (!transitioning_)
+                {
+                    StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
+                }
             }
         }
 
         override public string ToString()
         {
-            float SpeedDiff = Math.Abs(aircraft_.speed - aircraft_.targetSpeed);
-            if (SpeedDiff > SPEED_DELTA && 
-                Animation.Blink())
+            if (InTransition(aircraft_.targetSpeed) && Animation.Blink())
             {
                 // Trainsitional blink.
                 return " ";
@@ -140,7 +149,57 @@ namespace MiniRealisticAirways
             return ToModSpeed(aircraft_.speed); 
         }
 
-        void Start()
+        private bool InTransition(float targetSpeed)
+        {
+            float SpeedDiff = Math.Abs(aircraft_.speed - targetSpeed);
+            return SpeedDiff > SPEED_DELTA;
+        }
+
+        private IEnumerator SpeedTransitionCoroutine(float targetSpeed)
+        {
+            transitioning_ = true;
+
+            while (!speedGauge_.Ready())
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            IEnumerator blinkCoroutine = speedGauge_.GetTransitioningCoroutine(
+                ToModSpeed(aircraft_.speed), ToModSpeed(targetSpeed));
+            StartCoroutine(blinkCoroutine);
+
+            while (InTransition(targetSpeed))
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            StopCoroutine(blinkCoroutine);
+
+            speedGauge_.UpdateGauge(ToModSpeed(aircraft_.speed));
+
+            if (Math.Abs(aircraft_.targetSpeed - aircraft_.speed) > SPEED_DELTA)
+            {
+                yield return SpeedTransitionCoroutine(aircraft_.targetSpeed);
+            }
+            else
+            {
+                transitioning_ = false;
+            }
+        }
+
+        private IEnumerator EnableSpeedGauge()
+        {
+            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
+            while (!speedGauge_.Ready() || aircraftState == null || !aircraftState.IsAirborne())
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            // All aircraft start with normal speed level.
+            speedGauge_.UpdateGauge(SpeedLevel.Normal);
+        }
+
+        private void Start()
         {
             if (aircraft_ == null)
             {
@@ -148,16 +207,21 @@ namespace MiniRealisticAirways
             }
 
             // Initialize speed.
-            aircraft_.TakeOffSpeedFactor = Speed.ToGameSpeed(SpeedLevel.Normal);
+            aircraft_.TakeOffSpeedFactor = ToGameSpeed(SpeedLevel.Normal);
 
             if (aircraft_.direction == Aircraft.Direction.Outbound)
             {
-                aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
+                aircraft_.targetSpeed = ToGameSpeed(SpeedLevel.Normal);
             }
             if (aircraft_.direction == Aircraft.Direction.Inbound)
             {
-                aircraft_.targetSpeed = Speed.ToGameSpeed(SpeedLevel.Normal);
+                aircraft_.targetSpeed = ToGameSpeed(SpeedLevel.Normal);
             }
+
+            speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
+            speedGauge_.aircraft_ = aircraft_;
+
+            StartCoroutine(EnableSpeedGauge());
         }
 
         private void Update()
@@ -183,6 +247,8 @@ namespace MiniRealisticAirways
         }
 
         public Aircraft aircraft_;
+        private AircraftSpeedGauge speedGauge_;
+        private bool transitioning_ = false;
     }
 
     public class WaypointSpeed : Speed
@@ -197,11 +263,13 @@ namespace MiniRealisticAirways
         {
             speed_ = SpeedLevel.Normal;
 
-            if (waypoint_ != null)
+            if (waypoint_ == null || waypoint_.Invisible || !(waypoint_ is BaseWaypointAutoHeading))
             {
-                speedGauge_ = waypoint_.gameObject.AddComponent<WaypointSpeedGauge>();
-                speedGauge_.waypoint_ = waypoint_;
+                return;
             }
+
+            speedGauge_ = waypoint_.gameObject.AddComponent<WaypointSpeedGauge>();
+            speedGauge_.waypoint_ = waypoint_;
         }
 
         private void Update()
@@ -214,7 +282,7 @@ namespace MiniRealisticAirways
 
             // Waypoint would hard follow mouse position when placed.
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 waypointPosition = ((Component)waypoint_).transform.position;
+            Vector3 waypointPosition = waypoint_.transform.position;
             if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
             {
                 if (speed_ > SpeedLevel.Slow && InputSlowDown())

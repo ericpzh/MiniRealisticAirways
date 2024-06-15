@@ -185,7 +185,7 @@ namespace MiniRealisticAirways
             StartCoroutine(GenerateWeatherCoroutine());
         }
 
-        // Weather are list of continous square cells for size SIZE.
+        // Weather are list of continous square cells of SIZE.
         public SortedSet<Cell> cells_;
         public const float SIZE = 0.5f;
         public bool enabled_ = false;

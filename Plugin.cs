@@ -46,7 +46,6 @@ namespace MiniRealisticAirways
                 // Pre-load textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
                 GaugeArrowTexture.PreLoadTexture();
-                GaugeLineTexture.PreLoadTexture();
                 WeatherCellTextures.PreLoadTextures();
 
                 // Our windsock.
@@ -68,7 +67,6 @@ namespace MiniRealisticAirways
         {
             FuelGaugeTextures.DestoryTextures();
             GaugeArrowTexture.DestoryTexture();
-            GaugeLineTexture.DestoryTexture();
             WeatherCellTextures.DestoryTextures();
         }
 

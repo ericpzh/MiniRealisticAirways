@@ -25,11 +25,11 @@ namespace MiniRealisticAirways
             switch(altitude)
             {
                 case AltitudeLevel.Low:
-                    return "v";
+                    return ">";
                 case AltitudeLevel.Normal:
-                    return "—";
+                    return ">>";
                 case AltitudeLevel.High:
-                    return "^";
+                    return ">>>";
             }
             return "";
         }
@@ -67,31 +67,32 @@ namespace MiniRealisticAirways
 
         private IEnumerator EnableAltitudeGauge(AltitudeLevel altitude)
         {
-            while (altitudeGauge_.spriteRenderer_ == null)
+            while (!altitudeGauge_.Ready())
             {
                 yield return new WaitForFixedUpdate();
             }
-            altitudeGauge_.spriteRenderer_.enabled = true;
             altitudeGauge_.UpdateGauge(altitude);
-            blinkCoroutine_ = Animation.BlinkCoroutine(altitudeGauge_.spriteRenderer_);
         }
 
         private IEnumerator AltitudeTransitionCoroutine(AltitudeLevel targetAltitude)
         {
-            while (altitudeGauge_.spriteRenderer_ == null)
+            while (!altitudeGauge_.Ready())
             {
                 yield return new WaitForFixedUpdate();
             }
 
+            blinkCoroutine_ = altitudeGauge_.GetTransitioningCoroutine(altitude_, targetAltitude);
             StartCoroutine(blinkCoroutine_);
+
             yield return new WaitForSeconds(TRANSITION_TIME);
+
             altitude_ = targetAltitude;
             tcasAction_ = TCASAction.None;
 
-            altitudeGauge_.UpdateGauge(altitude_);
-
             StopCoroutine(blinkCoroutine_);
-            altitudeGauge_.spriteRenderer_.enabled = true;
+            blinkCoroutine_ = null;
+
+            altitudeGauge_.UpdateGauge(altitude_);
 
             if (altitude_ != targetAltitude_)
             {
@@ -208,12 +209,16 @@ namespace MiniRealisticAirways
             }
             isEmergencyTransitioning_ = true;
 
+            // Stop current corutines.
             if (transitioningCoroutine_ != null)
             {
-                // Stop current corutine.
-                StopCoroutine(blinkCoroutine_);
                 StopCoroutine(transitioningCoroutine_);
             }
+            if (blinkCoroutine_ != null)
+            {
+                StopCoroutine(blinkCoroutine_);
+            }
+
             transitioningCoroutine_ = AltitudeTransitionCoroutine(targetAltitude_);
             StartCoroutine(transitioningCoroutine_);
         }
@@ -233,10 +238,7 @@ namespace MiniRealisticAirways
             {
                 altitude_ = AltitudeLevel.Ground;
                 targetAltitude_ = AltitudeLevel.Ground;
-                if (altitudeGauge_.spriteRenderer_ != null)
-                {
-                    altitudeGauge_.spriteRenderer_.enabled = false;
-                }
+                altitudeGauge_.DisableSpriteRenderer();
             }
         }
 
@@ -262,7 +264,7 @@ namespace MiniRealisticAirways
         {
             altitude_ = AltitudeLevel.Normal;
 
-            if (waypoint_ == null)
+            if (waypoint_ == null || waypoint_.Invisible || !(waypoint_ is BaseWaypointAutoHeading))
             {
                 return;
             }
@@ -278,9 +280,10 @@ namespace MiniRealisticAirways
                 Destroy(gameObject);
                 return;
             }
+
             // Waypoint would hard follow mouse position when placed.
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            Vector3 waypointPosition = ((Component)waypoint_).transform.position;
+            Vector3 waypointPosition = waypoint_.transform.position;
             if (waypointPosition.x == _mousePos.x &&  waypointPosition.y == _mousePos.y)
             {
                 if (altitude_ < AltitudeLevel.High && InputClimb())

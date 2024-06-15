@@ -79,17 +79,20 @@ namespace MiniRealisticAirways
             float fuelOutTime = GetFuelTime();
             for (percentFuelLeft_ = 99; percentFuelLeft_ >= 0; percentFuelLeft_--)
             {
-                if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT && blinkCoroutine == null)
+                if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT && blinkCoroutine == null && fuelGauge_.spriteRenderer_ != null)
                 {
                     // Blink when fuel is slow.
                     blinkCoroutine = Animation.BlinkCoroutine(fuelGauge_.spriteRenderer_);
                     StartCoroutine(blinkCoroutine);
                 }
 
-                if (percentFuelLeft_ == LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null)
+                if (percentFuelLeft_ == LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null && fuelGauge_.spriteRenderer_ != null)
                 {
                     // Blink faster when fuel is super low.
-                    StopCoroutine(blinkCoroutine);
+                    if (blinkCoroutine != null)
+                    {
+                        StopCoroutine(blinkCoroutine);
+                    }
                     blinkCoroutine = Animation.BlinkFastCoroutine(fuelGauge_.spriteRenderer_);
                     StartCoroutine(blinkCoroutine);
                 }
