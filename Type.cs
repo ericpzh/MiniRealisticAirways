@@ -75,9 +75,9 @@ namespace MiniRealisticAirways
             fuelGauge_.aircraft_ = aircraft_;
 
             IEnumerator blinkCoroutine = null;
-
+            IEnumerator emergencyCoroutine = null;
             float fuelOutTime = GetFuelTime();
-            for (percentFuelLeft_ = 99; percentFuelLeft_ >= 0; percentFuelLeft_--)
+            for (; percentFuelLeft_ >= 0; percentFuelLeft_--)
             {
                 if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT && blinkCoroutine == null && fuelGauge_.spriteRenderer_ != null)
                 {
@@ -86,7 +86,7 @@ namespace MiniRealisticAirways
                     StartCoroutine(blinkCoroutine);
                 }
 
-                if (percentFuelLeft_ == LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null && fuelGauge_.spriteRenderer_ != null)
+                if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null && emergencyCoroutine == null && fuelGauge_.spriteRenderer_ != null)
                 {
                     // Blink faster when fuel is super low.
                     if (blinkCoroutine != null)
@@ -95,6 +95,9 @@ namespace MiniRealisticAirways
                     }
                     blinkCoroutine = Animation.BlinkFastCoroutine(fuelGauge_.spriteRenderer_);
                     StartCoroutine(blinkCoroutine);
+                    // fuelGauge_.spriteRenderer_.enabled = false;
+                    emergencyCoroutine = EmergencyCoroutine(aircraft_);
+                    StartCoroutine(emergencyCoroutine);
                 }
 
                 if (percentFuelLeft_ % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0 && 
@@ -103,7 +106,7 @@ namespace MiniRealisticAirways
                     // Re-render fuel gauge to update the fuel amount.
                     Destroy(fuelGauge_.spriteRenderer_.sprite);
                     fuelGauge_.spriteRenderer_.sprite = Sprite.Create(FuelGaugeTextures.fuelTextures_[percentFuelLeft_],
-                                                                        FuelGaugeTextures.rect_, Vector2.zero);
+                                                                      FuelGaugeTextures.rect_, Vector2.zero);
                 }
 
                 yield return new WaitForSeconds(fuelOutTime / 100f);
@@ -115,6 +118,11 @@ namespace MiniRealisticAirways
                 fuelGauge_.spriteRenderer_.enabled = true;
             }
 
+            if (emergencyCoroutine != null)
+            {
+                StopCoroutine(emergencyCoroutine);
+            }
+
             if (!IsTouchedDown())
             {
                 // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
@@ -123,6 +131,15 @@ namespace MiniRealisticAirways
                 // AircraftTerrainGameOver.Invoke(__instance, new object[] { __instance });
                 LevelManager.Instance.CrashGameOver(aircraft_, null);
             }
+        }
+
+        public IEnumerator DisableFuelGaugeCoroutine()
+        {
+            while (fuelGauge_.spriteRenderer_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            fuelGauge_.spriteRenderer_.enabled = false;
         }
 
         public void PatchTurnSpeed()
@@ -175,10 +192,28 @@ namespace MiniRealisticAirways
                     } 
                     else 
                     {
-                        return 1.5f;
+                        return 1.7f;
                     }
             }
             return 1f;
+        }
+
+        private IEnumerator EmergencyCoroutine(Aircraft aircraft)
+        {
+            Color originalAPColor = aircraft.AP.GetComponent<Renderer>().material.color;
+            Color originalPanelColor = aircraft.Panel.GetComponent<Renderer>().material.color;
+            aircraft.callsignStatText.gameObject.SetActive(value: true);
+            aircraft.callsignStatText.text = "EM";
+            aircraft.callsignStatText.color = Color.red;
+            while (true)
+            {
+                aircraft.AP.GetComponent<Renderer>().material.color = Color.red;
+                aircraft.Panel.GetComponent<Renderer>().material.color = Color.red;
+                yield return new WaitForSecondsRealtime(0.2f);
+                aircraft.AP.GetComponent<Renderer>().material.color = originalAPColor;
+                aircraft.Panel.GetComponent<Renderer>().material.color = originalPanelColor;
+                yield return new WaitForSecondsRealtime(0.2f);
+            }
         }
 
         private float TakeoffLandingProgress()
@@ -258,7 +293,7 @@ namespace MiniRealisticAirways
 
         public string GetFuelString()
         {
-            if (percentFuelLeft_ >= 0)
+            if (percentFuelLeft_ > 0)
             {
                 return "Fuel: " + percentFuelLeft_ + "%";
             }
@@ -292,7 +327,7 @@ namespace MiniRealisticAirways
         public const float LIGHT_TURN_FACTOR = 1.5f;
         public float takeoffLandingStartTime_ = 0;
         public int percentFuelLeft_ = -1;
-        public const int LOW_FUEL_WARNING_PERCENT = 30;
+        public const int LOW_FUEL_WARNING_PERCENT = 40;
         private FuelGauge fuelGauge_;
         private const float ON_GROUND_THRES = 0.5f;
         private const float INIT_TAKEOFF_SCALE = 0.57f;

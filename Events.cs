@@ -1,6 +1,8 @@
+using DG.Tweening;
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 
 namespace MiniRealisticAirways
@@ -174,6 +176,192 @@ namespace MiniRealisticAirways
         Weather weather_;
     }
 
+    public class EngineOut : Event
+    {
+        public override bool Trigger()
+        {
+            Aircraft aircraft = null;
+            foreach (Aircraft aircraft_ in AircraftManager.GetOutboundAircraft())
+            {
+                if (aircraft_.state == Aircraft.State.TakingOff)
+                {
+                    aircraft = aircraft_;
+                    break;
+                }
+            }
+
+            if (aircraft == null)
+            {
+                return false;
+            }
+
+            StartCoroutine(EngineOutCoroutine(aircraft));
+
+            return true;
+        }
+
+        private IEnumerator EngineOutCoroutine(Aircraft aircraft)
+        {
+            InitCallSign();
+
+            while(aircraft == null || aircraft.state == Aircraft.State.TakingOff)
+            {
+                yield return new WaitForSeconds(1f);
+            }
+
+            yield return new WaitForSeconds(
+                RANDOM_BASE_TIME + 2 * RANDOM_TIME_OFFSET_LIMIT * UnityEngine.Random.value - RANDOM_TIME_OFFSET_LIMIT);
+
+            // Recored original state and disable aircraft update.
+            while (aircraft.GetComponent<AircraftState>() == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
+
+            // Record altitude.
+            while (aircraftState.aircraftAltitude_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
+            aircraftAltitude.tcasAction_ = TCASAction.Disabled;
+            aircraftAltitude.altitudeDisabled_ = true;
+
+            // Record speed.
+            while (aircraftState.aircraftSpeed_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+            aircraftSpeed.speedDisabled_ = true;
+
+            // Record type.
+            while (aircraftState.aircraftType_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            AircraftType aircraftType = aircraftState.aircraftType_;
+
+            // Start event.
+            ShowCallSign(aircraft);
+            yield return TextDisplayCoroutine(aircraft, "Mayday, Mayday, Mayday!", 3f, 2f);
+            yield return TextDisplayCoroutine(aircraft, callSign_ + ". We have one engine failure.", 5f, 3f);
+            yield return TextDisplayCoroutine(aircraft, "We need to return to the field immediately.", 5f, 3f);
+
+            // Record all information before destory.
+            Vector3 position = aircraft.AP.transform.position;
+            float heading = aircraft.heading;
+            AltitudeLevel altitude = aircraftAltitude.altitude_;
+            AltitudeLevel targetAltitude = aircraftAltitude.targetAltitude_;
+            float speed = aircraft.speed;
+            float targetSpeed = aircraft.targetSpeed;
+            Weight weight = aircraftType.weight_;
+
+            // Swap.
+            aircraft.ConditionalDestroy();
+            aircraft = AircraftManager.Instance.CreateInboundAircraft(position, heading);
+
+            while (aircraft.GetComponent<AircraftState>() == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            aircraftState = aircraft.GetComponent<AircraftState>();
+            
+            // Copy altitude over.
+            while (aircraftState.aircraftAltitude_ == null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            aircraftAltitude = aircraftState.aircraftAltitude_;
+            aircraftAltitude.altitude_ = altitude;
+            aircraftAltitude.targetAltitude_ = targetAltitude;
+            aircraftAltitude.tcasAction_ = TCASAction.Disabled;
+            if (aircraftAltitude.enableAltitudeGaugeCoroutine_ != null)
+            {
+                StopCoroutine(aircraftAltitude.enableAltitudeGaugeCoroutine_);
+            }
+            aircraftAltitude.enableAltitudeGaugeCoroutine_ = aircraftAltitude.EnableAltitudeGauge(aircraftAltitude.altitude_);
+            StartCoroutine(aircraftAltitude.enableAltitudeGaugeCoroutine_);
+
+            // Copy speed over.
+            while (aircraftState.aircraftSpeed_== null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            aircraftSpeed = aircraftState.aircraftSpeed_;
+            aircraft.speed = speed;
+            aircraft.targetSpeed = targetSpeed;
+            if (aircraftSpeed.enableSpeedGaugeCoroutine_ != null)
+            {
+                StopCoroutine(aircraftSpeed.enableSpeedGaugeCoroutine_);
+            }
+            aircraftSpeed.enableSpeedGaugeCoroutine_ = aircraftSpeed.EnableSpeedGauge(Speed.ToModSpeed(aircraft.speed));
+            StartCoroutine(aircraftSpeed.enableSpeedGaugeCoroutine_);
+
+            // Copy type over.
+            while (aircraftState.aircraftType_== null)
+            {
+                yield return new WaitForFixedUpdate();
+            }
+            aircraftType = aircraftState.aircraftType_;
+            aircraftType.weight_ = weight;
+            aircraftType.percentFuelLeft_ = AircraftType.LOW_FUEL_WARNING_PERCENT / 2;
+            StartCoroutine(aircraftType.DisableFuelGaugeCoroutine());
+
+            ShowCallSign(aircraft);
+        }
+
+        private void ShowCallSign(Aircraft aircraft)
+        {
+            if (aircraft.callsignText != null)
+            {
+                aircraft.ShowCallSign(true);
+                aircraft.callsignText.text = callSign_;
+            }
+        }
+
+        private IEnumerator TextDisplayCoroutine(Aircraft aircraft, string text, float dialogueLength, float disappearTime)
+        {
+            // Setup text.
+            GameObject obj = Instantiate(new GameObject("Text"));
+            obj.transform.SetParent(aircraft.transform);
+            obj.transform.localPosition = new Vector3(0f, 2f, -9f);
+            TMP_Text dialogue = obj.AddComponent<TextMeshPro>();
+            dialogue.fontSize = 4f;
+            dialogue.horizontalAlignment = HorizontalAlignmentOptions.Center;
+            dialogue.verticalAlignment = VerticalAlignmentOptions.Top;
+            dialogue.rectTransform.sizeDelta = new Vector2(10, 1);
+
+            // Start playing.
+            dialogue.gameObject.SetActive(value: true);
+            dialogue.text = "";
+            dialogue.color = Color.white;
+            int textLength = text.Length;
+            float timePassed = 0f;
+            while (timePassed < dialogueLength)
+            {
+                dialogue.text = text.Substring(0, (int)((float)textLength * (timePassed / dialogueLength)));
+                timePassed += Time.unscaledDeltaTime * 1.75f;
+                yield return null;
+            }
+            dialogue.text = text;
+            yield return new WaitForSeconds(disappearTime);
+            dialogue.DOFade(0f, 1f).SetUpdate(isIndependentUpdate: true);
+            yield return new WaitForSeconds(1f);
+            dialogue.gameObject.SetActive(value: false);
+        }
+
+        private void InitCallSign()
+        {
+            callSign_ = "CA" + UnityEngine.Random.Range(1000, 9999);
+        }
+
+        private string callSign_ = "CA3115";
+        private const float RANDOM_BASE_TIME = 15f;
+        private const float RANDOM_TIME_OFFSET_LIMIT = 5f;
+    }
+
     public class EventManager : MonoBehaviour
     {
 
@@ -197,7 +385,8 @@ namespace MiniRealisticAirways
 
         private void Start()
         {
-            events_ = new List<Event>{new RunwayClose(), new LowFuelArrival(), new BadWeather()};
+            EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
+            events_ = new List<Event>{engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather()};
             Utils.Shuffle(ref events_);
 
             StartCoroutine(StartEventCoroutine());

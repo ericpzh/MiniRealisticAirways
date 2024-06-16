@@ -15,7 +15,8 @@ namespace MiniRealisticAirways
     {
         None,
         Climb,
-        Desend
+        Desend,
+        Disabled,
     }
 
     public class Altitude : MonoBehaviour
@@ -65,7 +66,7 @@ namespace MiniRealisticAirways
             return targetAltitude_ <= AltitudeLevel.Low;
         }
 
-        private IEnumerator EnableAltitudeGauge(AltitudeLevel altitude)
+        public IEnumerator EnableAltitudeGauge(AltitudeLevel altitude)
         {
             while (!altitudeGauge_.Ready())
             {
@@ -87,7 +88,10 @@ namespace MiniRealisticAirways
             yield return new WaitForSeconds(TRANSITION_TIME);
 
             altitude_ = targetAltitude;
-            tcasAction_ = TCASAction.None;
+            if (tcasAction_ != TCASAction.Disabled)
+            {
+                tcasAction_ = TCASAction.None;
+            }
 
             StopCoroutine(blinkCoroutine_);
             blinkCoroutine_ = null;
@@ -108,40 +112,71 @@ namespace MiniRealisticAirways
 
         public void AircraftClimb()
         {
-            if (targetAltitude_ < AltitudeLevel.High)
+            if (altitudeDisabled_)
             {
-                targetAltitude_ ++;
-                AltitudeTransition();
+                return;
             }
+
+            if (targetAltitude_ >= AltitudeLevel.High)
+            {
+                return;
+            }
+
+            targetAltitude_ ++;
+            AltitudeTransition();
         }
 
         public void AircraftDesend()
         {
-            if (targetAltitude_ > AltitudeLevel.Low)
+            if (altitudeDisabled_)
             {
-                targetAltitude_ --;
-                AltitudeTransition();
+                return;
             }
+
+            if (targetAltitude_ <= AltitudeLevel.Low)
+            {
+                return;
+            }
+
+            targetAltitude_ --;
+            AltitudeTransition();
         }
 
         public void EmergencyClimb()
         {
-            tcasAction_ = TCASAction.Climb;
-            if (targetAltitude_ < AltitudeLevel.High)
+            if (altitudeDisabled_)
             {
-                targetAltitude_ ++;
-                EmergencyAltitudeTransition();
+                return;
             }
+
+            
+            tcasAction_ = TCASAction.Climb;
+
+            if (targetAltitude_ >= AltitudeLevel.High)
+            {
+                return;
+            }
+
+            targetAltitude_ ++;
+            EmergencyAltitudeTransition();
         }
 
         public void EmergencyDesend()
         {
-            tcasAction_ = TCASAction.Desend;
-            if (targetAltitude_ > AltitudeLevel.Low)
+            if (altitudeDisabled_)
             {
-                targetAltitude_ --;
-                EmergencyAltitudeTransition();
+                return;
             }
+
+            tcasAction_ = TCASAction.Desend;
+
+            if (targetAltitude_ <= AltitudeLevel.Low)
+            {
+                return;
+            }
+
+            targetAltitude_ --;
+            EmergencyAltitudeTransition();
         }
 
         private void Start()
@@ -164,7 +199,6 @@ namespace MiniRealisticAirways
             {
                 altitude_ = AltitudeLevel.High;
                 targetAltitude_ = AltitudeLevel.High;
-                StartCoroutine(EnableAltitudeGauge(altitude_));
             }
         }
 
@@ -176,8 +210,8 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            TakeoffTouchdownProcess();
-            
+            TakeoffTouchdownArrivalProcess();
+
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
                 if (InputClimb())
@@ -223,14 +257,18 @@ namespace MiniRealisticAirways
             StartCoroutine(transitioningCoroutine_);
         }
 
-        private void TakeoffTouchdownProcess()
+        private void TakeoffTouchdownArrivalProcess()
         {
             if (altitude_ == AltitudeLevel.Ground && aircraft_.direction == Aircraft.Direction.Outbound &&
                 (aircraft_.state == Aircraft.State.Flying || aircraft_.state == Aircraft.State.HeadingAfterReachingWaypoint))
             {
                 altitude_ = AltitudeLevel.Low;
                 targetAltitude_ = AltitudeLevel.Low;
-                StartCoroutine(EnableAltitudeGauge(altitude_));
+                if (enableAltitudeGaugeCoroutine_ == null)
+                {
+                    enableAltitudeGaugeCoroutine_ = EnableAltitudeGauge(altitude_);
+                    StartCoroutine(enableAltitudeGaugeCoroutine_);
+                }
             }
 
             if (altitude_ != AltitudeLevel.Ground && aircraft_.direction == Aircraft.Direction.Inbound &&
@@ -240,12 +278,22 @@ namespace MiniRealisticAirways
                 targetAltitude_ = AltitudeLevel.Ground;
                 altitudeGauge_.DisableSpriteRenderer();
             }
+
+            Vector2 vector = Camera.main.WorldToViewportPoint(aircraft_.gameObject.transform.position);
+            bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
+            if (aircraft_.direction == Aircraft.Direction.Inbound && Inbound && enableAltitudeGaugeCoroutine_ == null)
+            {
+                enableAltitudeGaugeCoroutine_ = EnableAltitudeGauge(altitude_);
+                StartCoroutine(enableAltitudeGaugeCoroutine_);
+            }
         }
 
         public Aircraft aircraft_;
         public AltitudeLevel altitude_;
         public AltitudeLevel targetAltitude_;
         public TCASAction tcasAction_ = TCASAction.None;
+        public bool altitudeDisabled_ = false;
+        public IEnumerator enableAltitudeGaugeCoroutine_ = null;
         private AircraftAltitudeGauge altitudeGauge_;
         private const float TRANSITION_TIME = 5f;
         private IEnumerator transitioningCoroutine_ = null;

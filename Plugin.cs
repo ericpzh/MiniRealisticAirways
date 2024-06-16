@@ -85,6 +85,7 @@ namespace MiniRealisticAirways
                     aircraftType.weight_ = BaseAircraftType.RandomWeight();
                     Logger.LogInfo("Aircraft created with weight: " + aircraftType.weight_);
                     // Only arrival aircraft have fuel limit.
+                    aircraftType.percentFuelLeft_ = 99;
                     StartCoroutine(aircraftType.FuelManagementCoroutine());
                 }
             }

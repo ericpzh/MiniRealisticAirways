@@ -19,6 +19,21 @@ namespace MiniRealisticAirways
         }
     }
 
+    [HarmonyPatch(typeof(TakeoffTask), "Update", new Type[] {})]
+    class PatchTakeoffTaskUpdate
+    {
+        static void Postfix(ref TakeoffTask __instance, ref Image ___AP)
+        {
+            BaseAircraftType currentAircraftType = __instance.gameObject.GetComponent<BaseAircraftType>();
+            if (currentAircraftType == null)
+            {
+                return;
+            }
+
+            ___AP.transform.DOScale(currentAircraftType.GetScaleFactor(), 0.5f).SetUpdate(isIndependentUpdate: true);
+        }
+    }
+
     [HarmonyPatch(typeof(TakeoffTask), "SetupTakeoff", new Type[] {})]
     class PatchSetupTakeoff
     {

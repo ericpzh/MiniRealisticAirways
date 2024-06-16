@@ -79,7 +79,6 @@ namespace MiniRealisticAirways
 
     public class AircraftSpeed : Speed
     {
-        
         public bool CanLand(Weight weight)
         {
             if (weight == Weight.Light)
@@ -103,33 +102,51 @@ namespace MiniRealisticAirways
 
         public void AircraftSpeedUp()
         {
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            if (aircraft_.state == Aircraft.State.TakingOff)
             {
                 return;
             }
 
-            if (aircraft_.targetSpeed < ToGameSpeed(MaxSpeed()))
+            if (speedDisabled_)
             {
-                float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) + 1);
-                aircraft_.targetSpeed = targetSpeed;
-                if (!transitioning_)
-                {
-                    StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
-                }
+                return;
+            }
+
+            if (aircraft_.targetSpeed >= ToGameSpeed(MaxSpeed()))
+            {
+                return;
+            }
+
+            float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) + 1);
+            aircraft_.targetSpeed = targetSpeed;
+            if (!transitioning_)
+            {
+                StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
             }
         }
 
         public void AircraftSlowDown()
         {
-            if (aircraft_.targetSpeed > ToGameSpeed(SpeedLevel.Slow))
+            if (aircraft_.state == Aircraft.State.TakingOff)
             {
-                float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
-                aircraft_.targetSpeed = targetSpeed;
-                if (!transitioning_)
-                {
-                    StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
-                }
+                return;
+            }
+
+            if (speedDisabled_)
+            {
+                return;
+            }
+
+            if (aircraft_.targetSpeed <= ToGameSpeed(SpeedLevel.Slow))
+            {
+                return;
+            }
+
+            float targetSpeed = ToGameSpeed(ToModSpeed(aircraft_.targetSpeed) - 1);
+            aircraft_.targetSpeed = targetSpeed;
+            if (!transitioning_)
+            {
+                StartCoroutine(SpeedTransitionCoroutine(targetSpeed));
             }
         }
 
@@ -187,7 +204,7 @@ namespace MiniRealisticAirways
             }
         }
 
-        private IEnumerator EnableSpeedGauge()
+        public IEnumerator EnableSpeedGauge(SpeedLevel speed = SpeedLevel.Normal)
         {
             AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
             while (!speedGauge_.Ready() || aircraftState == null || !aircraftState.IsAirborne())
@@ -196,7 +213,7 @@ namespace MiniRealisticAirways
             }
 
             // All aircraft start with normal speed level.
-            speedGauge_.UpdateGauge(SpeedLevel.Normal);
+            speedGauge_.UpdateGauge(speed);
         }
 
         private void Start()
@@ -220,8 +237,6 @@ namespace MiniRealisticAirways
 
             speedGauge_ = aircraft_.gameObject.AddComponent<AircraftSpeedGauge>();
             speedGauge_.aircraft_ = aircraft_;
-
-            StartCoroutine(EnableSpeedGauge());
         }
 
         private void Update()
@@ -231,7 +246,9 @@ namespace MiniRealisticAirways
                 Destroy(gameObject);
                 return;
             }
-                       
+
+            ArrivalProcess();
+
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
                 if (InputSlowDown())
@@ -246,14 +263,26 @@ namespace MiniRealisticAirways
             }
         }
 
+        private void ArrivalProcess()
+        {
+            Vector2 vector = Camera.main.WorldToViewportPoint(aircraft_.gameObject.transform.position);
+            bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
+            if (aircraft_.direction == Aircraft.Direction.Inbound && Inbound && enableSpeedGaugeCoroutine_ == null)
+            {
+                enableSpeedGaugeCoroutine_ = EnableSpeedGauge();
+                StartCoroutine(enableSpeedGaugeCoroutine_);
+            }
+        }
+
         public Aircraft aircraft_;
+        public bool speedDisabled_ = false;
+        public IEnumerator enableSpeedGaugeCoroutine_;
         private AircraftSpeedGauge speedGauge_;
         private bool transitioning_ = false;
     }
 
     public class WaypointSpeed : Speed
     {
-        
         override public string ToString()
         {
             return ToString(speed_);

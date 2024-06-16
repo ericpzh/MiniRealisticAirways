@@ -93,7 +93,6 @@ namespace MiniRealisticAirways
             float updateTime = WIND_BASE_TIME + RandomUniform(WIND_RANDOM_TIME_OFFSET_LIMIT);
             float timeGradient = updateTime / UPDATE_COUNT;
             float windGradient = RandomDirection() / UPDATE_COUNT;
-            Plugin.Log.LogInfo("Wind updated towards " + windGradient);
 
             for (int i = 0; i < UPDATE_COUNT; i++)
             {

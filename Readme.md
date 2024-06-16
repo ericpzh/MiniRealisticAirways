@@ -120,6 +120,12 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 <img src="img/weather.png" width=20% height=20%>
 
+- Aircraft had suffered from an engine failure, you need to bring it back to the field immediately.
+
+<img src="img/return.png" width=20% height=20%>
+
+<img src="img/return2.png" width=20% height=20%>
+
 # Other Changes
 - You now starts with 3 waiting area upgrades.
 - You now get upgrades twice as fast.
@@ -237,6 +243,12 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 - 恶劣天气会使经过的飞机飞到高<img src="img/high.png" width=2% height=2%>，飞机进入恶劣天气和飞入禁飞区拥有同样效果。
 
 <img src="img/weather.png" width=20% height=20%>
+
+- 一架离场飞机遭遇引擎故障，需要立即返场。
+
+<img src="img/return.png" width=20% height=20%>
+
+<img src="img/return2.png" width=20% height=20%>
 
 # 其他特性
 - 开场时自动获得3个等待区升级。

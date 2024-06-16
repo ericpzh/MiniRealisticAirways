@@ -121,7 +121,6 @@ namespace MiniRealisticAirways
             {
                 return;
             }
-
             for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 spriteRenderers_[i].enabled = i <= level;

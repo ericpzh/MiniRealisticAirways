@@ -36,7 +36,6 @@ namespace MiniRealisticAirways
                 spriteRenderer.enabled = true;
                 yield return new WaitForSecondsRealtime(0.4f);
             }
-
         }
 
         public static IEnumerator BlinkFastCoroutine(SpriteRenderer spriteRenderer)
@@ -48,7 +47,6 @@ namespace MiniRealisticAirways
                 spriteRenderer.enabled = true;
                 yield return new WaitForSecondsRealtime(0.2f);
             }
-
         }
 
         public static bool Blink()

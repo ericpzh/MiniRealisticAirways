@@ -243,8 +243,6 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            Plugin.Log.LogInfo("WaypointAutoLanding commanded an aircraft.");
-
             // Stablize the approach first before trying to land.
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             while (aircraftAltitude != null && !aircraftAltitude.CanLand())
@@ -288,8 +286,6 @@ namespace MiniRealisticAirways
             {
                 return;
             }
-
-            Plugin.Log.LogInfo("BaseWaypointAutoHeading commanded an aircraft.");
 
             // Altitude sync.
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
@@ -595,13 +591,13 @@ namespace MiniRealisticAirways
                 Waypoint waypoint = ((Component)(object)other).GetComponent<WaypointRef>().waypoint;
                 if (waypoint != null && ___colorCode == waypoint.colorCode && ___shapeCode == waypoint.shapeCode)
                 {
-                    AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
-                    if (aircraftState1 == null)
+                    AircraftState aircraftState = __instance.GetComponent<AircraftState>();
+                    if (aircraftState == null)
                     {
                         return true;
                     }
-                    AircraftAltitude altitude = aircraftState1.aircraftAltitude_;
-                    if (altitude != null && altitude.altitude_ >= AltitudeLevel.Normal)
+                    AircraftAltitude altitude = aircraftState.aircraftAltitude_;
+                    if (altitude != null && !altitude.altitudeDisabled_ && altitude.altitude_ >= AltitudeLevel.Normal)
                     {
                         WaypointManager.Instance.Handoff(waypoint);
                         __instance.aircraftVoiceAndSubtitles.PlayHandOff();
