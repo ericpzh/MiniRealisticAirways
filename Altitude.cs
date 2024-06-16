@@ -32,7 +32,7 @@ namespace MiniRealisticAirways
                 case AltitudeLevel.High:
                     return ">>>";
             }
-            return "";
+            return "-";
         }
 
         public static bool InputClimb()
@@ -271,8 +271,7 @@ namespace MiniRealisticAirways
                 }
             }
 
-            if (altitude_ != AltitudeLevel.Ground && aircraft_.direction == Aircraft.Direction.Inbound &&
-                aircraft_.state == Aircraft.State.TouchedDown)
+            if (altitude_ != AltitudeLevel.Ground && AircraftState.DisableStateOnTouchedDown(aircraft_))
             {
                 altitude_ = AltitudeLevel.Ground;
                 targetAltitude_ = AltitudeLevel.Ground;

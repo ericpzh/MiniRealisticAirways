@@ -61,7 +61,7 @@ namespace MiniRealisticAirways
                 case SpeedLevel.Fast:
                     return ">>>";
             }
-            return "";
+            return "|";
         }
 
         public static bool InputSpeedUp() 
@@ -247,7 +247,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            ArrivalProcess();
+            TouchedDownArrivalProcess();
 
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
             {
@@ -263,7 +263,7 @@ namespace MiniRealisticAirways
             }
         }
 
-        private void ArrivalProcess()
+        private void TouchedDownArrivalProcess()
         {
             Vector2 vector = Camera.main.WorldToViewportPoint(aircraft_.gameObject.transform.position);
             bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
@@ -271,6 +271,11 @@ namespace MiniRealisticAirways
             {
                 enableSpeedGaugeCoroutine_ = EnableSpeedGauge();
                 StartCoroutine(enableSpeedGaugeCoroutine_);
+            }
+
+            if (AircraftState.DisableStateOnTouchedDown(aircraft_))
+            {
+                speedGauge_.DisableSpriteRenderer();
             }
         }
 

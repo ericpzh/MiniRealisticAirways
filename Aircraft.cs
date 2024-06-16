@@ -7,6 +7,11 @@ namespace MiniRealisticAirways
 {
     public class AircraftState : MonoBehaviour
     {
+        public static bool DisableStateOnTouchedDown(Aircraft aircraft)
+        {
+            return aircraft.direction == Aircraft.Direction.Inbound && aircraft.state == Aircraft.State.TouchedDown;
+        }
+
         public bool IsLanding()
         {
             return aircraft_.state == Aircraft.State.Landing;
@@ -97,7 +102,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (!Plugin.showText_)
+            if (!Plugin.showText_ || DisableStateOnTouchedDown(aircraft_))
             {
                 altitudeText_.text = "";
                 speedText_.text = "";

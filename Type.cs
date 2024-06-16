@@ -319,6 +319,11 @@ namespace MiniRealisticAirways
             }
 
             UpdateSize();
+
+            if (AircraftState.DisableStateOnTouchedDown(aircraft_))
+            {
+                fuelGauge_.spriteRenderer_.enabled = false;
+            }
         }
 
         public Aircraft aircraft_;
