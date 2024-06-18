@@ -99,6 +99,12 @@ namespace MiniRealisticAirways
                 windDirection_ += windGradient;
                 CorrectWindDirection();
 
+                if (!windsock_.activeSelf)
+                {
+                    // Force windsock to become active.
+                    Plugin.Log.LogWarning("windsock_ isn't active, forcing it to be. Current wind: " + windDirection_);
+                    windsock_.SetActive(value: true);
+                }
                 windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_ - 90, Vector3.back);
                 yield return new WaitForSeconds(timeGradient);
             }

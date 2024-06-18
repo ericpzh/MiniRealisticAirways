@@ -21,6 +21,7 @@ namespace MiniRealisticAirways
     {
         public override bool Trigger()
         {
+            Plugin.Log.LogWarning("RunwayClose Triggered.");
             foreach (Aircraft aircraft in AircraftManager.GetOutboundAircraft())
             {
                 if (aircraft.state == Aircraft.State.TakingOff && 
@@ -68,6 +69,7 @@ namespace MiniRealisticAirways
 
         public override void Restore()
         {
+            Plugin.Log.LogWarning("RunwayClose Restoreed.");
             if (runway_ == null)
             {
                 return;
@@ -108,6 +110,7 @@ namespace MiniRealisticAirways
     {
         public override bool Trigger()
         {
+            Plugin.Log.LogWarning("LowFuelArrival Triggered.");
             Aircraft aircraft_ = null;
             foreach (Aircraft aircraft in AircraftManager.GetInboundAircraft())
             {
@@ -147,6 +150,7 @@ namespace MiniRealisticAirways
     {
         public override bool Trigger()
         {
+            Plugin.Log.LogWarning("BadWeather Triggered.");
             GameObject esc_button = GameObject.Find("ESC_Button");
             if (esc_button == null)
             {
@@ -159,7 +163,6 @@ namespace MiniRealisticAirways
                 return false;
             }
 
-            Plugin.Log.LogInfo("Weather enabled.");
             weather_.enabled = true;
             EventManager.weather_ = weather_;
             return true;
@@ -167,7 +170,7 @@ namespace MiniRealisticAirways
 
         public override void Restore()
         {
-            Plugin.Log.LogInfo("Weather disabled.");
+            Plugin.Log.LogWarning("BadWeather Restoreed.");
             weather_.DestoryWeather();
             EventManager.weather_ = null;
             weather_ = null;
@@ -180,6 +183,7 @@ namespace MiniRealisticAirways
     {
         public override bool Trigger()
         {
+            Plugin.Log.LogWarning("EngineOut Triggered.");
             Aircraft aircraft = null;
             foreach (Aircraft aircraft_ in AircraftManager.GetOutboundAircraft())
             {
@@ -388,7 +392,7 @@ namespace MiniRealisticAirways
             EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
             events_ = new List<Event>{engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather()};
             Utils.Shuffle(ref events_);
-
+            Plugin.Log.LogWarning("Event setup completed.");
             StartCoroutine(StartEventCoroutine());
         }
 

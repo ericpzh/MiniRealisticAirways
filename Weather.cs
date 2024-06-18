@@ -76,7 +76,8 @@ namespace MiniRealisticAirways
             Queue<Cell> queue = new Queue<Cell>();
             EnqueueRandom(ref directions, ref queue, current);
 
-            while (cells_.Count < GENERATE_NUMBER)
+            int i = 0;
+            while (cells_.Count < GENERATE_NUMBER && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
                 while (queue.Count > 0 && cells_.Contains(queue.Peek()))
                 {
@@ -91,6 +92,11 @@ namespace MiniRealisticAirways
                 current = queue.Dequeue();
                 EnqueueRandom(ref directions, ref queue, current);
                 cells_.Add(current);
+
+                if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                {
+                    Plugin.Log.LogWarning("INF Loop in GenerateCells().");
+                }
             }
         }
 

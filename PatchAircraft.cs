@@ -245,14 +245,25 @@ namespace MiniRealisticAirways
 
             // Stablize the approach first before trying to land.
             AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            while (aircraftAltitude != null && !aircraftAltitude.CanLand())
+            int i = 0;
+            while (aircraftAltitude != null && !aircraftAltitude.CanLand() && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
-                aircraftAltitude.AircraftDesend(); 
+                aircraftAltitude.AircraftDesend();
+                if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                {
+                    Plugin.Log.LogWarning("INF Loop in UpdateHeading's prefix aircraftAltitude change.");
+                }
             }
+
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_))
+            i = 0;
+            while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_) && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
                 aircraftSpeed.AircraftSlowDown(); 
+                if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                {
+                    Plugin.Log.LogWarning("INF Loop in UpdateHeading's prefix aircraftSpeed change.");
+                }
             }
             return true;
         }
@@ -292,14 +303,23 @@ namespace MiniRealisticAirways
             WaypointAltitude waypointAltitude = ____HARWCurWP.GetComponent<WaypointAltitude>();
             if (aircraftAltitude != null && waypointAltitude != null)
             {
-                while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_)
+                int i = 0;
+                while (aircraftAltitude.targetAltitude_ < waypointAltitude.altitude_ && ++i < Plugin.MAX_WHILE_LOOP_ITER)
                 {
                     aircraftAltitude.AircraftClimb();
+                    if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                    {
+                        Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftClimb().");
+                    }
                 }
-
-                while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_)
+                i = 0;
+                while (aircraftAltitude.targetAltitude_ > waypointAltitude.altitude_ && ++i < Plugin.MAX_WHILE_LOOP_ITER)
                 {
                     aircraftAltitude.AircraftDesend();
+                    if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                    {
+                        Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftDesend().");
+                    }
                 }
             }
 
@@ -308,17 +328,25 @@ namespace MiniRealisticAirways
             WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
             if (aircraftSpeed != null && waypointSpeed != null)
             {
-
                 float maxSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()), 
                                           Speed.ToGameSpeed(waypointSpeed.speed_));
-                while (Speed.ToModSpeed(__instance.targetSpeed) < Speed.ToModSpeed(maxSpeed))
+                int i = 0;
+                while (Speed.ToModSpeed(__instance.targetSpeed) < Speed.ToModSpeed(maxSpeed) && ++i < Plugin.MAX_WHILE_LOOP_ITER)
                 {
                     aircraftSpeed.AircraftSpeedUp();
+                     if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                    {
+                        Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftSpeedUp().");
+                    }
                 }
-
-                while (Speed.ToModSpeed(__instance.targetSpeed) > waypointSpeed.speed_)
+                i = 0;
+                while (Speed.ToModSpeed(__instance.targetSpeed) > waypointSpeed.speed_ && ++i < Plugin.MAX_WHILE_LOOP_ITER)
                 {
                     aircraftSpeed.AircraftSlowDown();
+                    if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                    {
+                        Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftSlowDown().");
+                    }
                 }
                 
 

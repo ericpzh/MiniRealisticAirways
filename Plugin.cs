@@ -111,5 +111,6 @@ namespace MiniRealisticAirways
         internal static bool showText_ = true;
         internal static WindSock windsock_;
         internal static EventManager eventManager_;
+        internal static int MAX_WHILE_LOOP_ITER = 1000;
     }
 }
