@@ -247,12 +247,6 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (TimeManager.Instance.Paused)
-            {
-                // Skip update during time pause.
-                return;
-            }
-
             TouchedDownArrivalProcess();
 
             if (Aircraft.CurrentCommandingAircraft == aircraft_)
@@ -317,12 +311,6 @@ namespace MiniRealisticAirways
             if (waypoint_ == null)
             {
                 Destroy(gameObject);
-                return;
-            }
-
-            if (TimeManager.Instance.Paused)
-            {
-                // Skip update during time pause.
                 return;
             }
 

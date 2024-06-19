@@ -123,14 +123,14 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
-            if (text_ == null || textGameObject_ == null)
+            if (Time.timeScale == 0f)
             {
+                // Skip update during time pause.
                 return;
             }
 
-            if (TimeManager.Instance.Paused)
+            if (text_ == null || textGameObject_ == null)
             {
-                // Skip update during time pause.
                 return;
             }
 
@@ -172,7 +172,7 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref GUIAutoHider __instance)
         {
-            if (TimeManager.Instance.Paused)
+            if (Time.timeScale == 0f)
             {
                 // Skip update during time pause.
                 return;

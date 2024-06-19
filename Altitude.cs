@@ -332,11 +332,6 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (TimeManager.Instance.Paused)
-            {
-                // Skip update during time pause.
-                return;
-            }
 
             // Waypoint would hard follow mouse position when placed.
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);

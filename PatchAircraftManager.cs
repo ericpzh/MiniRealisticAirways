@@ -9,12 +9,6 @@ namespace MiniRealisticAirways
     {
         static void Postfix(Camera ____camera)
         {
-            if (TimeManager.Instance.Paused)
-            {
-                // Skip update during time pause.
-                return;
-            }
-
             // Don't need to understand what these variables are, that's how the source code works.
             Vector3 val = ____camera.ScreenToWorldPoint(Input.mousePosition);
             float num = float.PositiveInfinity;

@@ -116,12 +116,6 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (TimeManager.Instance.Paused)
-            {
-                // Skip update during time pause.
-                return;
-            }
-
             if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || 
                 speedLevelText_ == null || weightText_ == null || fuelText_ == null)
             {

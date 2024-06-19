@@ -24,7 +24,7 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref TakeoffTask __instance, ref Image ___AP)
         {
-            if (TimeManager.Instance.Paused)
+            if (UnityEngine.Time.timeScale == 0f)
             {
                 // Skip update during time pause.
                 return;

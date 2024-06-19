@@ -314,15 +314,15 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
-            if (aircraft_ == null)
+            if (Time.timeScale == 0f)
             {
-                Destroy(gameObject);
+                // Skip update during time pause.
                 return;
             }
 
-            if (TimeManager.Instance.Paused)
+            if (aircraft_ == null)
             {
-                // Skip update during time pause.
+                Destroy(gameObject);
                 return;
             }
 
