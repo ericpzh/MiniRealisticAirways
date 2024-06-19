@@ -521,7 +521,7 @@ namespace MiniRealisticAirways
                 __instance.Invoke("UpdateSpeed", 0);
             }
 
-            // Weather aircraft had enter weather cell.
+            // Weather effects.
             AircraftState aircraftState;
             if (!AircraftState.GetAircraftState(__instance, out aircraftState))
             {
@@ -782,6 +782,7 @@ namespace MiniRealisticAirways
 
             if (aircraftAltitude1.tcasAction_ == TCASAction.None && aircraftAltitude2.tcasAction_ == TCASAction.None)
             {
+                Plugin.Log.LogInfo("TCAS activated");
                 // Active TCAS on aircrafts if there is no previous action.
                 if (aircraftAltitude1.IsLanding() && aircraftAltitude2.IsLanding())
                 {
