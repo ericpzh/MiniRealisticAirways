@@ -1,4 +1,5 @@
 
+using HarmonyLib;
 using System;
 using System.Collections;
 using TMPro;
@@ -131,9 +132,9 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            float height = 2f * Camera.main.orthographicSize;
-            float width = height * Camera.main.aspect;
-            textGameObject_.transform.localPosition = new Vector3(-width / 2f + 3f, height / 2f - 1.5f, 0f);
+            // TLPBR from GUIAutoHider.
+            Vector3 escButtonBottomRight = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.88f, 0f));
+            textGameObject_.transform.position = new Vector3(escButtonBottomRight.x + 1f, escButtonBottomRight.y + 0.5f, 0f);
             text_.text = ToString();
         }
 
@@ -146,5 +147,28 @@ namespace MiniRealisticAirways
         private const float WIND_BASE_TIME = 6f * 300f /* Time per day */;
         private const float WIND_RANDOM_TIME_OFFSET_LIMIT = 0.5f * 300f /* Time per day */;
         private const float UPDATE_COUNT = 360f;
+    }
+
+    [HarmonyPatch(typeof(GUIAutoHider), "CheckTL", new Type[] {})]
+    class PatchCheckTL
+    {
+        static bool Prefix(ref GUIAutoHider __instance)
+        {
+            // Disable auto-hiding of windsock.
+            return false;
+        }
+    }
+
+    [HarmonyPatch(typeof(GUIAutoHider), "Update", new Type[] {})]
+    class PatchGUIAutoHiderUpdate
+    {
+        static void Postfix(ref GUIAutoHider __instance)
+        {
+            if (!GameOverManager.Instance.GameOverFlag && __instance.TL.alpha < 1f)
+            {
+                Plugin.Log.LogWarning("Windsock auto hidden in-game.");
+                __instance.TL.alpha = 1f;
+            }
+        }
     }
 }

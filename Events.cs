@@ -392,7 +392,7 @@ namespace MiniRealisticAirways
             EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
             events_ = new List<Event>{engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather()};
             Utils.Shuffle(ref events_);
-            Plugin.Log.LogWarning("Event setup completed.");
+            Plugin.Log.LogInfo("Event setup completed.");
             StartCoroutine(StartEventCoroutine());
         }
 
