@@ -90,9 +90,9 @@ namespace MiniRealisticAirways
 
         public SpeedLevel MaxSpeed()
         {
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null && aircraftType.weight_ == Weight.Light)
+            AircraftType aircraftType;
+            if (AircraftState.GetAircraftStates(aircraft_, out _, out _, out aircraftType) &&
+                aircraftType.weight_ == Weight.Light)
             {
                 // Light acraft only have max speed to Normal.
                 return SpeedLevel.Normal;
@@ -206,8 +206,8 @@ namespace MiniRealisticAirways
 
         public IEnumerator EnableSpeedGauge(SpeedLevel speed = SpeedLevel.Normal)
         {
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            while (!speedGauge_.Ready() || aircraftState == null || !aircraftState.IsAirborne())
+            AircraftState aircraftState;
+            while (!speedGauge_.Ready() || !AircraftState.GetAircraftState(aircraft_, out aircraftState) || !aircraftState.IsAirborne())
             {
                 yield return new WaitForFixedUpdate();
             }
@@ -244,6 +244,12 @@ namespace MiniRealisticAirways
             if (aircraft_ == null)
             {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
                 return;
             }
 
@@ -311,6 +317,12 @@ namespace MiniRealisticAirways
             if (waypoint_ == null)
             {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
                 return;
             }
 

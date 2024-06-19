@@ -75,41 +75,6 @@ namespace MiniRealisticAirways
             altitudeGauge_.UpdateGauge(altitude);
         }
 
-        private IEnumerator AltitudeTransitionCoroutine(AltitudeLevel targetAltitude)
-        {
-            while (!altitudeGauge_.Ready())
-            {
-                yield return new WaitForFixedUpdate();
-            }
-
-            blinkCoroutine_ = altitudeGauge_.GetTransitioningCoroutine(altitude_, targetAltitude);
-            StartCoroutine(blinkCoroutine_);
-
-            yield return new WaitForSeconds(TRANSITION_TIME);
-
-            altitude_ = targetAltitude;
-            if (tcasAction_ != TCASAction.Disabled)
-            {
-                tcasAction_ = TCASAction.None;
-            }
-
-            StopCoroutine(blinkCoroutine_);
-            blinkCoroutine_ = null;
-
-            altitudeGauge_.UpdateGauge(altitude_);
-
-            if (altitude_ != targetAltitude_)
-            {
-                transitioningCoroutine_ = AltitudeTransitionCoroutine(targetAltitude_);
-                yield return transitioningCoroutine_;
-            }
-            else
-            {
-                transitioningCoroutine_ = null;
-                isEmergencyTransitioning_ = false;
-            }
-        }
-
         public void AircraftClimb()
         {
             if (altitudeDisabled_)
@@ -144,12 +109,11 @@ namespace MiniRealisticAirways
 
         public void EmergencyClimb()
         {
-            if (altitudeDisabled_)
+            if (altitudeDisabled_ || altitude_ == AltitudeLevel.Ground)
             {
                 return;
             }
 
-            
             tcasAction_ = TCASAction.Climb;
 
             if (targetAltitude_ >= AltitudeLevel.High)
@@ -163,7 +127,7 @@ namespace MiniRealisticAirways
 
         public void EmergencyDesend()
         {
-            if (altitudeDisabled_)
+            if (altitudeDisabled_ || altitude_ == AltitudeLevel.Ground)
             {
                 return;
             }
@@ -177,6 +141,11 @@ namespace MiniRealisticAirways
 
             targetAltitude_ --;
             EmergencyAltitudeTransition();
+        }
+
+        public bool IsLanding()
+        {
+            return aircraft_.state == Aircraft.State.Landing;
         }
 
         private void Start()
@@ -287,6 +256,41 @@ namespace MiniRealisticAirways
             }
         }
 
+        private IEnumerator AltitudeTransitionCoroutine(AltitudeLevel targetAltitude)
+        {
+            while (!altitudeGauge_.Ready())
+            {
+                yield return new WaitForFixedUpdate();
+            }
+
+            blinkCoroutine_ = altitudeGauge_.GetTransitioningCoroutine(altitude_, targetAltitude);
+            StartCoroutine(blinkCoroutine_);
+
+            yield return new WaitForSeconds(TRANSITION_TIME);
+
+            altitude_ = targetAltitude;
+            if (tcasAction_ != TCASAction.Disabled)
+            {
+                tcasAction_ = TCASAction.None;
+            }
+
+            StopCoroutine(blinkCoroutine_);
+            blinkCoroutine_ = null;
+
+            altitudeGauge_.UpdateGauge(altitude_);
+
+            if (altitude_ != targetAltitude_)
+            {
+                transitioningCoroutine_ = AltitudeTransitionCoroutine(targetAltitude_);
+                yield return transitioningCoroutine_;
+            }
+            else
+            {
+                transitioningCoroutine_ = null;
+                isEmergencyTransitioning_ = false;
+            }
+        }
+
         public Aircraft aircraft_;
         public AltitudeLevel altitude_;
         public AltitudeLevel targetAltitude_;
@@ -325,6 +329,12 @@ namespace MiniRealisticAirways
             if (waypoint_ == null)
             {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
                 return;
             }
 

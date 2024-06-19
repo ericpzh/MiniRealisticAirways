@@ -24,6 +24,12 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref TakeoffTask __instance, ref Image ___AP)
         {
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
+                return;
+            }
+
             BaseAircraftType currentAircraftType = __instance.gameObject.GetComponent<BaseAircraftType>();
             if (currentAircraftType == null)
             {

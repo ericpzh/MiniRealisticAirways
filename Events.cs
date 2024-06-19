@@ -128,14 +128,8 @@ namespace MiniRealisticAirways
                 return false;
             }
 
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null)
-            {
-                return false;
-            }
-
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType == null)
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(aircraft_, out _, out _, out aircraftType))
             {
                 return false;
             }
@@ -217,35 +211,17 @@ namespace MiniRealisticAirways
                 RANDOM_BASE_TIME + 2 * RANDOM_TIME_OFFSET_LIMIT * UnityEngine.Random.value - RANDOM_TIME_OFFSET_LIMIT);
 
             // Recored original state and disable aircraft update.
-            while (aircraft.GetComponent<AircraftState>() == null)
+            AircraftAltitude aircraftAltitude;
+            AircraftSpeed aircraftSpeed;
+            AircraftType aircraftType;
+            while (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out aircraftSpeed, out aircraftType))
             {
                 yield return new WaitForFixedUpdate();
             }
-            AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
-
-            // Record altitude.
-            while (aircraftState.aircraftAltitude_ == null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
+            
             aircraftAltitude.tcasAction_ = TCASAction.Disabled;
             aircraftAltitude.altitudeDisabled_ = true;
-
-            // Record speed.
-            while (aircraftState.aircraftSpeed_ == null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             aircraftSpeed.speedDisabled_ = true;
-
-            // Record type.
-            while (aircraftState.aircraftType_ == null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            AircraftType aircraftType = aircraftState.aircraftType_;
 
             // Start event.
             ShowCallSign(aircraft);
@@ -266,18 +242,13 @@ namespace MiniRealisticAirways
             aircraft.ConditionalDestroy();
             aircraft = AircraftManager.Instance.CreateInboundAircraft(position, heading);
 
-            while (aircraft.GetComponent<AircraftState>() == null)
+            // Copy aircraft states over.
+            while (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out aircraftSpeed, out aircraftType))
             {
                 yield return new WaitForFixedUpdate();
             }
-            aircraftState = aircraft.GetComponent<AircraftState>();
-            
+
             // Copy altitude over.
-            while (aircraftState.aircraftAltitude_ == null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            aircraftAltitude = aircraftState.aircraftAltitude_;
             aircraftAltitude.altitude_ = altitude;
             aircraftAltitude.targetAltitude_ = targetAltitude;
             aircraftAltitude.tcasAction_ = TCASAction.Disabled;
@@ -289,11 +260,6 @@ namespace MiniRealisticAirways
             StartCoroutine(aircraftAltitude.enableAltitudeGaugeCoroutine_);
 
             // Copy speed over.
-            while (aircraftState.aircraftSpeed_== null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            aircraftSpeed = aircraftState.aircraftSpeed_;
             aircraft.speed = speed;
             aircraft.targetSpeed = targetSpeed;
             if (aircraftSpeed.enableSpeedGaugeCoroutine_ != null)
@@ -304,11 +270,6 @@ namespace MiniRealisticAirways
             StartCoroutine(aircraftSpeed.enableSpeedGaugeCoroutine_);
 
             // Copy type over.
-            while (aircraftState.aircraftType_== null)
-            {
-                yield return new WaitForFixedUpdate();
-            }
-            aircraftType = aircraftState.aircraftType_;
             aircraftType.weight_ = weight;
             aircraftType.percentFuelLeft_ = AircraftType.LOW_FUEL_WARNING_PERCENT / 2;
             StartCoroutine(aircraftType.DisableFuelGaugeCoroutine());

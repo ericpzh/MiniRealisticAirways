@@ -43,6 +43,12 @@ namespace MiniRealisticAirways
                 return;
             }
             
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
+                return;
+            }
+
             if (altitudeText_ == null || speedText_ == null)
             {
                 return;

@@ -12,27 +12,29 @@ namespace MiniRealisticAirways
             return aircraft.direction == Aircraft.Direction.Inbound && aircraft.state == Aircraft.State.TouchedDown;
         }
 
-        public bool IsLanding()
+        public static bool GetAircraftState(Aircraft aircraft, out AircraftState aircraftState)
         {
-            return aircraft_.state == Aircraft.State.Landing;
+            aircraftState = aircraft.GetComponent<AircraftState>();
+            return aircraftState != null;
         }
 
-        private void StartText(ref TMP_Text text, float fontSize, float x, float y, float z)
+        public static bool GetAircraftStates(Aircraft aircraft, out AircraftAltitude aircraftAltitude,
+                                             out AircraftSpeed aircraftSpeed, out AircraftType aircraftType)
         {
-            GameObject obj = Instantiate(new GameObject("Text"));
-            text = obj.AddComponent<TextMeshPro>();
-            
-            text.fontSize = fontSize;
-            text.horizontalAlignment = HorizontalAlignmentOptions.Left;
-            text.verticalAlignment = VerticalAlignmentOptions.Top;
-            text.rectTransform.sizeDelta = new Vector2(2, 1);
-            obj.transform.SetParent(aircraft_.transform);
-            obj.transform.localPosition = new Vector3(x, y, z);
-            
-            // make sorting layer of obj "Text"
-            SortingGroup sg = obj.AddComponent<SortingGroup>();
-            sg.sortingLayerName = "Text";
-            sg.sortingOrder = 1;
+            aircraftAltitude = null;
+            aircraftSpeed = null;
+            aircraftType = null;
+    
+            AircraftState aircraftState;
+            if (!GetAircraftState(aircraft, out aircraftState))
+            {
+                return false;
+            }
+
+            aircraftAltitude = aircraftState.aircraftAltitude_;
+            aircraftSpeed = aircraftState.aircraftSpeed_;
+            aircraftType = aircraftState.aircraftType_;
+            return aircraftAltitude != null && aircraftSpeed != null && aircraftType != null;
         }
 
         public void Initialize()
@@ -68,6 +70,24 @@ namespace MiniRealisticAirways
             return aircraftAltitude_.altitude_ > AltitudeLevel.Ground;
         }
 
+        private void StartText(ref TMP_Text text, float fontSize, float x, float y, float z)
+        {
+            GameObject obj = Instantiate(new GameObject("Text"));
+            text = obj.AddComponent<TextMeshPro>();
+            
+            text.fontSize = fontSize;
+            text.horizontalAlignment = HorizontalAlignmentOptions.Left;
+            text.verticalAlignment = VerticalAlignmentOptions.Top;
+            text.rectTransform.sizeDelta = new Vector2(2, 1);
+            obj.transform.SetParent(aircraft_.transform);
+            obj.transform.localPosition = new Vector3(x, y, z);
+            
+            // make sorting layer of obj "Text"
+            SortingGroup sg = obj.AddComponent<SortingGroup>();
+            sg.sortingLayerName = "Text";
+            sg.sortingOrder = 1;
+        }
+
         private void Start()
         {
             if (aircraft_ == null)
@@ -96,6 +116,12 @@ namespace MiniRealisticAirways
                 return;
             }
 
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
+                return;
+            }
+
             if (altitudeText_ == null || speedText_ == null || altitudeLevelText_ == null || 
                 speedLevelText_ == null || weightText_ == null || fuelText_ == null)
             {
@@ -113,15 +139,15 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            AircraftState aircraftState = aircraft_.GetComponent<AircraftState>();
-            if (aircraftState == null) 
+            AircraftAltitude aircraftAltitude;
+            AircraftSpeed aircraftSpeed;
+            AircraftType aircraftType;
+            if (!GetAircraftStates(aircraft_, out aircraftAltitude, out aircraftSpeed, out aircraftType))
             {
                 return;
             }
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftAltitude != null && aircraftSpeed != null && aircraftType != null && IsAirborne())
+
+            if (IsAirborne())
             {
                 altitudeText_.text = "ALT: ";
                 speedText_.text = "SPD: ";

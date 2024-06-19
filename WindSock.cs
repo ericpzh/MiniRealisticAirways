@@ -95,6 +95,8 @@ namespace MiniRealisticAirways
             float timeGradient = updateTime / UPDATE_COUNT;
             float windGradient = RandomDirection() / UPDATE_COUNT;
 
+            Plugin.Log.LogInfo("Wind updated, moving from " + windDirection_ + " to " + windGradient + " in time " + updateTime);
+
             for (int i = 0; i < UPDATE_COUNT; i++)
             {
                 windDirection_ += windGradient;
@@ -123,6 +125,12 @@ namespace MiniRealisticAirways
         {
             if (text_ == null || textGameObject_ == null)
             {
+                return;
+            }
+
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
                 return;
             }
 
@@ -164,6 +172,12 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref GUIAutoHider __instance)
         {
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
+                return;
+            }
+
             if (!GameOverManager.Instance.GameOverFlag && __instance.TL.alpha < 1f)
             {
                 Plugin.Log.LogWarning("Windsock auto hidden in-game.");

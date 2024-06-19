@@ -143,12 +143,11 @@ namespace MiniRealisticAirways
                     __instance.targetSpeed = (float)__state[0];
                 }
 
-                AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState != null)
+                AircraftAltitude aircraftAltitude;
+                AircraftSpeed aircraftSpeed;
+                AircraftType aircraftType;
+                if (AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out aircraftSpeed, out aircraftType))
                 {
-                    AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-                    AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-                    AircraftType aircraftType = aircraftState.aircraftType_;
                     // Go around when final landing altitude/speed did not meet requirement.
                     if ((aircraftAltitude != null && !aircraftAltitude.CanLand()) ||
                         (aircraftSpeed != null && aircraftType != null && !aircraftSpeed.CanLand(aircraftType.weight_)))
@@ -214,18 +213,16 @@ namespace MiniRealisticAirways
     {
         static bool Prefix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP, ref object[] __state)
         {
-
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftAltitude aircraftAltitude;
+            AircraftSpeed aircraftSpeed;
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out aircraftSpeed, out aircraftType))
             {
                 return true;
             }
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null)
-            {
-                __state = new object[] {Aircraft.TurnSpeed};
-                aircraftType.PatchTurnSpeed();
-            }
+
+            __state = new object[] {Aircraft.TurnSpeed};
+            aircraftType.PatchTurnSpeed();
 
             if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) 
             {
@@ -244,7 +241,6 @@ namespace MiniRealisticAirways
             }
 
             // Stablize the approach first before trying to land.
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
             int i = 0;
             while (aircraftAltitude != null && !aircraftAltitude.CanLand() && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
@@ -255,7 +251,6 @@ namespace MiniRealisticAirways
                 }
             }
 
-            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
             i = 0;
             while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_) && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
@@ -286,8 +281,8 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftState aircraftState;
+            if (!AircraftState.GetAircraftState(__instance, out aircraftState))
             {
                 return;
             }
@@ -364,17 +359,14 @@ namespace MiniRealisticAirways
     {
         static bool Prefix(ref Aircraft __instance, ref object[] __state)
         {
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(__instance, out _, out _, out aircraftType))
             {
                 return true;
             }
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null)
-            {
-                __state = new object[] {Aircraft.TurnSpeed};
-                aircraftType.PatchTurnSpeed();
-            }
+
+            __state = new object[] {Aircraft.TurnSpeed};
+            aircraftType.PatchTurnSpeed();
             return true;
         }
 
@@ -393,17 +385,14 @@ namespace MiniRealisticAirways
     {
         static bool Prefix(float angle, ref Aircraft __instance, ref object[] __state)
         {
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(__instance, out _, out _, out aircraftType))
             {
                 return true;
             }
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null)
-            {
-                __state = new object[] {Aircraft.TurnSpeed};
-                aircraftType.PatchTurnSpeed();
-            }
+
+            __state = new object[] {Aircraft.TurnSpeed};
+            aircraftType.PatchTurnSpeed();
             return true;
         }
 
@@ -422,13 +411,13 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref Aircraft __instance, ref float __result)
         {
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(__instance, out _, out _, out aircraftType))
             {
                 return;
             }
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null && aircraftType.weight_ == Weight.Light)
+
+            if (aircraftType.weight_ == Weight.Light)
             {
                 __result /= AircraftType.LIGHT_TURN_FACTOR;
             }
@@ -443,8 +432,8 @@ namespace MiniRealisticAirways
             // Turn OOB into warnings.
             if (RestrictedAreaManager.Instance.counter > 1)
             {
-                AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
-                if (aircraftState == null)
+                AircraftState aircraftState;
+                if (!AircraftState.GetAircraftState(aircraft, out aircraftState))
                 {
                     return true;
                 }
@@ -464,21 +453,16 @@ namespace MiniRealisticAirways
         static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance, ref object[] __state)
         {
             
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftAltitude aircraftAltitude;
+            AircraftSpeed aircraftSpeed;
+            AircraftType aircraftType;
+            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out aircraftSpeed, out aircraftType))
             {
                 return true;
             }
 
-            AircraftType aircraftType = aircraftState.aircraftType_;
-            if (aircraftType != null)
-            {
-                __state = new object[] {Aircraft.TurnSpeed};
-                aircraftType.PatchTurnSpeed();
-            }
-
-            AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-            AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
+            __state = new object[] {Aircraft.TurnSpeed};
+            aircraftType.PatchTurnSpeed();
 
             // Auto slow down for aircraft to land when altitude is right.
             if (aircraftAltitude.CanLand())
@@ -538,8 +522,8 @@ namespace MiniRealisticAirways
             }
 
             // Weather aircraft had enter weather cell.
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftState aircraftState;
+            if (!AircraftState.GetAircraftState(__instance, out aircraftState))
             {
                 return true;
             }
@@ -571,6 +555,7 @@ namespace MiniRealisticAirways
                     // Climb the aircraft if there is no TCAS action.
                     for (int i = (int)altitude.targetAltitude_; i < (int)AltitudeLevel.High; i++)
                     {
+                        Plugin.Log.LogInfo("Weather effected, emergency climbing.");
                         altitude.EmergencyClimb();
                     }
                 }
@@ -585,19 +570,14 @@ namespace MiniRealisticAirways
         static bool Prefix(Aircraft aircraft1, Aircraft aircraft2)
         {
             // get altitude_ of both
-            AircraftState aircraftState1 = aircraft1.GetComponent<AircraftState>();
-            AircraftState aircraftState2 = aircraft2.GetComponent<AircraftState>();
-            if (aircraftState1 == null || aircraftState2 == null)
+            AircraftAltitude aircraftAltitude1;
+            AircraftAltitude aircraftAltitude2;
+            if (!AircraftState.GetAircraftStates(aircraft1, out aircraftAltitude1, out _, out _) ||
+                !AircraftState.GetAircraftStates(aircraft2, out aircraftAltitude2, out _, out _))
             {
                 return true;
             }
-            AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
-            AircraftAltitude altitude2 = aircraftState2.aircraftAltitude_;
-            if (altitude1 != null && altitude2 != null && altitude1.altitude_ != altitude2.altitude_)
-            {
-                return false;
-            }
-            return true;
+            return aircraftAltitude1.altitude_ == aircraftAltitude2.altitude_;
         }
     }
 
@@ -619,13 +599,13 @@ namespace MiniRealisticAirways
                 Waypoint waypoint = ((Component)(object)other).GetComponent<WaypointRef>().waypoint;
                 if (waypoint != null && ___colorCode == waypoint.colorCode && ___shapeCode == waypoint.shapeCode)
                 {
-                    AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                    if (aircraftState == null)
+                    AircraftAltitude aircraftAltitude;
+                    if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
                     {
                         return true;
                     }
-                    AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-                    if (altitude != null && !altitude.altitudeDisabled_ && altitude.altitude_ >= AltitudeLevel.Normal)
+
+                    if (!aircraftAltitude.altitudeDisabled_ && aircraftAltitude.altitude_ >= AltitudeLevel.Normal)
                     {
                         WaypointManager.Instance.Handoff(waypoint);
                         __instance.aircraftVoiceAndSubtitles.PlayHandOff();
@@ -644,18 +624,17 @@ namespace MiniRealisticAirways
                 Aircraft aircraft = other.GetComponent<AircraftRef>().aircraft;
                 if (other.name == "TCAS")
                 {
-                    AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
-                    AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
-                    if (aircraftState1 == null || aircraftState2 == null)
+                    AircraftAltitude aircraftAltitude1;
+                    AircraftAltitude aircraftAltitude2;
+                    if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
+                        !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
                     {
                         return true;
                     }
-                    AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
-                    AircraftAltitude altitude2 = aircraftState2.aircraftAltitude_;
-                    if (altitude1 != null && altitude2 != null && 
-                        altitude1.altitude_ != altitude2.altitude_ &&
-                        altitude1.targetAltitude_ != altitude2.altitude_ &&
-                        altitude1.altitude_ != altitude2.targetAltitude_)
+
+                    if (aircraftAltitude1.altitude_ != aircraftAltitude2.altitude_ &&
+                        aircraftAltitude1.targetAltitude_ != aircraftAltitude2.altitude_ &&
+                        aircraftAltitude1.altitude_ != aircraftAltitude2.targetAltitude_)
                     {
                         return false;
                     }
@@ -666,14 +645,13 @@ namespace MiniRealisticAirways
                 // Do not collide with terrain in high altitude.
                 Vector2 vector = Camera.main.WorldToViewportPoint(__instance.gameObject.transform.position);
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
-                
-                AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState == null)
+                AircraftAltitude aircraftAltitude;
+                if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
                 {
                     return true;
                 }
-                AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-                if (Inbound && altitude!= null && altitude.altitude_ == AltitudeLevel.High)
+
+                if (Inbound && aircraftAltitude.altitude_ == AltitudeLevel.High)
                 {
                     return false;
                 }
@@ -700,18 +678,16 @@ namespace MiniRealisticAirways
                 Aircraft aircraft = other.GetComponent<AircraftRef>().aircraft;
                 if (other.name == "TCAS")
                 {
-                    AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
-                    AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
-                    if (aircraftState1 == null || aircraftState2 == null)
+                    AircraftAltitude aircraftAltitude1;
+                    AircraftAltitude aircraftAltitude2;
+                    if(!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
+                       !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
                     {
                         return true;
                     }
-                    AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
-                    AircraftAltitude altitude2 = aircraftState2.aircraftAltitude_;
-                    if (altitude1 != null && altitude2 != null && 
-                        altitude1.altitude_ != altitude2.altitude_ &&
-                        altitude1.targetAltitude_ != altitude2.altitude_ &&
-                        altitude1.altitude_ != altitude2.targetAltitude_)
+                    if (aircraftAltitude1.altitude_ != aircraftAltitude2.altitude_ &&
+                        aircraftAltitude1.targetAltitude_ != aircraftAltitude2.altitude_ &&
+                        aircraftAltitude1.altitude_ != aircraftAltitude2.targetAltitude_)
                     {
                         return false;
                     }
@@ -722,13 +698,13 @@ namespace MiniRealisticAirways
                 // Do collide with terrain below high altitude.
                 Vector2 vector = Camera.main.WorldToViewportPoint(__instance.gameObject.transform.position);
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
-                AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-                if (aircraftState == null)
+
+                AircraftAltitude aircraftAltitude;
+                if(!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
                 {
                     return true;
                 }
-                AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-                if (Inbound && altitude != null && altitude.altitude_ < AltitudeLevel.High)
+                if (Inbound && aircraftAltitude.altitude_ < AltitudeLevel.High)
                 {
                     // Using reflex for __instance.Invoke("AircraftTerrainGameOver", 0); will crash the game.
                     // MethodInfo AircraftTerrainGameOver = __instance.GetType().GetMethod("AircraftTerrainGameOver", 
@@ -747,8 +723,8 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref bool __result, ref Aircraft __instance)
         {
-            AircraftState aircraftState = __instance.GetComponent<AircraftState>();
-            if (aircraftState == null)
+            AircraftAltitude aircraftAltitude;
+            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
             {
                 return;
             }
@@ -761,18 +737,18 @@ namespace MiniRealisticAirways
                 RaycastHit2D raycastHit2D = array[i];
                 if (raycastHit2D.collider.name == "Tanel")
                 {
-                    AircraftAltitude altitude = aircraftState.aircraftAltitude_;
-                    if (altitude != null && altitude.altitude_ == AltitudeLevel.High && altitude.targetAltitude_ == AltitudeLevel.High)
+                    if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
                     {
                         __result = false;
                         return;
                     }
-                    else if (__instance.state != Aircraft.State.Landing && altitude.tcasAction_ == TCASAction.None)
+                    else if (__instance.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
                     {
                         // Active GPWS on aircraft if there is no TCAS action.
-                        for (int j = (int)altitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
+                        for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
                         {
-                            altitude.EmergencyClimb();
+                            Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
+                            aircraftAltitude.EmergencyClimb();
                         }
                     }
                 }
@@ -796,69 +772,69 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            AircraftState aircraftState1 = __instance.GetComponent<AircraftState>();
-            AircraftState aircraftState2 = aircraft.GetComponent<AircraftState>();
-            if (aircraftState1 == null || aircraftState2 == null)
+            AircraftAltitude aircraftAltitude1;
+            AircraftAltitude aircraftAltitude2;
+            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) || 
+                !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
             {
                 return;
             }
 
-            AircraftAltitude altitude1 = aircraftState1.aircraftAltitude_;
-            AircraftAltitude altitude2 = aircraftState2.aircraftAltitude_;
-            if (altitude1 == null || altitude2 == null)
-            {
-                return;
-            }
-
-            if (altitude1.tcasAction_ == TCASAction.None && altitude2.tcasAction_ == TCASAction.None)
+            if (aircraftAltitude1.tcasAction_ == TCASAction.None && aircraftAltitude2.tcasAction_ == TCASAction.None)
             {
                 // Active TCAS on aircrafts if there is no previous action.
-                if (aircraftState1.IsLanding() && aircraftState2.IsLanding())
+                if (aircraftAltitude1.IsLanding() && aircraftAltitude2.IsLanding())
                 {
                     // Both at landing, do nothing.
                 }
-                else if (aircraftState1.IsLanding())
+                else if (aircraftAltitude1.IsLanding())
                 {
-                    altitude2.EmergencyClimb();
+                    aircraftAltitude2.EmergencyClimb();
                 }
-                else if (aircraftState2.IsLanding())
+                else if (aircraftAltitude2.IsLanding())
                 {
-                    altitude1.EmergencyClimb();
+                    aircraftAltitude1.EmergencyClimb();
                 }
-                else if (altitude1.targetAltitude_ == AltitudeLevel.High && (altitude2.targetAltitude_ == AltitudeLevel.High || altitude2.altitude_ == AltitudeLevel.High))
+                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High && 
+                        (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High || aircraftAltitude2.altitude_ == AltitudeLevel.High))
                 {
                     // 2 (about to be)at High, 1 about to be at high, command 1 to desend.
-                    altitude1.EmergencyDesend();
+                    aircraftAltitude1.EmergencyDesend();
                 }
-                else if (altitude2.targetAltitude_ == AltitudeLevel.High && (altitude1.targetAltitude_ == AltitudeLevel.High || altitude1.altitude_ == AltitudeLevel.High))
+                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High && 
+                        (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High || aircraftAltitude1.altitude_ == AltitudeLevel.High))
                 {
                     // 1 (about to be)at High, 2 about to be at high, command 2 to desend.
-                    altitude2.EmergencyDesend();
+                    aircraftAltitude2.EmergencyDesend();
                 }
-                else if (altitude1.targetAltitude_ == AltitudeLevel.Low && (altitude2.targetAltitude_ == AltitudeLevel.Low || altitude2.altitude_ == AltitudeLevel.Low))
+                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low && 
+                        (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude2.altitude_ == AltitudeLevel.Low))
                 {
                     // 2 (about to be)at low, 1 about to be at low, command 1 to climb.
-                    altitude1.EmergencyClimb();
+                    aircraftAltitude1.EmergencyClimb();
                 }
-                else if (altitude2.targetAltitude_ == AltitudeLevel.Low && (altitude1.targetAltitude_ == AltitudeLevel.Low || altitude1.altitude_ == AltitudeLevel.Low))
+                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low && 
+                        (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude1.altitude_ == AltitudeLevel.Low))
                 {
                     // 1 (about to be)at low, 2 about to be at low, command 2 to climb.
-                    altitude2.EmergencyClimb();
+                    aircraftAltitude2.EmergencyClimb();
                 }
-                else if (altitude1.altitude_ == AltitudeLevel.Low && altitude2.altitude_ == AltitudeLevel.Low)
+                else if (aircraftAltitude1.altitude_ == AltitudeLevel.Low && 
+                         aircraftAltitude2.altitude_ == AltitudeLevel.Low)
                 {
                     // Both at high, command 2 to climb.
-                    altitude2.EmergencyClimb();
+                    aircraftAltitude2.EmergencyClimb();
                 }
-                else if (altitude1.altitude_ == AltitudeLevel.High && altitude2.altitude_ == AltitudeLevel.High)
+                else if (aircraftAltitude1.altitude_ == AltitudeLevel.High && 
+                         aircraftAltitude2.altitude_ == AltitudeLevel.High)
                 {
                     // Both at high, command 2 to desend.
-                    altitude2.EmergencyDesend();
+                    aircraftAltitude2.EmergencyDesend();
                 }
                 else
                 {
-                    altitude1.EmergencyClimb();
-                    altitude2.EmergencyDesend();
+                    aircraftAltitude1.EmergencyClimb();
+                    aircraftAltitude2.EmergencyDesend();
                 }
             }
         }

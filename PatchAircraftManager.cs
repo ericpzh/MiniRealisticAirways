@@ -7,8 +7,14 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(AircraftManager), "Update", new Type[] {})]
     class PatchAircraftManagerUpdate
     {
-        static void Postfix(ref AircraftManager __instance, Camera ____camera)
+        static void Postfix(Camera ____camera)
         {
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
+                return;
+            }
+
             // Don't need to understand what these variables are, that's how the source code works.
             Vector3 val = ____camera.ScreenToWorldPoint(Input.mousePosition);
             float num = float.PositiveInfinity;
@@ -24,42 +30,42 @@ namespace MiniRealisticAirways
                     aircraft = aircraft3;
                 }
             }
+
             if ((UnityEngine.Object)(object)aircraft != (UnityEngine.Object)null)
             {
                 // Process aircraft action on hover.
-                AircraftState aircraftState = aircraft.GetComponent<AircraftState>();
-                if (aircraftState == null)
+                AircraftAltitude aircraftAltitude;
+                AircraftSpeed aircraftSpeed;
+                AircraftType aircraftType;
+                if (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out aircraftSpeed, out aircraftType))
                 {
                     return;
                 }
 
-                AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-                if (aircraftSpeed != null && AircraftSpeed.InputSlowDown())
+                if (AircraftSpeed.InputSlowDown())
                 {
                     aircraftSpeed.AircraftSlowDown();
                     return;
                 }
 
-                if (aircraftSpeed != null && AircraftSpeed.InputSpeedUp())
+                if (AircraftSpeed.InputSpeedUp())
                 {
                     aircraftSpeed.AircraftSpeedUp();
                     return;
                 }
 
-                AircraftAltitude aircraftAltitude = aircraftState.aircraftAltitude_;
-                if (aircraftAltitude != null && AircraftAltitude.InputClimb())
+                if (AircraftAltitude.InputClimb())
                 {
                     aircraftAltitude.AircraftClimb();
                     return;
                 }
 
-                if (aircraftAltitude != null && AircraftAltitude.InputDesend())
+                if (AircraftAltitude.InputDesend())
                 {
                     aircraftAltitude.AircraftDesend();
                     return;
                 }
             }
-
         }
     }
 
@@ -68,7 +74,7 @@ namespace MiniRealisticAirways
     {
         static bool Prefix(ref AircraftManager __instance)
         {
-            ActiveAircraftType activeAircraftType = __instance.gameObject.AddComponent<ActiveAircraftType>();
+            __instance.gameObject.AddComponent<ActiveAircraftType>();
             return true;
         }
     }
@@ -82,8 +88,9 @@ namespace MiniRealisticAirways
                             ref AircraftManager __instance, ref Aircraft __result)
         {
 
-            AircraftState aircraftState = __result.GetComponent<AircraftState>();
-            if (aircraftState == null && __result.direction == Aircraft.Direction.Outbound)
+            AircraftState aircraftState;
+            if (!AircraftState.GetAircraftState(__result, out aircraftState) && 
+                __result.direction == Aircraft.Direction.Outbound)
             {
                 aircraftState = __result.gameObject.AddComponent<AircraftState>();
                 aircraftState.aircraft_ = __result;
@@ -96,7 +103,7 @@ namespace MiniRealisticAirways
             {
                 // Transfer weight from apron to aircraft.
                 aircraftType.weight_ = activeAircraftType.weight_;
-                Plugin.Log.LogInfo("aircraft weight:" + aircraftType.weight_);
+                Plugin.Log.LogInfo("Transferred aircraft with weight: " + aircraftType.weight_);
             }
         }
     }

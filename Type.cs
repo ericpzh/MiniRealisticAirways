@@ -84,6 +84,7 @@ namespace MiniRealisticAirways
                     // Blink when fuel is slow.
                     blinkCoroutine = Animation.BlinkCoroutine(fuelGauge_.spriteRenderer_);
                     StartCoroutine(blinkCoroutine);
+                    Plugin.Log.LogInfo("Fuel is low, started blinkCoroutine.");
                 }
 
                 if (percentFuelLeft_ <= LOW_FUEL_WARNING_PERCENT / 2 && blinkCoroutine != null && emergencyCoroutine == null && fuelGauge_.spriteRenderer_ != null)
@@ -98,6 +99,7 @@ namespace MiniRealisticAirways
                     // fuelGauge_.spriteRenderer_.enabled = false;
                     emergencyCoroutine = EmergencyCoroutine(aircraft_);
                     StartCoroutine(emergencyCoroutine);
+                    Plugin.Log.LogInfo("Fuel is super low, started emergencyCoroutine.");
                 }
 
                 if (percentFuelLeft_ % (100 / FuelGaugeTextures.REFRESH_GRADIENT) == 0 && 
@@ -315,6 +317,12 @@ namespace MiniRealisticAirways
             if (aircraft_ == null)
             {
                 Destroy(gameObject);
+                return;
+            }
+
+            if (TimeManager.Instance.Paused)
+            {
+                // Skip update during time pause.
                 return;
             }
 
