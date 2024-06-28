@@ -238,6 +238,14 @@ namespace MiniRealisticAirways
                     enableAltitudeGaugeCoroutine_ = EnableAltitudeGauge(altitude_);
                     StartCoroutine(enableAltitudeGaugeCoroutine_);
                 }
+
+                AircraftSpeed aircraftSpeed;
+                if (AircraftState.GetAircraftStates(aircraft_, out _, out aircraftSpeed, out _) &&
+                    aircraftSpeed.enableSpeedGaugeCoroutine_ == null)
+                {
+                    aircraftSpeed.enableSpeedGaugeCoroutine_ = aircraftSpeed.EnableSpeedGauge();
+                    StartCoroutine(aircraftSpeed.enableSpeedGaugeCoroutine_);
+                }
             }
 
             if (altitude_ != AltitudeLevel.Ground && AircraftState.DisableStateOnTouchedDown(aircraft_))

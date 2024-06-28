@@ -14,6 +14,7 @@ namespace MiniRealisticAirways
         public Vector2 cell_;
         public GameObject gameObject_;
         public SpriteRenderer spriteRenderer_;
+        public bool enabled_ = true;
     }
 
     public class CellComparer : IComparer<Cell> {
@@ -39,7 +40,8 @@ namespace MiniRealisticAirways
             foreach(Cell cell in cells_)
             {
                 if (position.x >= cell.cell_.x && position.x <= cell.cell_.x + SIZE &&
-                    position.y >= cell.cell_.y && position.y <= cell.cell_.y + SIZE)
+                    position.y >= cell.cell_.y && position.y <= cell.cell_.y + SIZE &&
+                    cell.enabled_)
                 {
                     return true;
                 }
@@ -100,23 +102,72 @@ namespace MiniRealisticAirways
             }
         }
 
-        private int GetColor(Cell cell)
+        private int GetColor(Cell cell, float duration)
         {
             if (center_ == null)
             {
-                return 0;
+                return WeatherCellTextures.RED;
             }
 
             float distance = Vector2.Distance(cell.cell_, center_);
             if (distance < 0.6f && center_.x >= cell.cell_.x)
             {
-                return 0;
+                if (duration > 0.8)
+                {
+                    return WeatherCellTextures.GREEN;
+                } else if (duration > 0.4)
+                {
+                    return WeatherCellTextures.YELLOW;
+                }
+                return WeatherCellTextures.RED;
             }
-            else if (distance < 1f || (distance < 1.5f && center_.y >= cell.cell_.y))
+            else if ((distance < 1f || (distance < 1.5f && center_.y >= cell.cell_.y)) &&
+                      duration < 0.6)
             {
-                return 1;
+                return WeatherCellTextures.YELLOW;
             }
-            return 2;
+            return WeatherCellTextures.GREEN;
+        }
+
+        private void MoveCells(float x, float y, int step)
+        {
+            float duration = step / MOVE_GRADIENT;
+            bool removedCell = false;
+            foreach(Cell cell in cells_)
+            {
+                if (cell.cell_ == null || !cell.enabled_)
+                {
+                    continue;
+                }
+
+                int color = GetColor(cell, 0);
+
+                // Disable a green cell randomly.
+                if (!removedCell && duration > 0.2 && step % 2 == 0 &&
+                    color == WeatherCellTextures.GREEN && UnityEngine.Random.value < 0.25)
+                {
+                    cell.spriteRenderer_.enabled = false;
+                    Destroy(cell.spriteRenderer_.sprite);
+                    cell.enabled_ = false;
+                    removedCell = true;
+                    continue;
+                }
+
+                // No need to update when color isn't changing.
+                if (duration > 0.4 && duration < 0.41 ||
+                    duration > 0.6 && duration < 0.61 ||
+                    duration > 0.8 && duration < 0.81)
+                {
+                    Destroy(cell.spriteRenderer_.sprite);
+                    cell.spriteRenderer_.sprite = Sprite.Create(
+                        WeatherCellTextures.textures_[WeatherCellTextures.OPACITY_GRADIENT - 1][color],
+                        WeatherCellTextures.rect_, Vector2.zero);
+                    cell.spriteRenderer_.enabled = true;
+                }
+                cell.cell_.x += x;
+                cell.cell_.y += y;
+                cell.gameObject_.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
+        }
         }
 
         private IEnumerator GenerateWeatherCoroutine()
@@ -126,7 +177,7 @@ namespace MiniRealisticAirways
                 foreach (Cell cell in cells_)
                 {
                     Destroy(cell.spriteRenderer_.sprite);
-                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell)],
+                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell, 0)],
                                                                 WeatherCellTextures.rect_, Vector2.zero);
                     cell.spriteRenderer_.enabled = true;
                 }
@@ -136,7 +187,26 @@ namespace MiniRealisticAirways
 
             enabled_ = true;
 
-            yield return new WaitForSeconds(EventManager.EVENT_RESTORE_TIME - DISABLE_TIME);
+            // Start moving weather cells towards single direction.
+            int xDirection = UnityEngine.Random.Range(-1, 1);
+            int yDirection = UnityEngine.Random.Range(-1, 1);
+            int it = 0;
+            while (xDirection == 0 && yDirection == 0 && ++it < Plugin.MAX_WHILE_LOOP_ITER)
+            {
+                xDirection = UnityEngine.Random.Range(-1, 1);
+                yDirection = UnityEngine.Random.Range(-1, 1);
+                if (it == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                {
+                    Plugin.Log.LogWarning("INF Loop in GenerateWeatherCoroutine().");
+                }
+            }
+            Plugin.Log.LogInfo("Moving weather towards (" + xDirection + ", " + yDirection + ")");
+
+            for (int i = 0; i < MOVE_GRADIENT; i++)
+            {
+                MoveCells(MOVE_STEP * i * xDirection, MOVE_STEP * i * yDirection, i);
+                yield return new WaitForSeconds((EventManager.EVENT_RESTORE_TIME - DISABLE_TIME) / MOVE_GRADIENT);
+            }
         }
 
         private IEnumerator DestoryWeatherCoroutine()
@@ -147,11 +217,16 @@ namespace MiniRealisticAirways
             {
                 foreach (Cell cell in cells_)
                 {
+                    if (!cell.enabled_)
+                    {
+                        continue;
+                    }
+
                     if (cell.spriteRenderer_.sprite != null)
                     {
                         Destroy(cell.spriteRenderer_.sprite);
                     }
-                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell)],
+                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell, 1f)],
                                                                 WeatherCellTextures.rect_, Vector2.zero);
                     cell.spriteRenderer_.enabled = true;
                 }
@@ -198,6 +273,8 @@ namespace MiniRealisticAirways
         private const float ENABLE_TIME = 2 * WeatherCellTextures.OPACITY_GRADIENT;
         private const int GENERATE_NUMBER = 60;
         private const float DISABLE_TIME = WeatherCellTextures.OPACITY_GRADIENT;
+        private const float MOVE_GRADIENT = 30f;
+        private const float MOVE_STEP = 0.005f;
         private Vector2 center_;
     }
 
@@ -253,6 +330,9 @@ namespace MiniRealisticAirways
         public static Rect rect_;
         public const int OPACITY_GRADIENT = 10;
         public static List<List<Texture2D>> textures_;
+        public static int RED = 0;
+        public static int YELLOW = 1;
+        public static int GREEN = 2;
         private static List<Color> colors_;
         private const int SIZE = (int)(100 * Weather.SIZE);
     }
