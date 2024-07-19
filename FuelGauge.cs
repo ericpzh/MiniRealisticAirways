@@ -56,10 +56,15 @@ namespace MiniRealisticAirways
 
         public static void DestoryTextures()
         {
+            if (fuelTextures_ == null)
+            {
+                return;
+            }
             Plugin.Log.LogInfo("Fuel gauge textures destoried.");
             for (int i = 0; i < REFRESH_GRADIENT + 1; i++)
             {
-                Texture2D.Destroy(fuelTextures_[i]);
+                if (fuelTextures_[i])
+                    Texture2D.Destroy(fuelTextures_[i]);
             }
             fuelTextures_.Clear();
         }

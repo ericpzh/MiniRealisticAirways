@@ -4,24 +4,25 @@ using HarmonyLib;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UnityEngine.UIElements;
 
 namespace MiniRealisticAirways
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
-    {   
+    {
         private void Awake()
         {
             Log = Logger;
 
             // Plugin startup logic
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
-            
+
             SceneManager.sceneLoaded += OnSceneLoaded;
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             harmony.PatchAll();
         }
-        
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Tab))
@@ -37,9 +38,6 @@ namespace MiniRealisticAirways
             if ((scene.name == "MapPlayer" || scene.name == "London") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
-                Logger.LogInfo("Hooking AircraftManager");
-                AircraftManager.Instance.AircraftCreateEvent.AddListener(HookAircraft);
-
                 Logger.LogInfo("Hooking UpgradeManager");
                 UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
 
@@ -70,32 +68,11 @@ namespace MiniRealisticAirways
             WeatherCellTextures.DestoryTextures();
         }
 
-        private void HookAircraft(Vector2 pos, Aircraft aircraft)
-        {
-            if (aircraft.direction == Aircraft.Direction.Inbound)
-            {
-                Logger.LogInfo("Aircraft created via HookAircraft: " + aircraft.name);
-
-                AircraftState aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
-                aircraftState.aircraft_ = aircraft;
-                aircraftState.Initialize();
-                AircraftType aircraftType = aircraftState.aircraftType_;
-                if (aircraftType != null)
-                {
-                    aircraftType.weight_ = BaseAircraftType.RandomWeight();
-                    Logger.LogInfo("Aircraft created with weight: " + aircraftType.weight_);
-                    // Only arrival aircraft have fuel limit.
-                    aircraftType.percentFuelLeft_ = 99;
-                    StartCoroutine(aircraftType.FuelManagementCoroutine());
-                }
-            }
-        }
-
         private void HookUpgrade(UpgradeOpt upgrade)
         {
             Logger.LogInfo("Upgrade selected: " + upgrade);
-            
-            if (upgrade == UpgradeOpt.AUTO_HEADING_PROP)
+
+            if (upgrade == UpgradeOpt.NAVIGATION_WAYPOINT)
             {
                 StartCoroutine(SpawnWaypointAutoHeadingCoroutine());
             }

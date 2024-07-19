@@ -17,12 +17,14 @@ namespace MiniRealisticAirways
         public bool enabled_ = true;
     }
 
-    public class CellComparer : IComparer<Cell> {
-        public int Compare(Cell left, Cell right) {
+    public class CellComparer : IComparer<Cell>
+    {
+        public int Compare(Cell left, Cell right)
+        {
             var dif = left.cell_ - right.cell_;
-            if(dif.x == 0 && dif.y == 0)
+            if (dif.x == 0 && dif.y == 0)
                 return 0;
-            else if(dif.x == 0)
+            else if (dif.x == 0)
                 return (int)Mathf.Sign(dif.y);
             return (int)Mathf.Sign(dif.x);
         }
@@ -37,7 +39,7 @@ namespace MiniRealisticAirways
                 return false;
             }
 
-            foreach(Cell cell in cells_)
+            foreach (Cell cell in cells_)
             {
                 if (position.x >= cell.cell_.x && position.x <= cell.cell_.x + SIZE &&
                     position.y >= cell.cell_.y && position.y <= cell.cell_.y + SIZE &&
@@ -48,7 +50,7 @@ namespace MiniRealisticAirways
             }
             return false;
         }
-        
+
         public void DestoryWeather()
         {
             StartCoroutine(DestoryWeatherCoroutine());
@@ -71,7 +73,7 @@ namespace MiniRealisticAirways
             // Cell center.
             center_ = new Vector2(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(-6f, 6f));
             Cell current = new Cell(center_);
-            cells_ = new SortedSet<Cell>(new CellComparer()){ current };
+            cells_ = new SortedSet<Cell>(new CellComparer()) { current };
 
             List<Vector2> directions = new List<Vector2>{
                 new Vector2(-1, 0), new Vector2(0, -1), new Vector2(0, 1), new Vector2(1, 0)};
@@ -115,7 +117,8 @@ namespace MiniRealisticAirways
                 if (duration > 0.8)
                 {
                     return WeatherCellTextures.GREEN;
-                } else if (duration > 0.4)
+                }
+                else if (duration > 0.4)
                 {
                     return WeatherCellTextures.YELLOW;
                 }
@@ -133,7 +136,7 @@ namespace MiniRealisticAirways
         {
             float duration = step / MOVE_GRADIENT;
             bool removedCell = false;
-            foreach(Cell cell in cells_)
+            foreach (Cell cell in cells_)
             {
                 if (cell.cell_ == null || !cell.enabled_)
                 {
@@ -167,7 +170,7 @@ namespace MiniRealisticAirways
                 cell.cell_.x += x;
                 cell.cell_.y += y;
                 cell.gameObject_.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
-        }
+            }
         }
 
         private IEnumerator GenerateWeatherCoroutine()
@@ -250,7 +253,7 @@ namespace MiniRealisticAirways
         {
             GenerateCells();
 
-            foreach(Cell cell in cells_)
+            foreach (Cell cell in cells_)
             {
                 if (cell.cell_ != null)
                 {
@@ -318,6 +321,10 @@ namespace MiniRealisticAirways
 
         public static void DestoryTextures()
         {
+            if (textures_ == null)
+            {
+                return;
+            }
             Plugin.Log.LogInfo("Weather cell textures destoried.");
             foreach (List<Texture2D> textures in textures_)
             {
