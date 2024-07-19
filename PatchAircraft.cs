@@ -795,21 +795,12 @@ namespace MiniRealisticAirways
             if (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out _, out _))
                 return true;
 
-            if (restrictArea.gameObject.layer == LayerMask.NameToLayer("GWPS"))
+            if (restrictArea.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
             {
                 if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
                 {
                     __result = false;
                     return false;
-                }
-                else if (aircraft.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
-                {
-                    // Active GPWS on aircraft if there is no TCAS action.
-                    for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
-                    {
-                        Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
-                        aircraftAltitude.EmergencyClimb();
-                    }
                 }
             }
             return true;
