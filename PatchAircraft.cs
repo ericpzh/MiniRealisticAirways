@@ -27,10 +27,6 @@ namespace MiniRealisticAirways
                     __instance.StartCoroutine(aircraftType.FuelManagementCoroutine());
                 }
             }
-            else
-            {
-
-            }
         }
     }
 
@@ -744,41 +740,79 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "IsObstacleInFrontOfMe", new Type[] { })]
-    class PatchIsObstacleInFrontOfMe
+    [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Aircraft) })]
+    class PatchPathBasedCollidePredictAA
     {
-        static void Postfix(ref bool __result, ref Aircraft __instance)
+        static bool Prefix(List<Vector3> PathA, Aircraft otherAircraft, ref bool __result)
         {
-            AircraftAltitude aircraftAltitude;
-            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
+            Aircraft aircraft1 = otherAircraft;
+            foreach (Aircraft ac in AircraftManager.GetAircraft())
             {
-                return;
+                if (Vector2.Distance((Vector2)ac.gameObject.transform.position, (Vector2)PathA[0]) < 0.02f)
+                {
+                    aircraft1 = ac;
+                    break;
+                }
+            }
+            AircraftAltitude aircraftAltitude1;
+            AircraftAltitude aircraftAltitude2;
+            if (!AircraftState.GetAircraftStates(aircraft1, out aircraftAltitude1, out _, out _) ||
+                !AircraftState.GetAircraftStates(otherAircraft, out aircraftAltitude2, out _, out _))
+            {
+                return true;
             }
 
-            Vector3 vector = Quaternion.AngleAxis(__instance.heading, Vector3.back) * Vector2.up;
-            string[] layerNames = new string[1] { "AircraftSafety" };
-            RaycastHit2D[] array = Physics2D.CircleCastAll(__instance.transform.position, 0.5f, vector, 3f, LayerMask.GetMask(layerNames));
-            for (int i = 0; i < array.Length; i++)
+            if (aircraftAltitude1.altitude_ != aircraftAltitude2.altitude_ &&
+                aircraftAltitude1.targetAltitude_ != aircraftAltitude2.altitude_ &&
+                aircraftAltitude1.altitude_ != aircraftAltitude2.targetAltitude_)
             {
-                RaycastHit2D raycastHit2D = array[i];
-                if (raycastHit2D.collider.name == "Tanel")
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Collider2D), typeof(float?), typeof(float?) })]
+    class PatchPathBasedCollidePredictAG
+    {
+        static bool Prefix(List<Vector3> PathA, Collider2D restrictArea, float? PremittedHdg, float? HdgRange, ref bool __result)
+        {
+            Aircraft aircraft = null;
+            foreach (Aircraft ac in AircraftManager.GetAircraft())
+            {
+                if (Vector2.Distance((Vector2)ac.gameObject.transform.position, (Vector2)PathA[0]) < 0.02f)
                 {
-                    if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
+                    aircraft = ac;
+                    break;
+                }
+            }
+            if (aircraft == null)
+            {
+                return true;
+            }
+            AircraftAltitude aircraftAltitude;
+            if (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out _, out _))
+                return true;
+
+            if (restrictArea.gameObject.layer == LayerMask.NameToLayer("GWPS"))
+            {
+                if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
+                {
+                    __result = false;
+                    return false;
+                }
+                else if (aircraft.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
+                {
+                    // Active GPWS on aircraft if there is no TCAS action.
+                    for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
                     {
-                        __result = false;
-                        return;
-                    }
-                    else if (__instance.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
-                    {
-                        // Active GPWS on aircraft if there is no TCAS action.
-                        for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
-                        {
-                            Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
-                            aircraftAltitude.EmergencyClimb();
-                        }
+                        Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
+                        aircraftAltitude.EmergencyClimb();
                     }
                 }
             }
+            return true;
         }
     }
 
@@ -789,6 +823,28 @@ namespace MiniRealisticAirways
         {
             if (!isAircraftWarner)
             {
+                AircraftAltitude aircraftAltitude;
+                if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
+                {
+                    return;
+                }
+                if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
+                {
+                    return;
+                }
+
+                else if (__instance.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
+                {
+                    if (other.layer == LayerMask.NameToLayer("AircraftSafety"))
+                    {
+                        // Active GPWS on aircraft if there is no TCAS action.
+                        for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
+                        {
+                            Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
+                            aircraftAltitude.EmergencyClimb();
+                        }
+                    }
+                }
                 return;
             }
 
