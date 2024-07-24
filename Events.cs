@@ -9,12 +9,12 @@ namespace MiniRealisticAirways
 {
     public class Event : MonoBehaviour
     {
-        public virtual bool Trigger() 
+        public virtual bool Trigger()
         {
             return true;
         }
 
-        public virtual void Restore() {}
+        public virtual void Restore() { }
     }
 
     public class RunwayClose : Event
@@ -24,7 +24,7 @@ namespace MiniRealisticAirways
             Plugin.Log.LogWarning("RunwayClose Triggered.");
             foreach (Aircraft aircraft in AircraftManager.GetOutboundAircraft())
             {
-                if (aircraft.state == Aircraft.State.TakingOff && 
+                if (aircraft.state == Aircraft.State.TakingOff &&
                     aircraft.takeOffRunway != null)
                 {
                     aircraft_ = aircraft;
@@ -202,7 +202,7 @@ namespace MiniRealisticAirways
         {
             InitCallSign();
 
-            while(aircraft == null || aircraft.state == Aircraft.State.TakingOff)
+            while (aircraft == null || aircraft.state == Aircraft.State.TakingOff)
             {
                 yield return new WaitForSeconds(1f);
             }
@@ -218,7 +218,7 @@ namespace MiniRealisticAirways
             {
                 yield return new WaitForFixedUpdate();
             }
-            
+
             aircraftAltitude.tcasAction_ = TCASAction.Disabled;
             aircraftAltitude.altitudeDisabled_ = true;
             aircraftSpeed.speedDisabled_ = true;
@@ -351,7 +351,7 @@ namespace MiniRealisticAirways
         private void Start()
         {
             EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
-            events_ = new List<Event>{engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather()};
+            events_ = new List<Event> { engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather() };
             Utils.Shuffle(ref events_);
             Plugin.Log.LogInfo("Event setup completed.");
             StartCoroutine(StartEventCoroutine());

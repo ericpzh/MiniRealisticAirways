@@ -13,11 +13,11 @@ namespace MiniRealisticAirways
     {
         static void Postfix(ref Aircraft __instance)
         {
-            AircraftState aircraftState = __instance.gameObject.AddComponent<AircraftState>();
-            aircraftState.aircraft_ = __instance;
-            aircraftState.Initialize();
             if (__instance.direction == Aircraft.Direction.Inbound)
             {
+                AircraftState aircraftState = __instance.gameObject.AddComponent<AircraftState>();
+                aircraftState.aircraft_ = __instance;
+                aircraftState.Initialize();
                 AircraftType aircraftType = aircraftState.aircraftType_;
                 if (aircraftType != null)
                 {
