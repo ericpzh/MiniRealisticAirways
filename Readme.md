@@ -129,7 +129,6 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # Other Changes
 - You now starts with 3 waiting area upgrades.
 - You now get upgrades twice as fast.
-- You now get 2 waypoints per upgrade selection.
 - Aircraft flying out-of-bound now count as restricted area violations instead of an instant game-over.
 
 ***
@@ -253,5 +252,4 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # 其他特性
 - 开场时自动获得3个等待区升级。
 - 升级现在每半天刷新一次。
-- 航点升级现在会给予两个航点。
 - 飞出屏幕和飞入禁飞区现在拥有同样效果。

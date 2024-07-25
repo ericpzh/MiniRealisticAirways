@@ -38,8 +38,6 @@ namespace MiniRealisticAirways
             if ((scene.name == "MapPlayer" || scene.name == "London") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
-                Logger.LogInfo("Hooking UpgradeManager");
-                UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
 
                 // Pre-load textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
@@ -68,21 +66,7 @@ namespace MiniRealisticAirways
             WeatherCellTextures.DestoryTextures();
         }
 
-        private void HookUpgrade(UpgradeOpt upgrade)
-        {
-            Logger.LogInfo("Upgrade selected: " + upgrade);
 
-            if (upgrade == UpgradeOpt.NAVIGATION_WAYPOINT)
-            {
-                StartCoroutine(SpawnWaypointAutoHeadingCoroutine());
-            }
-        }
-
-        private IEnumerator SpawnWaypointAutoHeadingCoroutine()
-        {
-            yield return new WaitForFixedUpdate();
-            WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
-        }
 
         internal static ManualLogSource Log;
         internal static bool showText_ = true;

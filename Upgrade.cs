@@ -20,26 +20,17 @@ namespace MiniRealisticAirways
                 return;
             }
 
+            if (MapManager.gameMode == GameMode.SandBox)
+            {
+                return;
+            }
+
             // Starts with 3 apron upgrade.
             for (int i = 0; i < 3; i++)
             {
                 ___counter[(int)UpgradeOpt.LONGER_TAXIWAY]++;
                 TakeoffTaskManager.Instance.AddApron();
             }
-        }
-    }
-
-    [HarmonyPatch(typeof(UpgradeManager), "ProcessUpgrade", new Type[] { typeof(UpgradeOpt) })]
-    class PatchProcessUpgrade
-    {
-        static bool Prefix(UpgradeOpt upgradeOpt, ref int[] ___counter)
-        {
-            if (upgradeOpt == UpgradeOpt.NAVIGATION_WAYPOINT)
-            {
-                // Accounts for the additional waypoint.
-                ___counter[(int)upgradeOpt]++;
-            }
-            return true;
         }
     }
 }
