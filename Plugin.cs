@@ -1,10 +1,12 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
-using UnityEngine.UIElements;
+using UIComponents.Modals;
+using System.Collections;
+using TMPro;
+using UnityEngine.Video;
 
 namespace MiniRealisticAirways
 {
@@ -34,6 +36,11 @@ namespace MiniRealisticAirways
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Logger.LogInfo($"Scene loaded: {scene.name}");
+
+            if (scene.name == "Menu")
+            {
+                AudioManager.instance.StartCoroutine(ShowModHintCoroutine());
+            }
 
             if ((scene.name == "MapPlayer" || scene.name == "London") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
@@ -66,7 +73,29 @@ namespace MiniRealisticAirways
             WeatherCellTextures.DestoryTextures();
         }
 
+        IEnumerator ShowModHintCoroutine()
+        {
+            yield return new WaitForSeconds(1);
+            yield return new WaitUntil(() => ModalManager.Instance != null);
+            ShowModHint();
+        }
+        private static void ShowModHint()
+        {
+            ModalWithButton modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
+            modal.SetTitle("Mod Enabled!");
+            modal.SetHeading("Thank you for playing \"MiniRealisticAirways\"! Before you start, you might want to check out this mod's introduction to help you get the most out of the game!");
+            modal.SetDescription("English: <b><u><link=\"ENG\">Click here</link></u></b>");
+            modal.button.gameObject.SetActive(false);
 
+            TMP_Text newTMP = Instantiate(modal.description, modal.description.transform);
+            newTMP.transform.position = modal.description.transform.position - new Vector3(0, 150, 0);
+            newTMP.text = "Chinese: <b><u><link=\"CHS\">Click here</link></u></b>";
+            modal.description.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VURHdwhonozWZcxJAaHcG5tPnUg?from=from_copylink";
+            newTMP.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VURHdwhonozWZcxJAaHcG5tPnUg?from=from_copylink";
+
+
+            modal.Show();
+        }
 
         internal static ManualLogSource Log;
         internal static bool showText_ = true;
