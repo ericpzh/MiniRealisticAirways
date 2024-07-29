@@ -515,7 +515,7 @@ namespace MiniRealisticAirways
                     BindingFlags.NonPublic | BindingFlags.Instance);
                 ShowPath.Invoke(__instance, new object[] { path, false /* success */ });
 
-                __instance.aircraftVoiceAndSubtitles.PlayAngleTooSteep();
+                AudioManager.instance.PlayCanNotComply();
                 return false;
             }
 

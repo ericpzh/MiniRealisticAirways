@@ -82,16 +82,16 @@ namespace MiniRealisticAirways
         private static void ShowModHint()
         {
             ModalWithButton modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
-            modal.SetTitle("Mod Enabled!");
+            modal.SetTitle("  Mod Enabled!  ");
             modal.SetHeading("Thank you for playing \"MiniRealisticAirways\"! Before you start, you might want to check out this mod's introduction to help you get the most out of the game!");
             modal.SetDescription("English: <b><u><link=\"ENG\">Click here</link></u></b>");
             modal.button.gameObject.SetActive(false);
 
             TMP_Text newTMP = Instantiate(modal.description, modal.description.transform);
             newTMP.transform.position = modal.description.transform.position - new Vector3(0, 150, 0);
-            newTMP.text = "Chinese: <b><u><link=\"CHS\">Click here</link></u></b>";
+            newTMP.text = "简体中文: <b><u><link=\"CHS\">点击这里</link></u></b>";
             modal.description.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VURHdwhonozWZcxJAaHcG5tPnUg?from=from_copylink";
-            newTMP.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VURHdwhonozWZcxJAaHcG5tPnUg?from=from_copylink";
+            newTMP.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VaghdGDiEokiJmxeVRocJJonnhh?from=from_copylink";
 
 
             modal.Show();
