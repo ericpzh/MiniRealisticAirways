@@ -12,7 +12,7 @@ Tips: you can use `Tab` to close text display on altitude, speed, type and fuel 
 
 - Switch the game to `mod_feat - Mod` test version on steam.
 - Install [BepInEx](https://docs.bepinex.dev/articles/user_guide/installation/index.html) into the game
-- Copy [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways Playtest\BepInEx\plugins`
+- Copy [MiniRealisticAirways.dll](https://github.com/ESunsui/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways Playtest\BepInEx\plugins`
 
 # Altitude
 
@@ -147,7 +147,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 - 右键库中的Mini Airways Playtest，属性 - 测试版 - mod_feat, 更新。
 - 下载安装 [BepInEx](https://docs.bepinex.dev/articles/user_guide/installation/index.html)。
-- 复制 [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways Playtest\BepInEx\plugins`。
+- 复制 [MiniRealisticAirways.dll](https://github.com/ESunsui/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways Playtest\BepInEx\plugins`。
 
 # 高度系统
 
