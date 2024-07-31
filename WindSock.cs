@@ -39,8 +39,15 @@ namespace MiniRealisticAirways
 
         public bool CanLand(float heading, Weight weight)
         {
-            float angle = Math.Min((heading - windDirection_) < 0 ? heading - windDirection_ + 360 : heading - windDirection_,
-                                   (windDirection_ - heading) < 0 ? windDirection_ - heading + 360 : windDirection_ - heading);
+            // Convert wind heading into aircraft heading.
+            float convertedWindDirection_ = windDirection_ - 180;
+            if (convertedWindDirection_ < 0)
+            {
+                convertedWindDirection_ += 360;
+            }
+
+            float angle = Math.Min((heading - convertedWindDirection_) < 0 ? heading - convertedWindDirection_ + 360 : heading - convertedWindDirection_,
+                                   (convertedWindDirection_ - heading) < 0 ? convertedWindDirection_ - heading + 360 : convertedWindDirection_ - heading);
             if (angle <= 90)
             {
                 return true;
@@ -51,8 +58,8 @@ namespace MiniRealisticAirways
                 return true;
             }
             Plugin.Log.LogInfo(
-                "Go-around induced by wind. Current wind: " + windDirection_ + " Current Heading: " + heading +
-                " Angle: " + angle + " Probabaility " + GoAroundProbability(angle, weight));
+                "Go-around induced by wind. Current wind: " + windDirection_ + ". Converted wind: " + convertedWindDirection_ +
+                " Current Heading: " + heading + " Angle: " + angle + " Probabaility " + GoAroundProbability(angle, weight));
             return false;
         }
 
