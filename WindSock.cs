@@ -25,12 +25,12 @@ namespace MiniRealisticAirways
             // Init wind text.
             textGameObject_ = Instantiate(new GameObject("Text"));
             text_ = textGameObject_.AddComponent<TextMeshPro>();
-            
+
             text_.fontSize = 4f;
             text_.horizontalAlignment = HorizontalAlignmentOptions.Left;
             text_.verticalAlignment = VerticalAlignmentOptions.Top;
             text_.rectTransform.sizeDelta = new Vector2(2, 1);
-            
+
             // make sorting layer of obj "Text"
             SortingGroup sg = textGameObject_.AddComponent<SortingGroup>();
             sg.sortingLayerName = "Text";
@@ -51,7 +51,7 @@ namespace MiniRealisticAirways
                 return true;
             }
             Plugin.Log.LogInfo(
-                "Go-around induced by wind. Current wind: " + windDirection_ + " Current Heading: " + heading + 
+                "Go-around induced by wind. Current wind: " + windDirection_ + " Current Heading: " + heading +
                 " Angle: " + angle + " Probabaility " + GoAroundProbability(angle, weight));
             return false;
         }
@@ -116,7 +116,7 @@ namespace MiniRealisticAirways
                     Plugin.Log.LogWarning("windsock_ isn't active, forcing it to be. Current wind: " + windDirection_);
                     windsock_.SetActive(value: true);
                 }
-                windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_ - 90, Vector3.back);
+                windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_, Vector3.back);
                 yield return new WaitForSeconds(timeGradient);
             }
 
@@ -165,7 +165,7 @@ namespace MiniRealisticAirways
         private const float UPDATE_COUNT = 360f;
     }
 
-    [HarmonyPatch(typeof(GUIAutoHider), "CheckTL", new Type[] {})]
+    [HarmonyPatch(typeof(GUIAutoHider), "CheckTL", new Type[] { })]
     class PatchCheckTL
     {
         static bool Prefix(ref GUIAutoHider __instance)
@@ -175,7 +175,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(GUIAutoHider), "Update", new Type[] {})]
+    [HarmonyPatch(typeof(GUIAutoHider), "Update", new Type[] { })]
     class PatchGUIAutoHiderUpdate
     {
         static void Postfix(ref GUIAutoHider __instance)

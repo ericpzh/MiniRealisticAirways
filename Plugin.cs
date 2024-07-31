@@ -83,7 +83,7 @@ namespace MiniRealisticAirways
         {
             ModalWithButton modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
             modal.SetTitle("  Mod Enabled!  ");
-            modal.SetHeading("Thank you for playing \"MiniRealisticAirways\"! Before you start, you might want to check out this mod's introduction to help you get the most out of the game!");
+            modal.SetHeading("Thank you for playing \"MiniRealisticAirways\"! Before you start, you might want to check out this mod's introduction to help you get the most out of the game!\n\n 感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看这个mod的手册，以便您充分享受游戏！ ");
             modal.SetDescription("English: <b><u><link=\"ENG\">Click here</link></u></b>");
             modal.button.gameObject.SetActive(false);
 
