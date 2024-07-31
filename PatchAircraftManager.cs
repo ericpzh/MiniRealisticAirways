@@ -4,7 +4,7 @@ using UnityEngine;
 
 namespace MiniRealisticAirways
 {
-    [HarmonyPatch(typeof(AircraftManager), "Update", new Type[] {})]
+    [HarmonyPatch(typeof(AircraftManager), "Update", new Type[] { })]
     class PatchAircraftManagerUpdate
     {
         static void Postfix(Camera ____camera)
@@ -63,7 +63,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(AircraftManager), "Start", new Type[] {})]
+    [HarmonyPatch(typeof(AircraftManager), "Start", new Type[] { })]
     class PatchAircraftManagerStart
     {
         static bool Prefix(ref AircraftManager __instance)
@@ -81,9 +81,8 @@ namespace MiniRealisticAirways
                             ColorCode.Option colorCode, ShapeCode.Option shapeCode,
                             ref AircraftManager __instance, ref Aircraft __result)
         {
-
             AircraftState aircraftState;
-            if (!AircraftState.GetAircraftState(__result, out aircraftState) && 
+            if (!AircraftState.GetAircraftState(__result, out aircraftState) &&
                 __result.direction == Aircraft.Direction.Outbound)
             {
                 aircraftState = __result.gameObject.AddComponent<AircraftState>();

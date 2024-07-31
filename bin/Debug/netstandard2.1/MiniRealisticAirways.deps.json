@@ -12,7 +12,7 @@
           "BepInEx.Analyzers": "1.0.8",
           "BepInEx.Core": "5.4.21",
           "BepInEx.PluginInfoProps": "1.1.0",
-          "UnityEngine.Modules": "2022.3.5",
+          "UnityEngine.Modules": "2022.3.4",
           "Assembly-CSharp": "0.0.0.0",
           "DOTween": "1.0.0.0",
           "Unity.TextMeshPro": "0.0.0.0",
@@ -355,7 +355,7 @@
           "System.Runtime": "4.3.0"
         }
       },
-      "UnityEngine.Modules/2022.3.5": {},
+      "UnityEngine.Modules/2022.3.4": {},
       "Assembly-CSharp/0.0.0.0": {
         "runtime": {
           "Assembly-CSharp.dll": {
@@ -655,12 +655,12 @@
       "path": "system.threading.tasks/4.3.0",
       "hashPath": "system.threading.tasks.4.3.0.nupkg.sha512"
     },
-    "UnityEngine.Modules/2022.3.5": {
+    "UnityEngine.Modules/2022.3.4": {
       "type": "package",
       "serviceable": true,
-      "sha512": "sha512-yFP1kri0GKMs9fujVoDSU8ZqdWAGrjD3aV/xXNHlbSmrQjQoNWA6+sQ5w8cZMSFI68bTjjKI1PLDaiK5Amj0oA==",
-      "path": "unityengine.modules/2022.3.5",
-      "hashPath": "unityengine.modules.2022.3.5.nupkg.sha512"
+      "sha512": "sha512-5TfpJhDSwKKtp0BofBDr40nVI+msGn8qSlBUYms2CPFTL/sXQKbC1Cpm1icbdevagqNnReCbXjiyQpzw7U2Qaw==",
+      "path": "unityengine.modules/2022.3.4",
+      "hashPath": "unityengine.modules.2022.3.4.nupkg.sha512"
     },
     "Assembly-CSharp/0.0.0.0": {
       "type": "reference",

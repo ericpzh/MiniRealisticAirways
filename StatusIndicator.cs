@@ -34,6 +34,10 @@ namespace MiniRealisticAirways
 
         public static void DestoryTexture()
         {
+            if (texture_ == null)
+            {
+                return;
+            }
             Plugin.Log.LogInfo("Gauge texture destoried.");
             Texture2D.Destroy(texture_);
 
@@ -72,7 +76,7 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            foreach(SpriteRenderer spriteRenderer in spriteRenderers_)
+            foreach (SpriteRenderer spriteRenderer in spriteRenderers_)
             {
                 spriteRenderer.enabled = false;
             }
@@ -82,7 +86,7 @@ namespace MiniRealisticAirways
         {
             gameObjects_ = new List<GameObject>(GAUGE_COUNT);
             spriteRenderers_ = new List<SpriteRenderer>(GAUGE_COUNT);
-            for(int i = 0; i < GAUGE_COUNT; i++)
+            for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 GameObject gameObject = new GameObject();
                 SpriteRenderer spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
@@ -114,7 +118,7 @@ namespace MiniRealisticAirways
             }
             return Animation.BlinkCoroutine(spriteRenderers_[2]);
         }
-    
+
         protected void UpdateGaugeSpriteRenderers(int level)
         {
             if (spriteRenderers_ == null || spriteRenderers_.Count < GAUGE_COUNT)
@@ -129,7 +133,7 @@ namespace MiniRealisticAirways
 
         private void OnDestroy()
         {
-            foreach(SpriteRenderer spriteRenderer_ in spriteRenderers_)
+            foreach (SpriteRenderer spriteRenderer_ in spriteRenderers_)
             {
                 Destroy(spriteRenderer_.sprite);
             }
@@ -161,7 +165,7 @@ namespace MiniRealisticAirways
             }
 
             Initialize();
-            for(int i = 0; i < GAUGE_COUNT; i++)
+            for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 gameObjects_[i].transform.SetParent(aircraft_.transform);
                 gameObjects_[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
@@ -192,7 +196,7 @@ namespace MiniRealisticAirways
             }
 
             Initialize();
-            for(int i = 0; i < GAUGE_COUNT; i++)
+            for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 gameObjects_[i].transform.SetParent(aircraft_.transform);
                 gameObjects_[i].transform.localScale = new Vector3(1.5f, 1.5f, 1f);
@@ -236,7 +240,7 @@ namespace MiniRealisticAirways
             }
 
             Initialize();
-            for(int i = 0; i < GAUGE_COUNT; i++)
+            for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 gameObjects_[i].transform.SetParent(waypoint_.transform);
                 gameObjects_[i].transform.localScale = new Vector3(1f, 1f, 1f);
@@ -280,7 +284,7 @@ namespace MiniRealisticAirways
             }
 
             Initialize();
-            for(int i = 0; i < GAUGE_COUNT; i++)
+            for (int i = 0; i < GAUGE_COUNT; i++)
             {
                 gameObjects_[i].transform.SetParent(waypoint_.transform);
                 gameObjects_[i].transform.localScale = new Vector3(1f, 1f, 1f);

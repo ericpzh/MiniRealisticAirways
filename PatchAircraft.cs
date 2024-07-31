@@ -8,49 +8,71 @@ using UnityEngine;
 
 namespace MiniRealisticAirways
 {
+    [HarmonyPatch(typeof(Aircraft), "Start", new Type[] { })]
+    class PatchAircraftStart
+    {
+        static void Postfix(ref Aircraft __instance)
+        {
+            if (__instance.direction == Aircraft.Direction.Inbound)
+            {
+                AircraftState aircraftState = __instance.gameObject.AddComponent<AircraftState>();
+                aircraftState.aircraft_ = __instance;
+                aircraftState.Initialize();
+                AircraftType aircraftType = aircraftState.aircraftType_;
+                if (aircraftType != null)
+                {
+                    aircraftType.weight_ = BaseAircraftType.RandomWeight();
+                    // Only arrival aircraft have fuel limit.
+                    aircraftType.percentFuelLeft_ = 99;
+                    __instance.StartCoroutine(aircraftType.FuelManagementCoroutine());
+                }
+            }
+        }
+    }
+
     // Methods to restore to specified speed.
-    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {})]
+    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] { })]
     class PatchSetFlyHeading
     {
         static bool Prefix(ref Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
-    
+
         static void Postfix(ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            { 
+            if (__instance.targetSpeed > 0 && __state.Length == 1)
+            {
                 __instance.targetSpeed = (float)__state[0];
             }
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] {typeof(float)})]
+    [HarmonyPatch(typeof(Aircraft), "SetFlyHeading", new Type[] { typeof(float) })]
     class PatchSetFlyHeadingFloat
     {
-        static bool Prefix(float heading,  ref Aircraft __instance, ref object[] __state)
+        static bool Prefix(float heading, ref Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
 
-        static void Postfix(float heading,  ref Aircraft __instance, ref object[] __state)
+        static void Postfix(float heading, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            { 
+            if (__instance.targetSpeed > 0 && __state.Length == 1)
+            {
                 __instance.targetSpeed = (float)__state[0];
             }
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(WaypointAutoHover)})]
+    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] { typeof(WaypointAutoHover) })]
     class PatchSetVectorToWaypointAutoHover
     {
-        static bool Prefix(WaypointAutoHover waypoint,  ref Aircraft __instance, ref object[] __state)
+        static bool Prefix(WaypointAutoHover waypoint, ref Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
 
@@ -63,37 +85,37 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] {typeof(PlaceableWaypoint)})]
+    [HarmonyPatch(typeof(Aircraft), "SetVectorTo", new Type[] { typeof(PlaceableWaypoint) })]
     class PatchSetVectorToPlaceableWaypoint
     {
         static bool Prefix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
 
         static void Postfix(PlaceableWaypoint waypoint, ref Aircraft __instance, ref object[] __state)
         {
             if (__instance.targetSpeed > 0 && __state.Length == 1)
-            { 
+            {
                 __instance.targetSpeed = (float)__state[0];
             }
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "OnPointUp", new Type[] {typeof(bool)})]
+    [HarmonyPatch(typeof(Aircraft), "OnPointUp", new Type[] { typeof(bool) })]
     class PatchOnPointUp
     {
         static bool Prefix(bool external, ref Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
 
         static void Postfix(bool external, ref Aircraft __instance, ref object[] __state)
         {
-            if (__instance.targetSpeed > 0 && __state.Length == 1) 
-            { 
+            if (__instance.targetSpeed > 0 && __state.Length == 1)
+            {
                 __instance.targetSpeed = (float)__state[0];
             }
         }
@@ -106,8 +128,8 @@ namespace MiniRealisticAirways
         {
             __instance.aircraftVoiceAndSubtitles.PlayFailedToLand();
             __instance.targetSpeed = 24f;
-            if (__state.Length == 1) 
-            { 
+            if (__state.Length == 1)
+            {
                 __state[0] = 24f;
             }
             __instance.state = Aircraft.State.GoingAround;
@@ -128,7 +150,7 @@ namespace MiniRealisticAirways
         [HarmonyPrefix]
         public static bool LandCoroutinePrefix(Aircraft __instance, ref object[] __state)
         {
-            __state = new object[] {__instance.targetSpeed};
+            __state = new object[] { __instance.targetSpeed };
             return true;
         }
 
@@ -138,8 +160,8 @@ namespace MiniRealisticAirways
         {
             while (result.MoveNext())
             {
-                if (__instance.targetSpeed > 0 && __state.Length == 1) 
-                { 
+                if (__instance.targetSpeed > 0 && __state.Length == 1)
+                {
                     __instance.targetSpeed = (float)__state[0];
                 }
 
@@ -192,7 +214,7 @@ namespace MiniRealisticAirways
 
     [HarmonyPatch]
     public class PatchTakeoffCoroutine
-    {      
+    {
         [HarmonyPatch(typeof(Aircraft), "TakeOffCoroutine")]
         [HarmonyPostfix]
         public static IEnumerator TakeOffCoroutinePostfix(IEnumerator result, Aircraft __instance)
@@ -207,8 +229,8 @@ namespace MiniRealisticAirways
             }
         }
     }
-    
-    [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] {})]
+
+    [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] { })]
     class PatchUpdateHeading
     {
         static bool Prefix(ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP, ref object[] __state)
@@ -221,15 +243,15 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            __state = new object[] {Aircraft.TurnSpeed};
+            __state = new object[] { Aircraft.TurnSpeed };
             aircraftType.PatchTurnSpeed();
 
-            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint) 
+            if (__instance.state != Aircraft.State.HeadingAfterReachingWaypoint)
             {
                 return true;
             }
 
-            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoLanding)) 
+            if (____HARWCurWP == null || !(____HARWCurWP is WaypointAutoLanding))
             {
                 return true;
             }
@@ -254,7 +276,7 @@ namespace MiniRealisticAirways
             i = 0;
             while (aircraftSpeed != null && !aircraftSpeed.CanLand(aircraftType.weight_) && ++i < Plugin.MAX_WHILE_LOOP_ITER)
             {
-                aircraftSpeed.AircraftSlowDown(); 
+                aircraftSpeed.AircraftSlowDown();
                 if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
                 {
                     Plugin.Log.LogWarning("INF Loop in UpdateHeading's prefix aircraftSpeed change.");
@@ -320,16 +342,16 @@ namespace MiniRealisticAirways
 
             // Speed sync.
             AircraftSpeed aircraftSpeed = aircraftState.aircraftSpeed_;
-            WaypointSpeed waypointSpeed =____HARWCurWP.GetComponent<WaypointSpeed>();
+            WaypointSpeed waypointSpeed = ____HARWCurWP.GetComponent<WaypointSpeed>();
             if (aircraftSpeed != null && waypointSpeed != null)
             {
-                float maxSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()), 
+                float maxSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
                                           Speed.ToGameSpeed(waypointSpeed.speed_));
                 int i = 0;
                 while (Speed.ToModSpeed(__instance.targetSpeed) < Speed.ToModSpeed(maxSpeed) && ++i < Plugin.MAX_WHILE_LOOP_ITER)
                 {
                     aircraftSpeed.AircraftSpeedUp();
-                     if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
+                    if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
                     {
                         Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftSpeedUp().");
                     }
@@ -343,7 +365,7 @@ namespace MiniRealisticAirways
                         Plugin.Log.LogWarning("INF Loop in UpdateHeading's postfix AircraftSlowDown().");
                     }
                 }
-                
+
 
                 __instance.targetSpeed = Math.Min(Speed.ToGameSpeed(aircraftSpeed.MaxSpeed()),
                                                   Speed.ToGameSpeed(waypointSpeed.speed_));
@@ -354,7 +376,7 @@ namespace MiniRealisticAirways
     }
 
     // Patching turning speed.
-    [HarmonyPatch(typeof(Aircraft), "GenerateFlyingPath", new Type[] {})]
+    [HarmonyPatch(typeof(Aircraft), "GenerateFlyingPath", new Type[] { typeof(int) })]
     class PatchGenerateFlyingPath
     {
         static bool Prefix(ref Aircraft __instance, ref object[] __state)
@@ -365,7 +387,7 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            __state = new object[] {Aircraft.TurnSpeed};
+            __state = new object[] { Aircraft.TurnSpeed };
             aircraftType.PatchTurnSpeed();
             return true;
         }
@@ -380,7 +402,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "PredictPosAfterTurn", new Type[] {typeof(float)})]
+    [HarmonyPatch(typeof(Aircraft), "PredictPosAfterTurn", new Type[] { typeof(float) })]
     class PatchPredictPosAfterTurn
     {
         static bool Prefix(float angle, ref Aircraft __instance, ref object[] __state)
@@ -391,7 +413,7 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            __state = new object[] {Aircraft.TurnSpeed};
+            __state = new object[] { Aircraft.TurnSpeed };
             aircraftType.PatchTurnSpeed();
             return true;
         }
@@ -424,7 +446,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "AircraftOOBGameOver", new Type[] {typeof(Aircraft)})]
+    [HarmonyPatch(typeof(Aircraft), "AircraftOOBGameOver", new Type[] { typeof(Aircraft) })]
     class PatchAircraftOOBGameOver
     {
         static bool Prefix(Aircraft aircraft)
@@ -447,12 +469,12 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "TrySetupLanding", new Type[] {typeof(Runway), typeof(bool)})]
+    [HarmonyPatch(typeof(Aircraft), "TrySetupLanding", new Type[] { typeof(Runway), typeof(bool) })]
     class PatchTrySetupLanding
     {
         static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance, ref object[] __state)
         {
-            
+
             AircraftAltitude aircraftAltitude;
             AircraftSpeed aircraftSpeed;
             AircraftType aircraftType;
@@ -461,7 +483,7 @@ namespace MiniRealisticAirways
                 return true;
             }
 
-            __state = new object[] {Aircraft.TurnSpeed};
+            __state = new object[] { Aircraft.TurnSpeed };
             aircraftType.PatchTurnSpeed();
 
             // Auto slow down for aircraft to land when altitude is right.
@@ -482,18 +504,18 @@ namespace MiniRealisticAirways
                 bool flag = __instance.state == Aircraft.State.Landing && runway2 == LandingRunway;
 
                 // Reflex for bool flag2 = __instance.GenerateLandingPathL1(runway2, out path, flag);
-                MethodInfo GenerateLandingPathL1 = typeof(Aircraft).GetMethod("GenerateLandingPathL1", 
+                MethodInfo GenerateLandingPathL1 = typeof(Aircraft).GetMethod("GenerateLandingPathL1",
                     BindingFlags.NonPublic | BindingFlags.Instance);
                 object[] args = new object[] { runway2, null, flag, true };
                 GenerateLandingPathL1.Invoke(__instance, args);
                 List<Vector3> path = (List<Vector3>)args[1];
 
                 // Reflex for  __instance.ShowPath(path, false /* success */);
-                MethodInfo ShowPath = __instance.GetType().GetMethod("ShowPath", 
+                MethodInfo ShowPath = __instance.GetType().GetMethod("ShowPath",
                     BindingFlags.NonPublic | BindingFlags.Instance);
                 ShowPath.Invoke(__instance, new object[] { path, false /* success */ });
 
-                __instance.aircraftVoiceAndSubtitles.PlayAngleTooSteep();
+                AudioManager.instance.PlayCanNotComply();
                 return false;
             }
 
@@ -510,7 +532,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "FixedUpdate", new Type[] {})]
+    [HarmonyPatch(typeof(Aircraft), "FixedUpdate", new Type[] { })]
     class PatchFixedUpdate
     {
         static bool Prefix(ref Aircraft __instance)
@@ -563,8 +585,8 @@ namespace MiniRealisticAirways
             return true;
         }
     }
-    
-    [HarmonyPatch(typeof(Aircraft), "AircraftCollideGameOver", new Type[] {typeof(Aircraft), typeof(Aircraft)})]
+
+    [HarmonyPatch(typeof(Aircraft), "AircraftCollideGameOver", new Type[] { typeof(Aircraft), typeof(Aircraft) })]
     class PatchAircraftCollideGameOver
     {
         static bool Prefix(Aircraft aircraft1, Aircraft aircraft2)
@@ -581,10 +603,10 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "OnTriggerEnter2D", new Type[] {typeof(Collider2D)})]
+    [HarmonyPatch(typeof(Aircraft), "OnTriggerEnter2D", new Type[] { typeof(Collider2D) })]
     class PatchOnTriggerEnter2D
     {
-        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref ColorCode.Option ___colorCode, 
+        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref ColorCode.Option ___colorCode,
                            ref ShapeCode.Option ___shapeCode, ref Aircraft __instance, ref bool ___reachExit)
         {
 
@@ -661,7 +683,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "OnTriggerStay2D", new Type[] {typeof(Collider2D)})]
+    [HarmonyPatch(typeof(Aircraft), "OnTriggerStay2D", new Type[] { typeof(Collider2D) })]
     class PatchOnTriggerStay2D
     {
         static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref Aircraft __instance)
@@ -680,7 +702,7 @@ namespace MiniRealisticAirways
                 {
                     AircraftAltitude aircraftAltitude1;
                     AircraftAltitude aircraftAltitude2;
-                    if(!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
+                    if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
                        !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
                     {
                         return true;
@@ -700,7 +722,7 @@ namespace MiniRealisticAirways
                 bool Inbound = vector.x >= 0f && vector.x <= 1f && vector.y >= 0f && vector.y <= 1f;
 
                 AircraftAltitude aircraftAltitude;
-                if(!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
+                if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
                 {
                     return true;
                 }
@@ -718,31 +740,93 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(Aircraft), "IsObstacleInFrontOfMe", new Type[] {})]
-    class PatchIsObstacleInFrontOfMe
+    [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Aircraft) })]
+    class PatchPathBasedCollidePredictAA
     {
-        static void Postfix(ref bool __result, ref Aircraft __instance)
+        static bool Prefix(List<Vector3> PathA, Aircraft otherAircraft, ref bool __result)
         {
-            AircraftAltitude aircraftAltitude;
-            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
+            Aircraft aircraft1 = otherAircraft;
+            foreach (Aircraft ac in AircraftManager.GetAircraft())
             {
-                return;
+                if (Vector2.Distance((Vector2)ac.gameObject.transform.position, (Vector2)PathA[0]) < 0.02f)
+                {
+                    aircraft1 = ac;
+                    break;
+                }
+            }
+            AircraftAltitude aircraftAltitude1;
+            AircraftAltitude aircraftAltitude2;
+            if (!AircraftState.GetAircraftStates(aircraft1, out aircraftAltitude1, out _, out _) ||
+                !AircraftState.GetAircraftStates(otherAircraft, out aircraftAltitude2, out _, out _))
+            {
+                return true;
             }
 
-            Vector3 vector = Quaternion.AngleAxis(__instance.heading, Vector3.back) * Vector2.up;
-            string[] layerNames = new string[1] { "AircraftSafety" };
-            RaycastHit2D[] array = Physics2D.CircleCastAll(__instance.transform.position, 0.5f, vector, 3f, LayerMask.GetMask(layerNames));
-            for (int i = 0; i < array.Length; i++)
+            if (aircraftAltitude1.altitude_ != aircraftAltitude2.altitude_ &&
+                aircraftAltitude1.targetAltitude_ != aircraftAltitude2.altitude_ &&
+                aircraftAltitude1.altitude_ != aircraftAltitude2.targetAltitude_)
             {
-                RaycastHit2D raycastHit2D = array[i];
-                if (raycastHit2D.collider.name == "Tanel")
+                __result = false;
+                return false;
+            }
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Collider2D), typeof(float?), typeof(float?) })]
+    class PatchPathBasedCollidePredictAG
+    {
+        static bool Prefix(List<Vector3> PathA, Collider2D restrictArea, float? PremittedHdg, float? HdgRange, ref bool __result)
+        {
+            Aircraft aircraft = null;
+            foreach (Aircraft ac in AircraftManager.GetAircraft())
+            {
+                if (Vector2.Distance((Vector2)ac.gameObject.transform.position, (Vector2)PathA[0]) < 0.02f)
                 {
-                    if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
-                    {
-                        __result = false;
-                        return;
-                    }
-                    else if (__instance.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
+                    aircraft = ac;
+                    break;
+                }
+            }
+            if (aircraft == null)
+            {
+                return true;
+            }
+            AircraftAltitude aircraftAltitude;
+            if (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out _, out _))
+                return true;
+
+            if (restrictArea.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
+            {
+                if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
+                {
+                    __result = false;
+                    return false;
+                }
+            }
+            return true;
+        }
+    }
+
+    [HarmonyPatch(typeof(Aircraft), "EnableVisualWarning", new Type[] { typeof(GameObject), typeof(bool) })]
+    class PatchEnableVisualWarning
+    {
+        static void Postfix(GameObject other, bool isAircraftWarner, ref Aircraft __instance)
+        {
+            if (!isAircraftWarner)
+            {
+                AircraftAltitude aircraftAltitude;
+                if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude, out _, out _))
+                {
+                    return;
+                }
+                if (aircraftAltitude.altitude_ == AltitudeLevel.High && aircraftAltitude.targetAltitude_ == AltitudeLevel.High)
+                {
+                    return;
+                }
+
+                else if (__instance.state != Aircraft.State.Landing && aircraftAltitude.tcasAction_ == TCASAction.None)
+                {
+                    if (other.layer == LayerMask.NameToLayer("AircraftSafety"))
                     {
                         // Active GPWS on aircraft if there is no TCAS action.
                         for (int j = (int)aircraftAltitude.targetAltitude_; j < (int)AltitudeLevel.High; j++)
@@ -752,17 +836,6 @@ namespace MiniRealisticAirways
                         }
                     }
                 }
-            }
-        }
-    }
-
-    [HarmonyPatch(typeof(Aircraft), "EnableVisualWarning", new Type[] {typeof(GameObject), typeof(bool)})]
-    class PatchEnableVisualWarning
-    {
-        static void Postfix(GameObject other, bool isAircraftWarner, ref Aircraft __instance)
-        {
-            if (!isAircraftWarner)
-            {
                 return;
             }
 
@@ -774,7 +847,7 @@ namespace MiniRealisticAirways
 
             AircraftAltitude aircraftAltitude1;
             AircraftAltitude aircraftAltitude2;
-            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) || 
+            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
                 !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
             {
                 return;
@@ -796,37 +869,37 @@ namespace MiniRealisticAirways
                 {
                     aircraftAltitude1.EmergencyClimb();
                 }
-                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High && 
+                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High &&
                         (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High || aircraftAltitude2.altitude_ == AltitudeLevel.High))
                 {
                     // 2 (about to be)at High, 1 about to be at high, command 1 to desend.
                     aircraftAltitude1.EmergencyDesend();
                 }
-                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High && 
+                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High &&
                         (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High || aircraftAltitude1.altitude_ == AltitudeLevel.High))
                 {
                     // 1 (about to be)at High, 2 about to be at high, command 2 to desend.
                     aircraftAltitude2.EmergencyDesend();
                 }
-                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low && 
+                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low &&
                         (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude2.altitude_ == AltitudeLevel.Low))
                 {
                     // 2 (about to be)at low, 1 about to be at low, command 1 to climb.
                     aircraftAltitude1.EmergencyClimb();
                 }
-                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low && 
+                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low &&
                         (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude1.altitude_ == AltitudeLevel.Low))
                 {
                     // 1 (about to be)at low, 2 about to be at low, command 2 to climb.
                     aircraftAltitude2.EmergencyClimb();
                 }
-                else if (aircraftAltitude1.altitude_ == AltitudeLevel.Low && 
+                else if (aircraftAltitude1.altitude_ == AltitudeLevel.Low &&
                          aircraftAltitude2.altitude_ == AltitudeLevel.Low)
                 {
                     // Both at high, command 2 to climb.
                     aircraftAltitude2.EmergencyClimb();
                 }
-                else if (aircraftAltitude1.altitude_ == AltitudeLevel.High && 
+                else if (aircraftAltitude1.altitude_ == AltitudeLevel.High &&
                          aircraftAltitude2.altitude_ == AltitudeLevel.High)
                 {
                     // Both at high, command 2 to desend.

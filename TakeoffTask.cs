@@ -5,21 +5,21 @@ using UnityEngine.UI;
 
 namespace MiniRealisticAirways
 {
-    [HarmonyPatch(typeof(TakeoffTask), "Start", new Type[] {})]
+    [HarmonyPatch(typeof(TakeoffTask), "Start", new Type[] { })]
     class PatchTakeoffTaskStart
     {
         static void Postfix(ref TakeoffTask __instance, ref Image ___AP)
         {
             BaseAircraftType currentAircraftType = __instance.gameObject.AddComponent<BaseAircraftType>();
             currentAircraftType.weight_ = BaseAircraftType.RandomWeight();
-            
+
             Plugin.Log.LogInfo("TakeoffTask started with weight: " + currentAircraftType.weight_);
 
             ___AP.transform.DOScale(currentAircraftType.GetScaleFactor(), 0.5f).SetUpdate(isIndependentUpdate: true);
         }
     }
 
-    [HarmonyPatch(typeof(TakeoffTask), "Update", new Type[] {})]
+    [HarmonyPatch(typeof(TakeoffTask), "Update", new Type[] { })]
     class PatchTakeoffTaskUpdate
     {
         static void Postfix(ref TakeoffTask __instance, ref Image ___AP)
@@ -40,7 +40,7 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch(typeof(TakeoffTask), "SetupTakeoff", new Type[] {})]
+    [HarmonyPatch(typeof(TakeoffTask), "SetupTakeoff", new Type[] { })]
     class PatchSetupTakeoff
     {
         static bool Prefix(ref TakeoffTask __instance)
@@ -72,7 +72,7 @@ namespace MiniRealisticAirways
     }
 
 
-    [HarmonyPatch(typeof(TakeoffTask), "OnPointUp", new Type[] {})]
+    [HarmonyPatch(typeof(TakeoffTask), "OnPointUp", new Type[] { })]
     class PatchTakeoffTaskOnPointUp
     {
         static void RejectTakeoff(ref TakeoffTask __instance)
@@ -80,7 +80,7 @@ namespace MiniRealisticAirways
             float duration2 = 0.5f;
             __instance.Panel.transform.DOScale(1f, duration2).SetUpdate(isIndependentUpdate: true);
             __instance.transform.DOMove(__instance.apron.gameObject.transform.position, duration2).SetUpdate(isIndependentUpdate: true);
-            AudioManager.instance.PlayRejectTakeoff();
+            AudioManager.instance.PlayCanNotComply();
 
             __instance.inCommand = false;
             TakeoffTask.CurrentCommandingTakeoffTask = null;

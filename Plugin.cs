@@ -1,27 +1,30 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System.Collections;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using UIComponents.Modals;
+using System.Collections;
+using TMPro;
+using UnityEngine.Video;
 
 namespace MiniRealisticAirways
 {
     [BepInPlugin(PluginInfo.PLUGIN_GUID, PluginInfo.PLUGIN_NAME, PluginInfo.PLUGIN_VERSION)]
     public class Plugin : BaseUnityPlugin
-    {   
+    {
         private void Awake()
         {
             Log = Logger;
 
             // Plugin startup logic
             Logger.LogInfo($"Plugin {PluginInfo.PLUGIN_GUID} is loaded!");
-            
+
             SceneManager.sceneLoaded += OnSceneLoaded;
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             harmony.PatchAll();
         }
-        
+
         private void Update()
         {
             if (Input.GetKeyDown(KeyCode.Tab))
@@ -34,14 +37,14 @@ namespace MiniRealisticAirways
         {
             Logger.LogInfo($"Scene loaded: {scene.name}");
 
+            if (scene.name == "Menu")
+            {
+                AudioManager.instance.StartCoroutine(ShowModHintCoroutine());
+            }
+
             if ((scene.name == "MapPlayer" || scene.name == "London") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
-                Logger.LogInfo("Hooking AircraftManager");
-                AircraftManager.Instance.AircraftCreateEvent.AddListener(HookAircraft);
-
-                Logger.LogInfo("Hooking UpgradeManager");
-                UpgradeManager.Instance.SelectUpgradeEvent.AddListener(HookUpgrade);
 
                 // Pre-load textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
@@ -70,41 +73,28 @@ namespace MiniRealisticAirways
             WeatherCellTextures.DestoryTextures();
         }
 
-        private void HookAircraft(Vector2 pos, Aircraft aircraft)
+        IEnumerator ShowModHintCoroutine()
         {
-            if (aircraft.direction == Aircraft.Direction.Inbound)
-            {
-                Logger.LogInfo("Aircraft created via HookAircraft: " + aircraft.name);
-
-                AircraftState aircraftState = aircraft.gameObject.AddComponent<AircraftState>();
-                aircraftState.aircraft_ = aircraft;
-                aircraftState.Initialize();
-                AircraftType aircraftType = aircraftState.aircraftType_;
-                if (aircraftType != null)
-                {
-                    aircraftType.weight_ = BaseAircraftType.RandomWeight();
-                    Logger.LogInfo("Aircraft created with weight: " + aircraftType.weight_);
-                    // Only arrival aircraft have fuel limit.
-                    aircraftType.percentFuelLeft_ = 99;
-                    StartCoroutine(aircraftType.FuelManagementCoroutine());
-                }
-            }
+            yield return new WaitForSeconds(1);
+            yield return new WaitUntil(() => ModalManager.Instance != null);
+            ShowModHint();
         }
-
-        private void HookUpgrade(UpgradeOpt upgrade)
+        private static void ShowModHint()
         {
-            Logger.LogInfo("Upgrade selected: " + upgrade);
-            
-            if (upgrade == UpgradeOpt.AUTO_HEADING_PROP)
-            {
-                StartCoroutine(SpawnWaypointAutoHeadingCoroutine());
-            }
-        }
+            ModalWithButton modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
+            modal.SetTitle("  Mod Enabled!  ");
+            modal.SetHeading("Thank you for playing \"MiniRealisticAirways\"! Before you start, you might want to check out this mod's introduction to help you get the most out of the game!\n\n 感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看这个mod的手册，以便您充分享受游戏！ ");
+            modal.SetDescription("English: <b><u><link=\"ENG\">Click here</link></u></b>");
+            modal.button.gameObject.SetActive(false);
 
-        private IEnumerator SpawnWaypointAutoHeadingCoroutine()
-        {
-            yield return new WaitForFixedUpdate();
-            WaypointPropsManager.Instance.SpawnWaypointAutoHeading();
+            TMP_Text newTMP = Instantiate(modal.description, modal.description.transform);
+            newTMP.transform.position = modal.description.transform.position - new Vector3(0, 150, 0);
+            newTMP.text = "简体中文: <b><u><link=\"CHS\">点击这里</link></u></b>";
+            modal.description.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VURHdwhonozWZcxJAaHcG5tPnUg?from=from_copylink";
+            newTMP.gameObject.AddComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VaghdGDiEokiJmxeVRocJJonnhh?from=from_copylink";
+
+
+            modal.Show();
         }
 
         internal static ManualLogSource Log;
