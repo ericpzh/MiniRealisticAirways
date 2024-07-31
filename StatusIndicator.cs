@@ -217,11 +217,6 @@ namespace MiniRealisticAirways
                 return;
             }
 
-            if (waypoint_.GetFieldValue<int>("state") != 2/*PlaceableWaypoint.State.WaitingForPlacing*/)
-            {
-                return;
-            }
-
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);
             Vector3 waypointPosition = ((Component)waypoint_).transform.position;
             if (waypointPosition.x != _mousePos.x || waypointPosition.y != _mousePos.y)
@@ -257,11 +252,6 @@ namespace MiniRealisticAirways
         public void UpdateWaypointSpeedGauge(SpeedLevel speed)
         {
             if (waypoint_.Invisible || !(waypoint_ is BaseWaypointAutoHeading))
-            {
-                return;
-            }
-
-            if (waypoint_.GetFieldValue<int>("state") != 2/*PlaceableWaypoint.State.WaitingForPlacing*/)
             {
                 return;
             }

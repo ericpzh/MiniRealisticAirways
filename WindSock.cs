@@ -123,6 +123,11 @@ namespace MiniRealisticAirways
                     Plugin.Log.LogWarning("windsock_ isn't active, forcing it to be. Current wind: " + windDirection_);
                     windsock_.SetActive(value: true);
                 }
+                RectTransform rectTransform = windsock_.GetComponent<RectTransform>();
+                if (rectTransform != null)
+                {
+                    rectTransform.pivot = new Vector2(0.5f, 0.5f);
+                }
                 windsock_.transform.rotation = Quaternion.AngleAxis(windDirection_, Vector3.back);
                 yield return new WaitForSeconds(timeGradient);
             }
@@ -138,6 +143,12 @@ namespace MiniRealisticAirways
 
         private void Update()
         {
+            // Update showText here.
+            if (Input.GetKeyDown(KeyCode.Tab))
+            {
+                Plugin.showText_ = !Plugin.showText_;
+            }
+
             if (Time.timeScale == 0f)
             {
                 // Skip update during time pause.
@@ -157,7 +168,7 @@ namespace MiniRealisticAirways
 
             // TLPBR from GUIAutoHider.
             Vector3 escButtonBottomRight = Camera.main.ViewportToWorldPoint(new Vector3(0.07f, 0.88f, 0f));
-            textGameObject_.transform.position = new Vector3(escButtonBottomRight.x + 1f, escButtonBottomRight.y + 0.5f, 0f);
+            textGameObject_.transform.position = new Vector3(escButtonBottomRight.x + 0.75f, escButtonBottomRight.y + 0.3f, 0f);
             text_.text = ToString();
         }
 

@@ -25,14 +25,6 @@ namespace MiniRealisticAirways
             harmony.PatchAll();
         }
 
-        private void Update()
-        {
-            if (Input.GetKeyDown(KeyCode.Tab))
-            {
-                showText_ = !showText_;
-            }
-        }
-
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
         {
             Logger.LogInfo($"Scene loaded: {scene.name}");
@@ -79,6 +71,7 @@ namespace MiniRealisticAirways
             yield return new WaitUntil(() => ModalManager.Instance != null);
             ShowModHint();
         }
+
         private static void ShowModHint()
         {
             ModalWithButton modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
