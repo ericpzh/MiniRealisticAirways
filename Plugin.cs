@@ -34,7 +34,7 @@ namespace MiniRealisticAirways
                 AudioManager.instance.StartCoroutine(ShowModHintCoroutine());
             }
 
-            if ((scene.name == "MapPlayer" || scene.name == "London") &&
+            if ((scene.name == "MapPlayer" || scene.name == "London" || scene.name == "CreatorPlayer") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
 

@@ -10,7 +10,7 @@ Tips: you can use `Tab` to close text display on altitude, speed, type and fuel 
 
 # How to Install
 
-- Switch the game to `mod_feat` [branch](https://partner.steamgames.com/doc/store/application/branches?) on steam.
+- Switch the game to `mod_feat` [branch](https://partner.steamgames.com/doc/store/application/branches?) on Steam.
 - Copy [MiniRealisticAirways.dll](https://github.com/ESunsui/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways Playtest\BepInEx\plugins`
 
 # Altitude
