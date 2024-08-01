@@ -734,6 +734,15 @@ namespace MiniRealisticAirways
                     // AircraftTerrainGameOver.Invoke(__instance, new object[] { __instance });
                     LevelManager.Instance.CrashGameOver(__instance, null);
                 }
+                if (Inbound && aircraftAltitude.targetAltitude_ < AltitudeLevel.High)
+                {
+                    // Active GPWS on aircraft if there is no TCAS action.
+                    for (int i = (int)aircraftAltitude.targetAltitude_; i < (int)AltitudeLevel.High; i++)
+                    {
+                        Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
+                        aircraftAltitude.EmergencyClimb();
+                    }
+                }
             }
 
             return true;
@@ -741,7 +750,7 @@ namespace MiniRealisticAirways
     }
 
     [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Aircraft) })]
-    class PatchPathBasedCollidePredictAA
+    class PatchPathBasedCollidePredictAirAir
     {
         static bool Prefix(List<Vector3> PathA, Aircraft otherAircraft, ref bool __result)
         {
@@ -774,7 +783,7 @@ namespace MiniRealisticAirways
     }
 
     [HarmonyPatch(typeof(Aircraft), "PathBasedCollidePredict", new Type[] { typeof(List<Vector3>), typeof(Collider2D), typeof(float?), typeof(float?) })]
-    class PatchPathBasedCollidePredictAG
+    class PatchPathBasedCollidePredictAirGround
     {
         static bool Prefix(List<Vector3> PathA, Collider2D restrictArea, float? PremittedHdg, float? HdgRange, ref bool __result)
         {
@@ -793,7 +802,9 @@ namespace MiniRealisticAirways
             }
             AircraftAltitude aircraftAltitude;
             if (!AircraftState.GetAircraftStates(aircraft, out aircraftAltitude, out _, out _))
+            {
                 return true;
+            }
 
             if (restrictArea.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
             {
