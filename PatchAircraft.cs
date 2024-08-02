@@ -686,7 +686,7 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "OnTriggerStay2D", new Type[] { typeof(Collider2D) })]
     class PatchOnTriggerStay2D
     {
-        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref Aircraft __instance)
+        static bool Prefix(Collider2D other, ref bool ___mainMenuMode, ref Aircraft __instance, ref Dictionary<GameObject, VWIndicator> ___TCASWarns)
         {
 
             if (___mainMenuMode || !((Component)(object)other).CompareTag("CollideCheck"))
@@ -700,13 +700,41 @@ namespace MiniRealisticAirways
                 Aircraft aircraft = other.GetComponent<AircraftRef>().aircraft;
                 if (other.name == "TCAS")
                 {
+                    // Hovering aircraft don't trigger TCAS.
+                    if (aircraft.IsHovering || __instance.IsHovering)
+                    {
+                        return false;
+                    }
+
                     AircraftAltitude aircraftAltitude1;
                     AircraftAltitude aircraftAltitude2;
                     if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
-                       !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
+                        !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
                     {
                         return true;
                     }
+
+                    // No TCAS action if any aircraft is on ground.
+                    if (aircraftAltitude1.altitude_ == AltitudeLevel.Ground || __instance.OnTheGround ||
+                        aircraftAltitude2.altitude_ == AltitudeLevel.Ground || aircraft.OnTheGround)
+                    {
+                        return false;
+                    }
+
+                    // No TCAS action if it's not warning.
+                    if (!___TCASWarns.ContainsKey(other.gameObject))
+                    {
+                        return false;
+                    }
+                    // Reflex on private function is too slow.
+                    // MethodInfo PathBasedCollidePredict= __instance.GetType().GetMethod(name: "PathBasedCollidePredict",
+                    //     bindingAttr: BindingFlags.NonPublic | BindingFlags.Instance,  binder: null, types: new Type[] { typeof(Aircraft), typeof(Aircraft) },  modifiers: null );
+                    // if (!(bool)PathBasedCollidePredict.Invoke(__instance, new object[] { __instance, aircraft }))
+                    // {
+                    //     return false;
+                    // }
+
+                    // No TCAS action if altitude being different.
                     if (aircraftAltitude1.altitude_ != aircraftAltitude2.altitude_ &&
                         aircraftAltitude1.targetAltitude_ != aircraftAltitude2.altitude_ &&
                         aircraftAltitude1.altitude_ != aircraftAltitude2.targetAltitude_)
