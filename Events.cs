@@ -19,6 +19,16 @@ namespace MiniRealisticAirways
 
     public class RunwayClose : Event
     {
+        private IEnumerator RejectTakeOffCoroutine()
+        {
+            while (aircraft_.speed > 0) {
+                yield return new WaitForFixedUpdate();
+            }
+            yield return new WaitForSeconds(1f);
+            aircraft_.ConditionalDestroy();
+            aircraft_ = null;
+        }
+
         public override bool Trigger()
         {
             Plugin.Log.LogWarning("RunwayClose Triggered.");
@@ -59,11 +69,13 @@ namespace MiniRealisticAirways
             material.color = new Color(0.7f, 0, 0);
 
             EventManager.closedRunway_ = runway_;
-            EventManager.stoppedAircraft_ = aircraft_;
 
             aircraft_.TakeOffSpeedFactor = 0f;
+            aircraft_.targetSpeed = 0f;
             aircraft_.AP.GetComponent<Renderer>().material.color = new Color(0.7f, 0, 0, 0.3f);
             aircraft_.Panel.GetComponent<Renderer>().material.color = new Color(0.7f, 0, 0, 0.3f);
+
+            StartCoroutine(RejectTakeOffCoroutine());
             return true;
         }
 
@@ -90,15 +102,6 @@ namespace MiniRealisticAirways
 
             runway_ = null;
             EventManager.closedRunway_ = null;
-
-            if (aircraft_ == null)
-            {
-                return;
-            }
-            aircraft_.ConditionalDestroy();
-
-            aircraft_ = null;
-            EventManager.stoppedAircraft_ = null;
         }
 
         public Runway runway_;
@@ -351,7 +354,8 @@ namespace MiniRealisticAirways
         private void Start()
         {
             EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
-            events_ = new List<Event> { engineOutEvent, new RunwayClose(), new LowFuelArrival(), new BadWeather() };
+            RunwayClose runwayCloseEvent = gameObject.AddComponent<RunwayClose>();
+            events_ = new List<Event> { engineOutEvent, runwayCloseEvent , new LowFuelArrival(), new BadWeather() };
             Utils.Shuffle(ref events_);
             Plugin.Log.LogInfo("Event setup completed.");
             StartCoroutine(StartEventCoroutine());
@@ -363,9 +367,8 @@ namespace MiniRealisticAirways
         }
 
         public static Runway closedRunway_ = null;
-        public static Aircraft stoppedAircraft_ = null;
         public static Weather weather_ = null;
-        public const float EVENT_RESTORE_TIME = 0.33f * 300f /* Time per day */;
+        public const float EVENT_RESTORE_TIME = 0.25f * 300f /* Time per day */;
         private List<Event> events_;
         private int index_ = 0;
         private const float EVENT_BASE_TIME = 6f * 300f /* Time per day */;

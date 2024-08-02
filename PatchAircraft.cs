@@ -212,24 +212,6 @@ namespace MiniRealisticAirways
         }
     }
 
-    [HarmonyPatch]
-    public class PatchTakeoffCoroutine
-    {
-        [HarmonyPatch(typeof(Aircraft), "TakeOffCoroutine")]
-        [HarmonyPostfix]
-        public static IEnumerator TakeOffCoroutinePostfix(IEnumerator result, Aircraft __instance)
-        {
-            while (result.MoveNext())
-            {
-                if (EventManager.stoppedAircraft_ != null && EventManager.stoppedAircraft_ == __instance)
-                {
-                    yield return new WaitForSeconds(999999999999999999f);
-                }
-                yield return result.Current;
-            }
-        }
-    }
-
     [HarmonyPatch(typeof(Aircraft), "UpdateHeading", new Type[] { })]
     class PatchUpdateHeading
     {
