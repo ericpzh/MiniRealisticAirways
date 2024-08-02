@@ -713,6 +713,67 @@ namespace MiniRealisticAirways
                     {
                         return false;
                     }
+
+                    // Only trigger TCAS action when the distance is nearby.
+                    if (Vector2.Distance((Vector2)__instance.gameObject.transform.position, (Vector2)aircraft.gameObject.transform.position) < 3f &&
+                        aircraftAltitude1.tcasAction_ == TCASAction.None && aircraftAltitude2.tcasAction_ == TCASAction.None)
+                    {
+                        Plugin.Log.LogInfo("TCAS activated");
+                        // Active TCAS on aircrafts if there is no previous action.
+                        if (aircraftAltitude1.IsLanding() && aircraftAltitude2.IsLanding())
+                        {
+                            // Both at landing, do nothing.
+                        }
+                        else if (aircraftAltitude1.IsLanding())
+                        {
+                            aircraftAltitude2.EmergencyClimb();
+                        }
+                        else if (aircraftAltitude2.IsLanding())
+                        {
+                            aircraftAltitude1.EmergencyClimb();
+                        }
+                        else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High &&
+                                (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High || aircraftAltitude2.altitude_ == AltitudeLevel.High))
+                        {
+                            // 2 (about to be)at High, 1 about to be at high, command 1 to desend.
+                            aircraftAltitude1.EmergencyDesend();
+                        }
+                        else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High &&
+                                (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High || aircraftAltitude1.altitude_ == AltitudeLevel.High))
+                        {
+                            // 1 (about to be)at High, 2 about to be at high, command 2 to desend.
+                            aircraftAltitude2.EmergencyDesend();
+                        }
+                        else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low &&
+                                (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude2.altitude_ == AltitudeLevel.Low))
+                        {
+                            // 2 (about to be)at low, 1 about to be at low, command 1 to climb.
+                            aircraftAltitude1.EmergencyClimb();
+                        }
+                        else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low &&
+                                (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude1.altitude_ == AltitudeLevel.Low))
+                        {
+                            // 1 (about to be)at low, 2 about to be at low, command 2 to climb.
+                            aircraftAltitude2.EmergencyClimb();
+                        }
+                        else if (aircraftAltitude1.altitude_ == AltitudeLevel.Low &&
+                                 aircraftAltitude2.altitude_ == AltitudeLevel.Low)
+                        {
+                            // Both at high, command 2 to climb.
+                            aircraftAltitude2.EmergencyClimb();
+                        }
+                        else if (aircraftAltitude1.altitude_ == AltitudeLevel.High &&
+                                 aircraftAltitude2.altitude_ == AltitudeLevel.High)
+                        {
+                            // Both at high, command 2 to desend.
+                            aircraftAltitude2.EmergencyDesend();
+                        }
+                        else
+                        {
+                            aircraftAltitude1.EmergencyClimb();
+                            aircraftAltitude2.EmergencyDesend();
+                        }
+                    }
                 }
             }
             else if (other.gameObject.layer == LayerMask.NameToLayer("AircraftSafety"))
@@ -740,7 +801,8 @@ namespace MiniRealisticAirways
                     for (int i = (int)aircraftAltitude.targetAltitude_; i < (int)AltitudeLevel.High; i++)
                     {
                         Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
-                        aircraftAltitude.EmergencyClimb();
+                        // Let GWPS take piority when the aircraft is on top of terrain.
+                        aircraftAltitude.EmergencyClimb(piority: true);
                     }
                 }
             }
@@ -848,79 +910,6 @@ namespace MiniRealisticAirways
                     }
                 }
                 return;
-            }
-
-            Aircraft aircraft = other.GetComponent<AircraftRef>().aircraft;
-            if (aircraft == null || other.name != "TCAS")
-            {
-                return;
-            }
-
-            AircraftAltitude aircraftAltitude1;
-            AircraftAltitude aircraftAltitude2;
-            if (!AircraftState.GetAircraftStates(__instance, out aircraftAltitude1, out _, out _) ||
-                !AircraftState.GetAircraftStates(aircraft, out aircraftAltitude2, out _, out _))
-            {
-                return;
-            }
-
-            if (aircraftAltitude1.tcasAction_ == TCASAction.None && aircraftAltitude2.tcasAction_ == TCASAction.None)
-            {
-                Plugin.Log.LogInfo("TCAS activated");
-                // Active TCAS on aircrafts if there is no previous action.
-                if (aircraftAltitude1.IsLanding() && aircraftAltitude2.IsLanding())
-                {
-                    // Both at landing, do nothing.
-                }
-                else if (aircraftAltitude1.IsLanding())
-                {
-                    aircraftAltitude2.EmergencyClimb();
-                }
-                else if (aircraftAltitude2.IsLanding())
-                {
-                    aircraftAltitude1.EmergencyClimb();
-                }
-                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High &&
-                        (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High || aircraftAltitude2.altitude_ == AltitudeLevel.High))
-                {
-                    // 2 (about to be)at High, 1 about to be at high, command 1 to desend.
-                    aircraftAltitude1.EmergencyDesend();
-                }
-                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.High &&
-                        (aircraftAltitude1.targetAltitude_ == AltitudeLevel.High || aircraftAltitude1.altitude_ == AltitudeLevel.High))
-                {
-                    // 1 (about to be)at High, 2 about to be at high, command 2 to desend.
-                    aircraftAltitude2.EmergencyDesend();
-                }
-                else if (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low &&
-                        (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude2.altitude_ == AltitudeLevel.Low))
-                {
-                    // 2 (about to be)at low, 1 about to be at low, command 1 to climb.
-                    aircraftAltitude1.EmergencyClimb();
-                }
-                else if (aircraftAltitude2.targetAltitude_ == AltitudeLevel.Low &&
-                        (aircraftAltitude1.targetAltitude_ == AltitudeLevel.Low || aircraftAltitude1.altitude_ == AltitudeLevel.Low))
-                {
-                    // 1 (about to be)at low, 2 about to be at low, command 2 to climb.
-                    aircraftAltitude2.EmergencyClimb();
-                }
-                else if (aircraftAltitude1.altitude_ == AltitudeLevel.Low &&
-                         aircraftAltitude2.altitude_ == AltitudeLevel.Low)
-                {
-                    // Both at high, command 2 to climb.
-                    aircraftAltitude2.EmergencyClimb();
-                }
-                else if (aircraftAltitude1.altitude_ == AltitudeLevel.High &&
-                         aircraftAltitude2.altitude_ == AltitudeLevel.High)
-                {
-                    // Both at high, command 2 to desend.
-                    aircraftAltitude2.EmergencyDesend();
-                }
-                else
-                {
-                    aircraftAltitude1.EmergencyClimb();
-                    aircraftAltitude2.EmergencyDesend();
-                }
             }
         }
     }

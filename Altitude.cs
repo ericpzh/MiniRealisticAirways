@@ -107,7 +107,7 @@ namespace MiniRealisticAirways
             AltitudeTransition();
         }
 
-        public void EmergencyClimb()
+        public void EmergencyClimb(bool piority = false)
         {
             if (altitudeDisabled_ || altitude_ == AltitudeLevel.Ground)
             {
@@ -122,7 +122,7 @@ namespace MiniRealisticAirways
             }
 
             targetAltitude_ ++;
-            EmergencyAltitudeTransition();
+            EmergencyAltitudeTransition(piority);
         }
 
         public void EmergencyDesend()
@@ -204,9 +204,9 @@ namespace MiniRealisticAirways
             }
         }
 
-        private void EmergencyAltitudeTransition()
+        private void EmergencyAltitudeTransition(bool piority = false)
         {
-            if (isEmergencyTransitioning_)
+            if (!piority && isEmergencyTransitioning_)
             {
                 return;
             }
