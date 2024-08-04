@@ -184,7 +184,12 @@ namespace MiniRealisticAirways
             Aircraft aircraft = null;
             foreach (Aircraft aircraft_ in AircraftManager.GetOutboundAircraft())
             {
-                if (aircraft_.state == Aircraft.State.TakingOff)
+                AircraftType aircraftType;
+                if (!AircraftState.GetAircraftStates(aircraft_, out _, out _, out aircraftType))
+                {
+                    continue;
+                }
+                if (aircraft_.state == Aircraft.State.TakingOff && aircraftType.weight_ == Weight.Medium)
                 {
                     aircraft = aircraft_;
                     break;
@@ -359,6 +364,47 @@ namespace MiniRealisticAirways
             Utils.Shuffle(ref events_);
             Plugin.Log.LogInfo("Event setup completed.");
             StartCoroutine(StartEventCoroutine());
+
+            // Grab sprites from AF1 events.
+            PreLevel02Manager preLevel02Manager = (PreLevel02Manager)GameObject.FindObjectOfType(typeof(PreLevel02Manager));
+            if (preLevel02Manager == null)
+            {
+                return;
+            }
+
+            List<MapSelection.MapItem> MapData = preLevel02Manager.GetFieldValue<List<MapSelection.MapItem>>("MapData");
+            if (MapData == null)
+            {
+                return;
+            }
+            foreach (MapSelection.MapItem mapDatum in MapData)
+            {
+                if (mapDatum.sceneName == "SanFrancisco")
+                {
+                    AirForceOne af1 = mapDatum.MapContent.GetComponentInChildren<AirForceOne>();
+                    if (af1 == null)
+                    {
+                        return;
+                    }
+                    GameObject F16Prefab = af1.GetFieldValue<GameObject>("F16Prefab");
+                    GameObject B747Prefab = af1.GetFieldValue<GameObject>("B747Prefab");
+                    if (F16Prefab == null || B747Prefab == null)
+                    {
+                        return;
+                    }
+
+                    GameObject F16Obj = UnityEngine.Object.Instantiate<GameObject>(F16Prefab, new Vector3(10, 10, 0), Quaternion.identity);
+                    Aircraft F16 = F16Obj.GetComponent<Aircraft>();
+                    f16Sprite_ = F16.AP.GetComponent<SpriteRenderer>()?.sprite;
+                    F16.ConditionalDestroy();
+
+                    GameObject B747Obj = UnityEngine.Object.Instantiate<GameObject>(B747Prefab, new Vector3(-10, -10, 0), Quaternion.identity);
+                    Aircraft B747 = B747Obj.GetComponent<Aircraft>();
+                    b747Sprite_ = B747.AP.GetComponent<SpriteRenderer>()?.sprite;
+                    B747.ConditionalDestroy();
+                    break;
+                }
+            }
         }
 
         private int GetIndex(int index)
@@ -369,6 +415,8 @@ namespace MiniRealisticAirways
         public static Runway closedRunway_ = null;
         public static Weather weather_ = null;
         public const float EVENT_RESTORE_TIME = 0.25f * 300f /* Time per day */;
+        public static Sprite f16Sprite_;
+        public static Sprite b747Sprite_;
         private List<Event> events_;
         private int index_ = 0;
         private const float EVENT_BASE_TIME = 6f * 300f /* Time per day */;

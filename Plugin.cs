@@ -6,7 +6,6 @@ using UnityEngine.SceneManagement;
 using UIComponents.Modals;
 using System.Collections;
 using TMPro;
-using UnityEngine.Video;
 
 namespace MiniRealisticAirways
 {
@@ -37,7 +36,6 @@ namespace MiniRealisticAirways
             if ((scene.name == "MapPlayer" || scene.name == "London" || scene.name == "CreatorPlayer") &&
                 AircraftManager.Instance != null && UpgradeManager.Instance != null)
             {
-
                 // Pre-load textures for global use.
                 FuelGaugeTextures.PreLoadTextures();
                 GaugeArrowTexture.PreLoadTexture();

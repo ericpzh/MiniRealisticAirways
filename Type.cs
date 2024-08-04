@@ -13,7 +13,7 @@ namespace MiniRealisticAirways
 
     public class BaseAircraftType : MonoBehaviour
     {
-        public Weight weight_;
+        public Weight weight_ = Weight.Medium;
 
         override public string ToString()
         {
@@ -161,6 +161,29 @@ namespace MiniRealisticAirways
         public bool IsTouchedDown() 
         {
             return aircraft_.state == Aircraft.State.TouchedDown;
+        }
+
+        public void UpdateSprite()
+        {
+            // Change sprite of light/heavy aircraft.
+            if (weight_ == Weight.Heavy && EventManager.b747Sprite_ != null)
+            {
+                SpriteRenderer sr = aircraft_?.AP?.GetComponent<SpriteRenderer>();
+                if (sr == null)
+                {
+                    return;
+                }
+                sr.sprite = EventManager.b747Sprite_;
+            }
+            else if (weight_ == Weight.Light && EventManager.f16Sprite_ != null)
+            {
+                SpriteRenderer sr = aircraft_?.AP?.GetComponent<SpriteRenderer>();
+                if (sr == null)
+                {
+                    return;
+                }
+                sr.sprite = EventManager.f16Sprite_;
+            }
         }
 
         override public float GetScaleFactor()

@@ -25,7 +25,18 @@ namespace MiniRealisticAirways
                     // Only arrival aircraft have fuel limit.
                     aircraftType.percentFuelLeft_ = 99;
                     __instance.StartCoroutine(aircraftType.FuelManagementCoroutine());
+
+                    aircraftType.UpdateSprite();
                 }
+            }
+            else
+            {
+                AircraftType aircraftType;
+                if (!AircraftState.GetAircraftStates(__instance, out _, out _, out aircraftType))
+                {
+                    return;
+                }
+                aircraftType.UpdateSprite();
             }
         }
     }
