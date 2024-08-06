@@ -28,7 +28,7 @@ namespace MiniRealisticAirways
                 showTutorialInEn = false;
                 modal.SetTitle("真实迷你空管");
                 modal.SetHeading("感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看接下来的简易教程。");
-                modal.SetDescription("请随时参阅<b><u><link=\"CHS\">快速参考手册</link></u></b>");
+                modal.SetDescription("请随时参阅<b><u><link=\"CHS\">快速检查单</link></u></b>");
                 modal.description.gameObject.GetComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VaghdGDiEokiJmxeVRocJJonnhh?from=from_copylink";
             });
             modal.Show();
