@@ -27,7 +27,7 @@ namespace MiniRealisticAirways
 
             if (scene.name == "Menu" && AudioManager.instance != null)
             {
-                AudioManager.instance.StartCoroutine(Tutorial.ShowModHintCoroutine());
+                AudioManager.instance.StartCoroutine(Tutorial.ShowTutorialCoroutine());
             }
 
             if ((scene.name == "MapPlayer" || scene.name == "London" || scene.name == "CreatorPlayer") &&

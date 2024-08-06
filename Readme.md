@@ -26,7 +26,7 @@ Aircraft and upgrades interact with altitude in the following ways:
 
 <img src="img/terrain.png" width=20% height=20%>
 
-- When two aircraft are about to crash, TCAS will command one to climb and another to descend when possible.
+- When two aircraft are about to crash, TCAS will command one to climb and the other to descend when possible.
 - When aircraft is about to crash into terrain (Red), GPWS will command aircraft to climb.
 - Landing aircraft are not commanded by TCAS or GPWS.
 
@@ -158,7 +158,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 - 地形（红色区域）不会影响高<img src="img/high.png" width=2% height=2%>的飞机。但是，禁飞区（黄色区域）会影响。
 <img src="img/terrain.png" width=20% height=20%>
 - 当两架飞机即将碰撞时, TCAS会命令其中一架爬升，另一架下降。
-- 当飞机即将收到地形（红色区域）影响时，GWPS会命令飞机爬升。
+- 当飞机即将受到地形（红色区域）影响时，GWPS会命令飞机爬升。
 - 即将降落的飞机不受TCAS和GWPS影响。
 
 可以通过以下方式控制飞机的高度:
