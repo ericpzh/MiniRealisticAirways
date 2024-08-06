@@ -44,7 +44,7 @@ Waypoint/take-off waypoint can command aircraft's altitude. You can control the 
 
 # Speed
 
-Aircraft in the air may be in one of the three speeds, slow <img src="img/slow.png" width=2% height=2%>, normal <img src="img/norm.png" width=2% height=2%>, and fast <img src="img/fast.png" width=2% height=2%>. The current speed of an aircraft is displayed on the left & right of aircraft icon and is displayed below the aircraft as: `SPD: >` and arrow on left/right of an aircraft.
+Aircraft in the air may be in one of the three speeds, slow <img src="img/slow.png" width=2% height=2%>, normal <img src="img/norm.png" width=2% height=2%>, and fast <img src="img/fast.png" width=2% height=2%>. The current speed of an aircraft is displayed on the right of aircraft icon and is displayed below the aircraft as: `SPD: >` and arrow on left/right of an aircraft.
 Aircraft and upgrades interact with altitude in the following ways:
 - Arrival aircraft from outside of the screen arrives at normal <img src="img/norm.png" width=2% height=2%> speed.
 - Arrival aircraft can land when it is in slow <img src="img/slow.png" width=2% height=2%> or normal <img src="img/norm.png" width=2% height=2%> speed.
@@ -216,7 +216,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 # 风向系统
 
-风向会影响飞机的起降性能。当飞机在顺风中降落时，复飞几率会提高。当飞机在顺风中起飞时，拒绝起飞几率也会提高。你可以在屏幕左上角看见当前风向。
+风向会影响飞机的起降性能。当飞机在顺风中降落时，复飞几率会提高。当飞机在顺风中起飞时，拒绝起飞几率也会提高。你可以在屏幕左上角查看当前风向。
 
 <img src="img/windsock.png" width=20% height=20%>
 
