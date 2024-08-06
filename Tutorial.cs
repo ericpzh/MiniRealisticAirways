@@ -32,6 +32,9 @@ namespace MiniRealisticAirways
                 modal.description.gameObject.GetComponent<LinkHandler>().url = "https://m0pt5uret4t.feishu.cn/docx/VaghdGDiEokiJmxeVRocJJonnhh?from=from_copylink";
             });
             modal.Show();
+
+            DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
+            toggle?.gameObject.SetActive(false);
         }
 
         private static void ShowModTutorial()
@@ -39,9 +42,15 @@ namespace MiniRealisticAirways
             modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
             SetTitle(modal);
             SetHeading(modal, enHeading[tutorialPage], cnHeading[tutorialPage]);
-            SetDescription(modal , enDescription[tutorialPage], cnDescription[tutorialPage]);
+            SetDescription(modal, enDescription[tutorialPage], cnDescription[tutorialPage]);
             SetButton(modal);
             modal.Show();
+
+            DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
+            toggle?.gameObject.SetActive(IsLastPage());
+
+            CloseButton closeButton = modal.GetComponentInChildren<CloseButton>();
+            closeButton?.gameObject.SetActive(IsLastPage());
         }
 
         private static void SetTitle(ModalWithButton modal)
@@ -62,7 +71,7 @@ namespace MiniRealisticAirways
         private static void SetButton(ModalWithButton modal)
         {
             // Do not show NEXT on the last page.
-            if (tutorialPage == enHeading.Count - 1)
+            if (IsLastPage())
             {
                 modal.button.gameObject.SetActive(false);
             }
@@ -72,6 +81,11 @@ namespace MiniRealisticAirways
                 modal.PostHide();
                 ShowModTutorial();
             });
+        }
+
+        private static bool IsLastPage()
+        {
+            return tutorialPage == enHeading.Count - 1;
         }
 
         private static ModalWithButton modal;

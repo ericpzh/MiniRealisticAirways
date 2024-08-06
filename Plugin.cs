@@ -25,7 +25,7 @@ namespace MiniRealisticAirways
         {
             Logger.LogInfo($"Scene loaded: {scene.name}");
 
-            if (scene.name == "Menu")
+            if (scene.name == "Menu" && AudioManager.instance != null)
             {
                 AudioManager.instance.StartCoroutine(Tutorial.ShowModHintCoroutine());
             }
