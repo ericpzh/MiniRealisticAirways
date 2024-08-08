@@ -24,6 +24,10 @@ namespace MiniRealisticAirways
 
             // Remaining tutorial.
             ShowModTutorial();
+
+            yield return new WaitUntil(() => modal == null);
+            // Reset page.
+            tutorialPage = 0;
         }
 
         private static void SetupWelcome(bool showInEn)
