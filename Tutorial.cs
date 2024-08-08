@@ -23,7 +23,10 @@ namespace MiniRealisticAirways
             yield return new WaitUntil(() => modal == null);
 
             // Remaining tutorial.
-            ShowModTutorial();
+            if (ModalManager.Instance != null)
+            {
+                ShowModTutorial();
+            }
 
             yield return new WaitUntil(() => modal == null);
             // Reset page.
