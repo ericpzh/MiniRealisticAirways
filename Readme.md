@@ -1,6 +1,6 @@
 # Mini Realistic Airways
 
-A mini-realisitc mod for Mini Airways.
+A mini-realistic mod for Mini Airways.
 
 Use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
 

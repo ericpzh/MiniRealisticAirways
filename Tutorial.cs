@@ -35,8 +35,8 @@ namespace MiniRealisticAirways
 
         private static void SetupWelcome(bool showInEn)
         {
-            modal.SetTitle(showInEn ? "Mini Realisitc Airways" : "真实迷你空管");
-            modal.SetHeading(showInEn ? "Thanks for playing \"Mini Realisitc Airways\"! Before you start, please go over the subsequent tutorial." : "感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看接下来的简易教程。");
+            modal.SetTitle(showInEn ? "Mini Realistic Airways" : "真实迷你空管");
+            modal.SetHeading(showInEn ? "Thanks for playing \"Mini Realistic Airways\"! Before you start, please go over the subsequent tutorial." : "感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看接下来的简易教程。");
             modal.SetDescription(showInEn ? "For more information, refer to the <b><u><link=\"ENG\">Quick reference handbook</link></u></b>" : "请随时参阅<b><u><link=\"CHS\">快速检查单</link></u></b>");
             modal.SetButtonText(showInEn ? "中文" : "English");
             modal.description.gameObject.GetComponent<LinkHandler>().url = showInEn ? "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#mini-realistic-airways" : "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1";
