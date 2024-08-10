@@ -358,6 +358,11 @@ namespace MiniRealisticAirways
 
         private void Start()
         {
+            if (Plugin.DISABLE_EVENTS)
+            {
+                return;
+            }
+
             EngineOut engineOutEvent = gameObject.AddComponent<EngineOut>();
             RunwayClose runwayCloseEvent = gameObject.AddComponent<RunwayClose>();
             events_ = new List<Event> { engineOutEvent, runwayCloseEvent , new LowFuelArrival(), new BadWeather() };

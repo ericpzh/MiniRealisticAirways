@@ -12,6 +12,11 @@ namespace MiniRealisticAirways
     {
         public override string ToString()
         {
+            if (Plugin.DISABLE_WIND)
+            {
+                return "";
+            }
+
             return "Wind: " + (int)Math.Round(windDirection_) + "°";
         }
 
@@ -39,6 +44,11 @@ namespace MiniRealisticAirways
 
         public bool CanLand(float heading, Weight weight)
         {
+            if (Plugin.DISABLE_WIND)
+            {
+                return true;
+            }
+
             float angle = Math.Min((heading - windDirection_) < 0 ? heading - windDirection_ + 360 : heading - windDirection_,
                                    (windDirection_ - heading) < 0 ? windDirection_ - heading + 360 : windDirection_ - heading);
             if (angle <= 90)
@@ -137,6 +147,11 @@ namespace MiniRealisticAirways
 
         private void Start()
         {
+            if (Plugin.DISABLE_WIND)
+            {
+                return;
+            }
+
             windDirection_ = UnityEngine.Random.value * 360f;
             StartCoroutine(UpdateWindCoroutine());
         }

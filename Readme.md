@@ -2,11 +2,13 @@
 
 A mini-realisitc mod for Mini Airways.
 
-Tips: you can use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
+Use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
 
 <img src="img/detail.png" width=12.75% height=12.75%> 
 
 <img src="img/nodetail.png" width=20% height=20%>
+
+Add `-disableWind` to launch options to disable wind, add `-disableEvents` to launch options to disable events.
 
 # How to Install
 
@@ -136,11 +138,13 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 这是一个既迷你又真实的迷你空管Mod。
 
-温馨提示：使用`Tab`可以关闭高度、速度、机型和燃料的具体数值。
+使用`Tab`可以关闭高度、速度、机型和燃料的具体数值。
 
 <img src="img/detail.png" width=12.75% height=12.75%> 
 
 <img src="img/nodetail.png" width=20% height=20%>
+
+在游戏启动项内用 `-disableWind` 关闭风向系统，用 `-disableEvents` 关闭特情系统。
 
 # 安装
 
@@ -227,7 +231,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 - 顺风和侧风之间的复飞概率是非线性的。
 - 较轻的飞机更容易受到风向影响。
 
-# 特殊事件
+# 特情
 以下特殊事件平均每6天发生一次：
 - 一架低油量飞机备降到本场，需要优先安排降落。
 
