@@ -1,7 +1,11 @@
-﻿using System.Collections;
+﻿using DG.Tweening;
+using HarmonyLib;
+using System.Collections;
 using System.Collections.Generic;
-using UnityEngine;
+using TMPro;
 using UIComponents.Modals;
+using UnityEngine;
+using UnityEngine.UI;
 
 namespace MiniRealisticAirways
 {
@@ -47,6 +51,38 @@ namespace MiniRealisticAirways
             yield return new WaitUntil(() => modal == null);
             // Reset page.
             tutorialPage = 0;
+        }
+
+        public static IEnumerator ShowQRHCoroutine()
+        {
+            yield return new WaitUntil(() => ModalManager.Instance != null);
+            tutorialButton.gameObject.SetActive(false);
+
+            modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString() + UnityEngine.Random.value);
+            modal.description.gameObject.AddComponent<LinkHandler>();
+            SetupWelcome(showInEn: true);
+            modal.Show();
+            DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
+            toggle?.gameObject.SetActive(false);
+
+            yield return new WaitUntil(() => modal == null);
+
+            tutorialButton.gameObject.SetActive(true);
+            SetQRHText();
+        }
+
+        public static void SetQRHText()
+        {
+            if (tutorialButton == null)
+            {
+                return;
+            }
+            TMP_Text text = tutorialButton.GetComponentInChildren<TMP_Text>();
+            if (text == null)
+            {
+                return;
+            }
+            text.text = "QRH";
         }
 
         private static void SetupWelcome(bool showInEn)
@@ -114,6 +150,7 @@ namespace MiniRealisticAirways
             return tutorialPage == tutorialPages.Count - 1;
         }
 
+        public static Button tutorialButton;
         private static ModalWithButton modal;
         private static bool showTutorialInEn = true;
         private static int tutorialPage = 0;
@@ -203,5 +240,28 @@ namespace MiniRealisticAirways
                 飞出屏幕相当于飞入禁飞区。"
             ),
         };
+    }
+
+    [HarmonyPatch]
+    public class MainMenuManagerPatch
+    {
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MainMenuManager), "Start")]
+        public static void StartPostfix(ref Button ___EditorButton)
+        {
+            Tutorial.tutorialButton = GameObject.Instantiate(___EditorButton.gameObject, ___EditorButton.transform.parent).GetComponent<Button>();
+            Tutorial.SetQRHText();
+            Tutorial.tutorialButton.transform.localPosition = new Vector3(-640f, -510f, 0);
+            Tutorial.tutorialButton.onClick.RemoveAllListeners();
+            Tutorial.tutorialButton.onClick = new Button.ButtonClickedEvent();
+            Tutorial.tutorialButton.onClick.AddListener(() => { AudioManager.instance.StartCoroutine(Tutorial.ShowQRHCoroutine()); });
+        }
+
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(MainMenuManager), "Update")]
+        public static void UpdatePostfix()
+        {
+            Tutorial.SetQRHText();
+        }
     }
 }
