@@ -251,7 +251,7 @@ namespace MiniRealisticAirways
         {
             Tutorial.tutorialButton = GameObject.Instantiate(___EditorButton.gameObject, ___EditorButton.transform.parent).GetComponent<Button>();
             Tutorial.SetQRHText();
-            Tutorial.tutorialButton.transform.localPosition = new Vector3(-640f, -510f, 0);
+            Tutorial.tutorialButton.transform.localPosition = new Vector3(1280f, -430f, 0);
             Tutorial.tutorialButton.onClick.RemoveAllListeners();
             Tutorial.tutorialButton.onClick = new Button.ButtonClickedEvent();
             Tutorial.tutorialButton.onClick.AddListener(() => { AudioManager.instance.StartCoroutine(Tutorial.ShowQRHCoroutine()); });
