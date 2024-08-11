@@ -148,7 +148,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 可通过选项菜单里的`Wind`或在游戏启动项内用 `-disableWind` 关闭风向系统，通过选项菜单里的`Event`或在游戏启动项内用 `-disableEvents` 关闭特情系统。
 
-<img src="img/settings.png" width=50% height=50%>
+<img src="img/settings_cn.png" width=50% height=50%>
 
 # 安装
 
