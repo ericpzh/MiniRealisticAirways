@@ -31,13 +31,13 @@ namespace MiniRealisticAirways
         public static void SetupWindToggle(ref Button ___SubtitlesButton, ref TMP_Text ___ColorAccessibilityText)
         {
             SetupToggle(265f, -225f, ref windToggle, ref ___SubtitlesButton, OnWindButtonClick);
-            SetupText(-300f, -70f, "Wind", ref windText, ref ___ColorAccessibilityText);
+            SetupText(-300f, -70f, Tutorial.ShowEnLocale() ? "Enable Wind" : "启用风向", ref windText, ref ___ColorAccessibilityText);
         }
 
         public static void SetupEventToggle(ref Button ___SubtitlesButton, ref TMP_Text ___ColorAccessibilityText)
         {
             SetupToggle(265f, -275f, ref eventToggle, ref ___SubtitlesButton, OnEventButtonClick);
-            SetupText(-300f, -130f, "Events", ref eventText, ref ___ColorAccessibilityText);
+            SetupText(-300f, -130f, Tutorial.ShowEnLocale() ? "Enable Events" : "启用特情", ref eventText, ref ___ColorAccessibilityText);
         }
 
         public static void OnWindButtonClick()

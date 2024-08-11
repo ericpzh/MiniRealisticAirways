@@ -1,10 +1,11 @@
-﻿using DG.Tweening;
-using HarmonyLib;
+﻿using HarmonyLib;
 using System.Collections;
 using System.Collections.Generic;
 using TMPro;
 using UIComponents.Modals;
 using UnityEngine;
+using UnityEngine.Localization;
+using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
 namespace MiniRealisticAirways
@@ -35,7 +36,7 @@ namespace MiniRealisticAirways
             // Initial welcome screen.
             modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
             modal.description.gameObject.AddComponent<LinkHandler>();
-            SetupWelcome(showInEn: true);
+            SetupWelcome(showTutorialInEn);
             modal.Show();
             DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
             toggle?.gameObject.SetActive(false);
@@ -60,7 +61,7 @@ namespace MiniRealisticAirways
 
             modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString() + UnityEngine.Random.value);
             modal.description.gameObject.AddComponent<LinkHandler>();
-            SetupWelcome(showInEn: true);
+            SetupWelcome(showTutorialInEn);
             modal.Show();
             DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
             toggle?.gameObject.SetActive(false);
@@ -82,7 +83,12 @@ namespace MiniRealisticAirways
             {
                 return;
             }
-            text.text = "QRH";
+            text.text = showTutorialInEn ? "QRH" : "快速检查单";
+        }
+
+        public static bool ShowEnLocale()
+        {
+            return !LocalizationSettings.SelectedLocale.LocaleName.Contains("Chinese");
         }
 
         private static void SetupWelcome(bool showInEn)
@@ -150,9 +156,9 @@ namespace MiniRealisticAirways
             return tutorialPage == tutorialPages.Count - 1;
         }
 
+        public static bool showTutorialInEn = false;
         public static Button tutorialButton;
         private static ModalWithButton modal;
-        private static bool showTutorialInEn = true;
         private static int tutorialPage = 0;
         private static List<TutorialPage> tutorialPages = new List<TutorialPage> {
             new TutorialPage (
@@ -255,6 +261,8 @@ namespace MiniRealisticAirways
             Tutorial.tutorialButton.onClick.RemoveAllListeners();
             Tutorial.tutorialButton.onClick = new Button.ButtonClickedEvent();
             Tutorial.tutorialButton.onClick.AddListener(() => { AudioManager.instance.StartCoroutine(Tutorial.ShowQRHCoroutine()); });
+
+            Tutorial.showTutorialInEn = Tutorial.ShowEnLocale();
         }
 
         [HarmonyPostfix]
