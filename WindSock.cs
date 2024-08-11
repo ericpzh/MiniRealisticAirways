@@ -12,7 +12,7 @@ namespace MiniRealisticAirways
     {
         public override string ToString()
         {
-            if (Plugin.DISABLE_WIND)
+            if (Settings.DISABLE_WIND)
             {
                 return "";
             }
@@ -44,7 +44,7 @@ namespace MiniRealisticAirways
 
         public bool CanLand(float heading, Weight weight)
         {
-            if (Plugin.DISABLE_WIND)
+            if (Settings.DISABLE_WIND)
             {
                 return true;
             }
@@ -147,7 +147,7 @@ namespace MiniRealisticAirways
 
         private void Start()
         {
-            if (Plugin.DISABLE_WIND)
+            if (Settings.DISABLE_WIND)
             {
                 return;
             }

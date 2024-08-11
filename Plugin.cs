@@ -1,7 +1,6 @@
 ﻿using BepInEx;
 using BepInEx.Logging;
 using HarmonyLib;
-using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
@@ -21,20 +20,7 @@ namespace MiniRealisticAirways
             Harmony harmony = new Harmony(PluginInfo.PLUGIN_GUID);
             harmony.PatchAll();
 
-            string[] commandLineArgs = Environment.GetCommandLineArgs();
-            for (int i = 0; i < commandLineArgs.Length; i++)
-            {
-                if (commandLineArgs[i] == "-disableWind")
-                {
-                    Logger.LogInfo("Wind disabled");
-                    DISABLE_WIND = true;
-                }
-                else if (commandLineArgs[i] == "-disableEvents")
-                {
-                    Logger.LogInfo("Event disabled");
-                    DISABLE_EVENTS = true;
-                }
-            }
+            Settings.ProcessLaunchOptions();
         }
 
         private void OnSceneLoaded(Scene scene, LoadSceneMode mode)
@@ -81,7 +67,5 @@ namespace MiniRealisticAirways
         internal static WindSock windsock_;
         internal static EventManager eventManager_;
         internal static int MAX_WHILE_LOOP_ITER = 1000;
-        internal static bool DISABLE_WIND = false;
-        internal static bool DISABLE_EVENTS = false;
     }
 }

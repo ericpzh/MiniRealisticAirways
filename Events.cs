@@ -358,7 +358,7 @@ namespace MiniRealisticAirways
 
         private void Start()
         {
-            if (Plugin.DISABLE_EVENTS)
+            if (Settings.DISABLE_EVENTS)
             {
                 return;
             }
