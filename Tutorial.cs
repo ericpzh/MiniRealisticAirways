@@ -79,7 +79,7 @@ namespace MiniRealisticAirways
 
         private static void ShowModTutorial(bool manualTrigger)
         {
-            string id = PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString();
+            string id = PluginInfo.PLUGIN_GUID.ToString();
             modal = ModalManager.NewModalWithButtonStatic(manualTrigger ? id + UnityEngine.Random.value : id);
             SetTitle(modal, "Mini Realistic Airways", "真实迷你空管");
             SetHeading(modal, tutorialPages[tutorialPage].enHeading_, tutorialPages[tutorialPage].cnHeading_);
