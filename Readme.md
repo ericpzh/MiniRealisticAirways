@@ -19,10 +19,10 @@ To disable wind, use `Wind` toggle in `Options` menu or add `-disableWind` to la
 
 # Altitude
 
-Aircraft in the air may be in one of the three altitudes, low <img src="img/low.png" width=2% height=2%>, normal <img src="img/mid.png" width=2% height=2%>, and high <img src="img/high.png" width=2% height=2%>. The current altitude of an aircraft is displayed on the left of aircraft icon and is displayed below the aircraft as: `ALT: ^` of an aircraft.
+Aircraft may be in one of the three altitudes, low <img src="img/low.png" width=2% height=2%>, normal <img src="img/mid.png" width=2% height=2%>, and high <img src="img/high.png" width=2% height=2%>. The current altitude of an aircraft is displayed on the left of aircraft icon and is displayed below the aircraft as: `ALT: ^`.
 Aircraft and upgrades interact with altitude in the following ways:
-- Arrival aircraft from outside of the screen arrives at high <img src="img/high.png" width=2% height=2%> altitude.
-- Arrival aircraft can only land when it is at low <img src="img/low.png" width=2% height=2%> altitude.
+- Arrival aircraft arrives at high <img src="img/high.png" width=2% height=2%> altitude.
+- Arrival aircraft can only land at low <img src="img/low.png" width=2% height=2%> altitude.
 - Departure aircraft will start at low <img src="img/low.png" width=2% height=2%> altitude after take-off sequence finishes.
 - Departure aircraft will only be able to reach departure (colored) waypoint at normal <img src="img/mid.png" width=2% height=2%> or high <img src="img/high.png" width=2% height=2%> altitude.
 - Landing waypoint will instruct aircraft to reach low <img src="img/low.png" width=2% height=2%> altitude and issue the landing clearance.
@@ -48,9 +48,9 @@ Waypoint/take-off waypoint can command aircraft's altitude. You can control the 
 
 # Speed
 
-Aircraft in the air may be in one of the three speeds, slow <img src="img/slow.png" width=2% height=2%>, normal <img src="img/norm.png" width=2% height=2%>, and fast <img src="img/fast.png" width=2% height=2%>. The current speed of an aircraft is displayed on the right of aircraft icon and is displayed below the aircraft as: `SPD: >` and arrow on left/right of an aircraft.
+Aircraft may be in one of the three speeds, slow <img src="img/slow.png" width=2% height=2%>, normal <img src="img/norm.png" width=2% height=2%>, and fast <img src="img/fast.png" width=2% height=2%>. The current speed of an aircraft is displayed on the right of aircraft icon and is displayed below the aircraft as: `SPD: >`.
 Aircraft and upgrades interact with altitude in the following ways:
-- Arrival aircraft from outside of the screen arrives at normal <img src="img/norm.png" width=2% height=2%> speed.
+- Arrival aircraft arrives at normal <img src="img/norm.png" width=2% height=2%> speed.
 - Arrival aircraft can land when it is in slow <img src="img/slow.png" width=2% height=2%> or normal <img src="img/norm.png" width=2% height=2%> speed.
 - Arrival aircraft going around will lift off at normal <img src="img/norm.png" width=2% height=2%> speed.
 - Departure aircraft will start at normal <img src="img/norm.png" width=2% height=2%> speed after take-off sequence finishes.
@@ -70,7 +70,7 @@ Waypoint/take-off waypoint can command aircraft's speeds. You can control the al
 
 # Aircraft Type
 
-Aircraft will have the following three types: Light<img src="img/light.png" width=5% height=5%>, Medium<img src="img/nodetail.png" width=6.5% height=6.5%>, and Heavy<img src="img/heavy.png" width=6% height=6%>.
+Aircraft will have the following three types: light<img src="img/light.png" width=5% height=5%>, medium<img src="img/nodetail.png" width=6.5% height=6.5%>, and heavy<img src="img/heavy.png" width=6% height=6%>.
 
 <img src="img/apronsize.png" width=20% height=20%>
 
@@ -157,11 +157,11 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 # 高度系统
 
-飞机会处于以下三种高度：低<img src="img/low.png" width=2% height=2%>、正常<img src="img/mid.png" width=2% height=2%>和高<img src="img/high.png" width=2% height=2%>。飞机的当前高度会在飞机图标的上下显示，并且在信息区显示为：`ALT: ^`。飞机有以下的高度特性：
+飞机会处于以下三种高度：低<img src="img/low.png" width=2% height=2%>、中<img src="img/mid.png" width=2% height=2%>和高<img src="img/high.png" width=2% height=2%>。飞机的当前高度会在飞机图标的上下显示，并且在信息区显示为：`ALT: ^`。飞机有以下的高度特性：
 - 屏幕外进场的飞机会以高<img src="img/high.png" width=2% height=2%>进场。
 - 进场的飞机只有在低<img src="img/low.png" width=2% height=2%>时才能降落。
 - 离场飞机将从低<img src="img/low.png" width=2% height=2%>起飞。
-- 离场飞机只有正常<img src="img/mid.png" width=2% height=2%>或高<img src="img/high.png" width=2% height=2%>到达离场（彩色）航点时触发离场。
+- 离场飞机只有中<img src="img/mid.png" width=2% height=2%>或高<img src="img/high.png" width=2% height=2%>到达离场（彩色）航点时触发离场。
 - 降落航点将指示飞机首先到达低<img src="img/low.png" width=2% height=2%>并发出降落许可。
 - 地形（红色区域）不会影响高<img src="img/high.png" width=2% height=2%>的飞机。但是，禁飞区（黄色区域）会影响。
 <img src="img/terrain.png" width=20% height=20%>
@@ -181,12 +181,12 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 # 速度系统
 
-飞机会处于以下三种速度：慢<img src="img/slow.png" width=2% height=2%>、正常<img src="img/norm.png" width=2% height=2%>和快<img src="img/fast.png" width=2% height=2%>。飞机的当前速度会在飞机图标的左右显示，并且在信息区显示为：`SPD: >`。飞机有以下的速度特性：
-- 屏幕外进场的飞机会以正常<img src="img/norm.png" width=2% height=2%>进场。
-- 进场的飞机只有在慢<img src="img/slow.png" width=2% height=2%>或正常<img src="img/norm.png" width=2% height=2%>时才能降落。
-- 复飞的飞机会以正常<img src="img/norm.png" width=2% height=2%>起飞。
-- 离场飞机将以正常<img src="img/norm.png" width=2% height=2%>起飞。
-- 如果当前速度为快<img src="img/fast.png" width=2% height=2%>，降落航点将指示飞机达到正常<img src="img/norm.png" width=2% height=2%>并发出降落许可。
+飞机会处于以下三种速度：慢<img src="img/slow.png" width=2% height=2%>、中<img src="img/norm.png" width=2% height=2%>和快<img src="img/fast.png" width=2% height=2%>。飞机的当前速度会在飞机图标的左右显示，并且在信息区显示为：`SPD: >`。飞机有以下的速度特性：
+- 屏幕外进场的飞机会以中<img src="img/norm.png" width=2% height=2%>进场。
+- 进场的飞机只有在慢<img src="img/slow.png" width=2% height=2%>或中<img src="img/norm.png" width=2% height=2%>时才能降落。
+- 复飞的飞机会以中<img src="img/norm.png" width=2% height=2%>起飞。
+- 离场飞机将以中<img src="img/norm.png" width=2% height=2%>起飞。
+- 如果当前速度为快<img src="img/fast.png" width=2% height=2%>，降落航点将指示飞机达到中<img src="img/norm.png" width=2% height=2%>并发出降落许可。
 
 可以通过以下方式控制飞机的速度:
 - 指挥飞机或鼠标悬浮于飞机上时按`D`或滚轮`scroll up`并按住`left shift`会增加其速度。
@@ -209,7 +209,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 <img src="img/fuel.png" width=10% height=10%>
 
 轻型飞机拥有以下特性:
-- 最大速度为正常<img src="img/norm.png" width=2% height=2%>。如果通过具有快<img src="img/fast.png" width=2% height=2%>的航点，速度也只会变为正常<img src="img/norm.png" width=2% height=2%>。
+- 最大速度为中<img src="img/norm.png" width=2% height=2%>。如果通过具有快<img src="img/fast.png" width=2% height=2%>的航点，速度也只会变为中<img src="img/norm.png" width=2% height=2%>。
 - 只有在速度为慢<img src="img/slow.png" width=2% height=2%>时才能降落，引导到跑道时会自动减速到慢<img src="img/slow.png" width=2% height=2%>，通过降落航点时也会减速到慢<img src="img/slow.png" width=2% height=2%>。
 - 转弯速度比其他类型快50%。
 - 进场时携带游戏内3天的燃料。
@@ -258,4 +258,4 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # 其他特性
 - 开场时自动获得3个等待区升级。
 - 升级现在每半天刷新一次。
-- 飞出屏幕和飞入禁飞区现在拥有同样效果。
+- 飞出屏幕相当于飞入禁飞区。

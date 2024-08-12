@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using TMPro;
 using UIComponents.Modals;
 using UnityEngine;
-using UnityEngine.Localization;
 using UnityEngine.Localization.Settings;
 using UnityEngine.UI;
 
@@ -28,48 +27,31 @@ namespace MiniRealisticAirways
 
     public static class Tutorial
     {
-        public static IEnumerator ShowTutorialCoroutine()
+        public static IEnumerator ShowTutorialCoroutine(bool manualTrigger = false)
         {
-            yield return new WaitForSeconds(1);
+            // Hide QRH button in main menu.
+            if (manualTrigger)
+            {
+                tutorialButton.gameObject.SetActive(false);
+            }
+            else
+            {
+                yield return new WaitForSeconds(1);
+            }
+
             yield return new WaitUntil(() => ModalManager.Instance != null);
 
-            // Initial welcome screen.
-            modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
-            modal.description.gameObject.AddComponent<LinkHandler>();
-            SetupWelcome(showTutorialInEn);
-            modal.Show();
-            DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
-            toggle?.gameObject.SetActive(false);
-
-            yield return new WaitUntil(() => modal == null);
-
-            // Remaining tutorial.
-            if (ModalManager.Instance != null)
-            {
-                ShowModTutorial();
-            }
+            ShowModTutorial(manualTrigger);
 
             yield return new WaitUntil(() => modal == null);
             // Reset page.
             tutorialPage = 0;
-        }
 
-        public static IEnumerator ShowQRHCoroutine()
-        {
-            yield return new WaitUntil(() => ModalManager.Instance != null);
-            tutorialButton.gameObject.SetActive(false);
-
-            modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString() + UnityEngine.Random.value);
-            modal.description.gameObject.AddComponent<LinkHandler>();
-            SetupWelcome(showTutorialInEn);
-            modal.Show();
-            DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
-            toggle?.gameObject.SetActive(false);
-
-            yield return new WaitUntil(() => modal == null);
-
-            tutorialButton.gameObject.SetActive(true);
-            SetQRHText();
+            // Show QRH button in main menu.
+            if (manualTrigger)
+            {
+                tutorialButton.gameObject.SetActive(true);
+            }
         }
 
         public static void SetQRHText()
@@ -83,72 +65,71 @@ namespace MiniRealisticAirways
             {
                 return;
             }
-            text.text = showTutorialInEn ? "QRH" : "快速检查单";
+            text.text = ShowEnLocale() ? "QRH" : "快速检查单";
         }
 
         public static bool ShowEnLocale()
         {
+            if (LocalizationSettings.SelectedLocale == null || LocalizationSettings.SelectedLocale.LocaleName == null)
+            {
+                return true;
+            }
             return !LocalizationSettings.SelectedLocale.LocaleName.Contains("Chinese");
         }
 
-        private static void SetupWelcome(bool showInEn)
+        private static void ShowModTutorial(bool manualTrigger)
         {
-            modal.SetTitle(showInEn ? "Mini Realistic Airways" : "真实迷你空管");
-            modal.SetHeading(showInEn ? "Thanks for playing \"Mini Realistic Airways\"! Before you start, please go over the subsequent tutorial." : "感谢您游玩\"真实迷你空管\"!\n在开始之前，请查看接下来的简易教程。");
-            modal.SetDescription(showInEn ? "For more information, refer to the <b><u><link=\"ENG\">Quick reference handbook</link></u></b>" : "请随时参阅<b><u><link=\"CHS\">快速检查单</link></u></b>");
-            modal.SetButtonText(showInEn ? "中文" : "English");
-            modal.description.gameObject.GetComponent<LinkHandler>().url = showInEn ? "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#mini-realistic-airways" : "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1";
-            modal.SetButtonOnClick(() => {
-                showTutorialInEn = !showInEn;
-                SetupWelcome(!showInEn);
-            });
-        }
-
-        private static void ShowModTutorial()
-        {
-            modal = ModalManager.NewModalWithButtonStatic(PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString());
-            SetTitle(modal, "Tutorial", "教程");
+            string id = PluginInfo.PLUGIN_GUID.ToString() + PluginInfo.PLUGIN_VERSION.ToString();
+            modal = ModalManager.NewModalWithButtonStatic(manualTrigger ? id + UnityEngine.Random.value : id);
+            SetTitle(modal, "Mini Realistic Airways", "真实迷你空管");
             SetHeading(modal, tutorialPages[tutorialPage].enHeading_, tutorialPages[tutorialPage].cnHeading_);
             SetDescription(modal, tutorialPages[tutorialPage].enDescription_, tutorialPages[tutorialPage].cnDescription_);
-            SetButton(modal);
+            SetButton(modal, manualTrigger);
             modal.SetDescriptionTextAlign(TMPro.TextAlignmentOptions.Left);
             modal.Show();
 
             DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
-            toggle?.gameObject.SetActive(IsLastPage());
+            toggle?.gameObject.SetActive(IsLastPage() && !manualTrigger);
 
             CloseButton closeButton = modal.GetComponentInChildren<CloseButton>();
-            closeButton?.gameObject.SetActive(IsLastPage());
+            closeButton?.gameObject.SetActive(IsLastPage() || manualTrigger);
         }
 
         private static void SetTitle(ModalWithButton modal, string en, string cn)
         {
-            modal.SetTitle(showTutorialInEn ? en : cn);
+            modal.SetTitle(ShowEnLocale() ? en : cn);
         }
 
         private static void SetHeading(ModalWithButton modal, string en, string cn)
         {
-            modal.SetHeading(showTutorialInEn ? en : cn);
+            modal.SetHeading(ShowEnLocale() ? en : cn);
         }
 
         private static void SetDescription(ModalWithButton modal, string en, string cn)
         {
-            modal.SetDescription(showTutorialInEn ? en : cn);
+            modal.SetDescription(ShowEnLocale() ? en : cn);
         }
 
-        private static void SetButton(ModalWithButton modal)
+        private static void SetButton(ModalWithButton modal, bool manualTrigger)
         {
             // Do not show NEXT on the last page.
             if (IsLastPage())
             {
                 modal.button.gameObject.SetActive(false);
+                modal.description.gameObject.AddComponent<LinkHandler>().url = ShowEnLocale() ? 
+                "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#mini-realistic-airways" : 
+                "https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1";
             }
-            modal.SetButtonText(showTutorialInEn ? "Next" : "下一页");
-            modal.SetButtonOnClick(() => {
-                ++tutorialPage;
-                modal.PostHide();
-                ShowModTutorial();
-            });
+            else
+            {
+                modal.SetButtonText(ShowEnLocale() ? "Next" : "下一页");
+                modal.SetButtonOnClick(() => {
+                    ++tutorialPage;
+                    modal.PostHide();
+                    ShowModTutorial(manualTrigger);
+                });
+            }
+
         }
 
         private static bool IsLastPage()
@@ -156,7 +137,6 @@ namespace MiniRealisticAirways
             return tutorialPage == tutorialPages.Count - 1;
         }
 
-        public static bool showTutorialInEn = false;
         public static Button tutorialButton;
         private static ModalWithButton modal;
         private static int tutorialPage = 0;
@@ -245,6 +225,12 @@ namespace MiniRealisticAirways
                 升级每半天刷新一次。
                 飞出屏幕相当于飞入禁飞区。"
             ),
+            new TutorialPage (
+                "Thanks for playing \"Mini Realistic Airways\"!",
+                "For more information, refer to the <b><u><link=\"ENG\">Quick Reference Handbook</link></u></b>", 
+                "感谢您游玩\"真实迷你空管\"!\n",
+                "请随时参阅<b><u><link=\"CHS\">快速检查单</link></u></b>"
+            )
         };
     }
 
@@ -260,9 +246,7 @@ namespace MiniRealisticAirways
             Tutorial.tutorialButton.transform.localPosition = new Vector3(1280f, -430f, 0);
             Tutorial.tutorialButton.onClick.RemoveAllListeners();
             Tutorial.tutorialButton.onClick = new Button.ButtonClickedEvent();
-            Tutorial.tutorialButton.onClick.AddListener(() => { AudioManager.instance.StartCoroutine(Tutorial.ShowQRHCoroutine()); });
-
-            Tutorial.showTutorialInEn = Tutorial.ShowEnLocale();
+            Tutorial.tutorialButton.onClick.AddListener(() => { AudioManager.instance.StartCoroutine(Tutorial.ShowTutorialCoroutine(manualTrigger: true)); });
         }
 
         [HarmonyPostfix]
