@@ -85,14 +85,15 @@ namespace MiniRealisticAirways
             SetHeading(modal, tutorialPages[tutorialPage].enHeading_, tutorialPages[tutorialPage].cnHeading_);
             SetDescription(modal, tutorialPages[tutorialPage].enDescription_, tutorialPages[tutorialPage].cnDescription_);
             SetButton(modal, manualTrigger);
-            modal.SetDescriptionTextAlign(TMPro.TextAlignmentOptions.Left);
-            modal.Show();
+            modal.SetDescriptionTextAlign(IsLastPage() ? TMPro.TextAlignmentOptions.Center : TMPro.TextAlignmentOptions.Left);
 
             DontShowAgainToggle toggle = modal.GetComponentInChildren<DontShowAgainToggle>();
             toggle?.gameObject.SetActive(IsLastPage() && !manualTrigger);
 
             CloseButton closeButton = modal.GetComponentInChildren<CloseButton>();
             closeButton?.gameObject.SetActive(IsLastPage() || manualTrigger);
+
+            modal.Show();
         }
 
         private static void SetTitle(ModalWithButton modal, string en, string cn)
