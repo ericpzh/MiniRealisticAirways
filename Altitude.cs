@@ -340,6 +340,18 @@ namespace MiniRealisticAirways
                 return;
             }
 
+            // Typing name, stop changing altitude.
+            WaypointNameInput waypointNameInput = waypoint_.GetComponent<WaypointNameInput>();
+            if (waypointNameInput != null && waypointNameInput.active)
+            {
+                return;
+            }
+
+            // Stop changing altitude for landing waypoint.
+            if (!(waypoint_ is BaseWaypointAutoHeading))
+            {
+                return;
+            }
 
             // Waypoint would hard follow mouse position when placed.
             Vector3 _mousePos = Camera.main.ScreenToWorldPoint(Input.mousePosition);

@@ -133,6 +133,9 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 - You now starts with 3 waiting area upgrades.
 - You now get upgrades twice as fast.
 - Aircraft flying out-of-bound now count as restricted area violations instead of an instant game-over.
+- You can name your waypoints by first press `Space` when placing it and starting typing. Only letters and numbers are allowed with a maximum length of 5 characters.
+
+<img src="img/waypoint_name.png" width=50% height=50%>
 
 ***
 
@@ -259,3 +262,6 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 - 开场时自动获得3个等待区升级。
 - 升级现在每半天刷新一次。
 - 飞出屏幕相当于飞入禁飞区。
+- 放置航点时先按 `Space` 就可以对航点命名。名字可以是5个字母+数字的任意组合。
+
+<img src="img/waypoint_name.png" width=50% height=50%>
