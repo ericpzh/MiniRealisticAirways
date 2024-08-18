@@ -216,7 +216,8 @@ namespace MiniRealisticAirways
                 When aircraft is about to crash into terrain, GPWS will command aircraft to climb.
                 You now start with 3 waiting area upgrades.
                 You now get upgrades twice as fast.
-                Aircraft flying out-of-bound now count as restricted area violations.",
+                Aircraft flying out-of-bound now count as restricted area violations.
+                You can name a waypoint by using <b><u>Space</u></b> when placing it.",
                 "最后",
                 @"
                 可以按<b><u>Tab</u></b>隐藏文字信息。
@@ -224,7 +225,8 @@ namespace MiniRealisticAirways
                 GPWS会命令即将即将撞山的飞机爬升。
                 开场时自动获得3个等待区升级。
                 升级每半天刷新一次。
-                飞出屏幕相当于飞入禁飞区。"
+                飞出屏幕相当于飞入禁飞区。
+                放置航点时按<b><u>空格</u></b>可以命名航点。"
             ),
             new TutorialPage (
                 "Thanks for playing \"Mini Realistic Airways\"!",
