@@ -824,6 +824,7 @@ namespace MiniRealisticAirways
                         Plugin.Log.LogInfo("GPWS activated, emergency climbing.");
                         // Let GWPS take piority when the aircraft is on top of terrain.
                         aircraftAltitude.EmergencyClimb(piority: true);
+                        __instance.aircraftVoiceAndSubtitles.PlayTerrain();
                     }
                 }
             }
