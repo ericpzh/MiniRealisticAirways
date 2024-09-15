@@ -465,7 +465,7 @@ namespace MiniRealisticAirways
     [HarmonyPatch(typeof(Aircraft), "TrySetupLanding", new Type[] { typeof(Runway), typeof(bool) })]
     class PatchTrySetupLanding
     {
-        static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance, ref object[] __state)
+        static bool Prefix(Runway runway, bool doLand, ref Aircraft __instance, ref PlaceableWaypoint ____HARWCurWP, ref object[] __state)
         {
 
             AircraftAltitude aircraftAltitude;
@@ -508,7 +508,10 @@ namespace MiniRealisticAirways
                     BindingFlags.NonPublic | BindingFlags.Instance);
                 ShowPath.Invoke(__instance, new object[] { path, false /* success */ });
 
-                AudioManager.instance.PlayCanNotComply();
+                if (!(____HARWCurWP is WaypointAutoLanding))
+                {
+                    AudioManager.instance.PlayCanNotComply();
+                }
                 return false;
             }
 
