@@ -2,6 +2,15 @@
 
 A mini-realistic mod for Mini Airways.
 
+[中文](https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1)
+
+# How to Install
+
+- Switch the game to `mod_feat` [branch](https://partner.steamgames.com/doc/store/application/branches?) on Steam.
+- Copy [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways\BepInEx\plugins`
+
+# Tips
+
 Use `Tab` to close text display on altitude, speed, type and fuel level below the aircraft.
 
 <img src="img/detail.png" width=12.75% height=12.75%> 
@@ -11,11 +20,6 @@ Use `Tab` to close text display on altitude, speed, type and fuel level below th
 To disable wind, use `Wind` toggle in `Options` menu or add `-disableWind` to launch options. To disable events, use `Event` toggle in `Options` menu or add `-disableEvents` to launch options.
 
 <img src="img/settings.png" width=50% height=50%>
-
-# How to Install
-
-- Switch the game to `mod_feat` [branch](https://partner.steamgames.com/doc/store/application/branches?) on Steam.
-- Copy [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways\BepInEx\plugins`
 
 # Altitude
 
@@ -143,6 +147,13 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 这是一个既迷你又真实的迷你空管Mod。
 
+# 安装
+
+- 右键库中的Mini Airways，[属性 - 测试版 - mod_feat](https://partner.steamgames.com/doc/store/application/branches?l=schinese), 更新。
+- 复制 [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways\BepInEx\plugins`。
+
+# 提示
+
 使用`Tab`可以关闭高度、速度、机型和燃料的具体数值。
 
 <img src="img/detail.png" width=12.75% height=12.75%> 
@@ -152,11 +163,6 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 可通过选项菜单里的`Wind`或在游戏启动项内用 `-disableWind` 关闭风向系统，通过选项菜单里的`Event`或在游戏启动项内用 `-disableEvents` 关闭特情系统。
 
 <img src="img/settings_cn.png" width=50% height=50%>
-
-# 安装
-
-- 右键库中的Mini Airways，[属性 - 测试版 - mod_feat](https://partner.steamgames.com/doc/store/application/branches?l=schinese), 更新。
-- 复制 [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways\BepInEx\plugins`。
 
 # 高度系统
 
