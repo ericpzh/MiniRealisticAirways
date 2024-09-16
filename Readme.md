@@ -1,8 +1,8 @@
 # Mini Realistic Airways
 
-A mini-realistic mod for Mini Airways.
-
 [中文](https://github.com/ericpzh/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1)
+
+A mini-realistic mod for Mini Airways.
 
 # How to Install
 
