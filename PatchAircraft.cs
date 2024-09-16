@@ -19,6 +19,13 @@ namespace MiniRealisticAirways
                 aircraftState.aircraft_ = __instance;
                 aircraftState.Initialize();
                 AircraftType aircraftType = aircraftState.aircraftType_;
+
+                if (__instance is AirForceOneEVAircraft)
+                {
+                    // Skip for AF1 event.
+                    return;
+                }
+
                 if (aircraftType != null)
                 {
                     aircraftType.weight_ = BaseAircraftType.RandomWeight();

@@ -166,8 +166,16 @@ namespace MiniRealisticAirways
 
             if (aircraft_.direction == Aircraft.Direction.Inbound)
             {
-                altitude_ = AltitudeLevel.High;
-                targetAltitude_ = AltitudeLevel.High;
+                if (aircraft_ is AirForceOneEVAircraft)
+                {
+                    altitude_ = AltitudeLevel.Low;
+                    targetAltitude_ = AltitudeLevel.Low;
+                }
+                else
+                {
+                    altitude_ = AltitudeLevel.High;
+                    targetAltitude_ = AltitudeLevel.High;
+                }
             }
         }
 
