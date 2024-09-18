@@ -7,7 +7,7 @@ A mini-realistic mod for Mini Airways.
 # How to Install
 
 - Switch the game to `mod_feat` [branch](https://partner.steamgames.com/doc/store/application/branches?) on Steam.
-- Copy [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways\BepInEx\plugins`
+- Download and move [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/releases/download/Public/MiniRealisticAirways.dll) into `<path_to_game>\Mini Airways\BepInEx\plugins`
 
 # Tips
 
@@ -150,7 +150,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 # 安装
 
 - 右键库中的Mini Airways，[属性 - 测试版 - mod_feat](https://partner.steamgames.com/doc/store/application/branches?l=schinese), 更新。
-- 复制 [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/blob/main/bin/Debug/netstandard2.1/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways\BepInEx\plugins`。
+- 下载 [MiniRealisticAirways.dll](https://github.com/ericpzh/MiniRealisticAirways/releases/download/Public/MiniRealisticAirways.dll) 到 `<path_to_game>\Mini Airways\BepInEx\plugins`。
 
 # 提示
 
