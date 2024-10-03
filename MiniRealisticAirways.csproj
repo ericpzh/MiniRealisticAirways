@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>MiniRealisticAirways</AssemblyName>
     <Description>MiniRealisticAirwaysMod</Description>
-    <Version>1.3.6</Version>
+    <Version>1.3.7</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
   </PropertyGroup>

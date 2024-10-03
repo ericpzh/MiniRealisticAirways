@@ -17,7 +17,7 @@ Use `Tab` to close text display on altitude, speed, type and fuel level below th
 
 <img src="img/nodetail.png" width=20% height=20%>
 
-To disable wind, use `Wind` toggle in `Options` menu or add `-disableWind` to launch options. To disable events, use `Event` toggle in `Options` menu or add `-disableEvents` to launch options.
+To disable wind, use `Enable Wind` toggle in `Options` menu or add `-disableWind` to launch options. To disable events, use `Enable Event` toggle in `Options` menu or add `-disableEvents` to launch options. To disable TCAS & GPWS, use `Enable TCAS` toggle in `Options` menu or add `-disableTCAS` to launch options.
 
 <img src="img/settings.png" width=50% height=50%>
 
@@ -160,7 +160,7 @@ Sometimes, accidents do happen. These rare events show up on average every 6 day
 
 <img src="img/nodetail.png" width=20% height=20%>
 
-可通过选项菜单里的`Wind`或在游戏启动项内用 `-disableWind` 关闭风向系统，通过选项菜单里的`Event`或在游戏启动项内用 `-disableEvents` 关闭特情系统。
+可通过选项菜单里的`启用风向`或在游戏启动项内用 `-disableWind` 关闭风向系统，通过选项菜单里的`启用特情`或在游戏启动项内用 `-disableEvents` 关闭特情系统，通过选项菜单里的`启用TCAS`或在游戏启动项内用 `-disableTCAS` 关闭TCAS和GPWS。
 
 <img src="img/settings_cn.png" width=50% height=50%>
 

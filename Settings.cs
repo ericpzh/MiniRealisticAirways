@@ -25,19 +25,30 @@ namespace MiniRealisticAirways
                     Plugin.Log.LogInfo("Event disabled");
                     DISABLE_EVENTS = true;
                 }
+                else if (commandLineArgs[i] == "-disableTCAS")
+                {
+                    Plugin.Log.LogInfo("TCAS disabled");
+                    DISABLE_TCAS = true;
+                }
             }
         }
 
         public static void SetupWindToggle(ref Button ___SubtitlesButton, ref TMP_Text ___ColorAccessibilityText)
         {
-            SetupToggle(265f, -225f, ref windToggle, ref ___SubtitlesButton, OnWindButtonClick);
+            SetupToggle(265f, -225f, ref windToggle, ref ___SubtitlesButton, OnWindButtonClick, !DISABLE_WIND);
             SetupText(-300f, -70f, Tutorial.ShowEnLocale() ? "Enable Wind" : "启用风向", ref windText, ref ___ColorAccessibilityText);
         }
 
         public static void SetupEventToggle(ref Button ___SubtitlesButton, ref TMP_Text ___ColorAccessibilityText)
         {
-            SetupToggle(265f, -275f, ref eventToggle, ref ___SubtitlesButton, OnEventButtonClick);
+            SetupToggle(265f, -275f, ref eventToggle, ref ___SubtitlesButton, OnEventButtonClick, !DISABLE_EVENTS);
             SetupText(-300f, -130f, Tutorial.ShowEnLocale() ? "Enable Events" : "启用特情", ref eventText, ref ___ColorAccessibilityText);
+        }
+
+        public static void SetupTCASToggle(ref Button ___SubtitlesButton, ref TMP_Text ___ColorAccessibilityText)
+        {
+            SetupToggle(265f, -335f, ref tcasToggle, ref ___SubtitlesButton, OnTCASButtonClick, !DISABLE_TCAS);
+            SetupText(-300f, -190f, Tutorial.ShowEnLocale() ? "Enable TCAS" : "启用TCAS", ref tcasText, ref ___ColorAccessibilityText);
         }
 
         public static void OnWindButtonClick()
@@ -56,12 +67,20 @@ namespace MiniRealisticAirways
             // ES3.Save<bool>("CC_Options_DisableEvent", DISABLE_EVENTS);
         }
 
-        private static void SetupToggle(float x, float y, ref Button toggle, ref Button ___SubtitlesButton, UnityAction action)
+        public static void OnTCASButtonClick()
+        {
+            OnToggle(ref tcasToggle, DISABLE_TCAS);
+            DISABLE_TCAS = !DISABLE_TCAS;
+            Plugin.Log.LogInfo("Disable TCAS: " + DISABLE_TCAS);
+            // ES3.Save<bool>("CC_Options_DisableTCAS", DISABLE_TCAS);
+        }
+
+        private static void SetupToggle(float x, float y, ref Button toggle, ref Button ___SubtitlesButton, UnityAction action, bool defaultValue)
         {
             toggle = GameObject.Instantiate(___SubtitlesButton.gameObject, ___SubtitlesButton.transform.parent).GetComponent<Button>();
             toggle.transform.localPosition = new Vector3(x, y, 0);
             toggle.onClick.AddListener(action);
-            toggle.GetComponent<Image>().sprite = DISABLE_EVENTS ? Off : On;
+            toggle.GetComponent<Image>().sprite = defaultValue ? On : Off;
         }
 
         private static void SetupText(float x, float y, string text, ref TMP_Text toggleText, ref TMP_Text ___ColorAccessibilityText)
@@ -87,10 +106,13 @@ namespace MiniRealisticAirways
 
         public static bool DISABLE_WIND = false; //ES3.Load<bool>("CC_Options_DisableWind", false);
         public static bool DISABLE_EVENTS = false; //ES3.Load<bool>("CC_Options_DisableEvent", false);
+        public static bool DISABLE_TCAS = false; //ES3.Load<bool>("CC_Options_DisableTCAS", false);
         public static Button windToggle;
         public static Button eventToggle;
+        public static Button tcasToggle;
         public static TMP_Text windText;
         public static TMP_Text eventText;
+        public static TMP_Text tcasText;
         public static Sprite On;
         public static Sprite Off;
     }
@@ -108,6 +130,7 @@ namespace MiniRealisticAirways
 
             Settings.SetupWindToggle(ref ___SubtitlesButton, ref ___ColorAccessibilityText);
             Settings.SetupEventToggle(ref ___SubtitlesButton, ref ___ColorAccessibilityText);
+            Settings.SetupTCASToggle(ref ___SubtitlesButton, ref ___ColorAccessibilityText);
         }
 
         [HarmonyPrefix]
@@ -118,15 +141,20 @@ namespace MiniRealisticAirways
             {
                 Settings.windToggle.transform.parent.gameObject.SetActive(true);
                 Settings.eventToggle.transform.parent.gameObject.SetActive(true);
+                Settings.tcasToggle.transform.parent.gameObject.SetActive(true);
                 Settings.windText.transform.parent.gameObject.SetActive(true);
                 Settings.eventText.transform.parent.gameObject.SetActive(true);
+                Settings.tcasText.transform.parent.gameObject.SetActive(true);
+                
             }
             else
             {
                 Settings.windToggle.transform.parent.gameObject.SetActive(false);
                 Settings.eventToggle.transform.parent.gameObject.SetActive(false);
+                Settings.tcasToggle.transform.parent.gameObject.SetActive(false);
                 Settings.windText.transform.parent.gameObject.SetActive(false);
                 Settings.eventText.transform.parent.gameObject.SetActive(false);
+                Settings.tcasText.transform.parent.gameObject.SetActive(false);
             }
         }
     }

@@ -109,6 +109,11 @@ namespace MiniRealisticAirways
 
         public void EmergencyClimb(bool piority = false)
         {
+            if (Settings.DISABLE_TCAS)
+            {
+                return;
+            }
+
             if (altitudeDisabled_ || altitude_ == AltitudeLevel.Ground)
             {
                 return;
@@ -127,6 +132,11 @@ namespace MiniRealisticAirways
 
         public void EmergencyDesend()
         {
+            if (Settings.DISABLE_TCAS)
+            {
+                return;
+            }
+
             if (altitudeDisabled_ || altitude_ == AltitudeLevel.Ground)
             {
                 return;
