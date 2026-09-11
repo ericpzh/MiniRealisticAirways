@@ -22,7 +22,7 @@ public static class RealisticAirwaysCompatibilityApi
 
 	public static bool IsRunwayClosed(Runway runway)
 	{
-		return runway != null && EventManager.closedRunway_ == runway;
+		return RunwayClose.IsRunwayClosed(runway);
 	}
 
 	public static bool TryGetClosedRunway(out Runway runway)

@@ -20,6 +20,12 @@ internal class PatchTrySetupLanding
 	private static bool Prefix(Runway runway, bool doLand, Aircraft __instance, PlaceableWaypoint ____HARWCurWP, out TurnSpeedScope __state)
 	{
 		__state = TurnSpeedScope.Enter(__instance);
+		Runway requestedRunway = runway ? runway : Aircraft.CurrentCommandingRunway;
+		if (RunwayClose.IsRunwayClosed(requestedRunway))
+		{
+			RejectLanding(____HARWCurWP);
+			return false;
+		}
 		if (!AircraftState.GetAircraftStates(__instance, out var aircraftAltitude, out var aircraftSpeed, out var aircraftType))
 		{
 			return true;

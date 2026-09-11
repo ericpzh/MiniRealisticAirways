@@ -113,17 +113,24 @@ public class EngineOut : Event
 			yield break;
 		}
 		GameObject obj = new GameObject("Text");
-		obj.transform.SetParent(aircraft.transform);
+		obj.transform.SetParent(aircraft.transform, worldPositionStays: false);
 		obj.transform.localPosition = new Vector3(0f, 2f, -9f);
 		TMP_Text dialogue = obj.AddComponent<TextMeshPro>();
-		dialogue.fontSize = 4f;
+		dialogue.enableAutoSizing = false;
+		// 世界空间文字：字号以世界单位计，与飞机呼号等标签一样随相机/分辨率
+		// 保持固定屏幕占比，任何分辨率下显示比例一致（1080p 调好后他分辨率同样适用）。
+		dialogue.fontSize = 5f;
+		dialogue.fontSizeMin = 5f;
+		dialogue.fontSizeMax = 5f;
 		dialogue.horizontalAlignment = HorizontalAlignmentOptions.Center;
 		dialogue.verticalAlignment = VerticalAlignmentOptions.Top;
-		dialogue.rectTransform.sizeDelta = new Vector2(10f, 1f);
+		// 字号放大后同步加宽文本框，保持每行容量，避免中文长句过度折行。
+		dialogue.rectTransform.sizeDelta = new Vector2(16f, 2f);
 		dialogue.gameObject.SetActive(value: true);
 		// Resolve the font from the text's complete localized payload once, then
 		// type it out without repeating font discovery on every character.
 		ChineseTypography.SetHudText(dialogue, text, "Engine-out HUD");
+		obj.transform.localPosition = new Vector3(0f, 2f + GetHalfLineHeight(dialogue), -9f);
 		ArabicTextFormatter.SetText(dialogue, "");
 		dialogue.color = Color.white;
 		float timePassed = 0f;
@@ -179,6 +186,34 @@ public class EngineOut : Event
 			fade.Kill();
 			if (dialogue != null) Object.Destroy(dialogue.gameObject);
 		}
+	}
+
+	private static float GetHalfLineHeight(TMP_Text dialogue)
+	{
+		if (dialogue == null)
+		{
+			return 0f;
+		}
+		try
+		{
+			// SetHudText has already selected the localized font. Force the mesh so
+			// the line metric is measured with the same face and size that will be
+			// rendered, rather than using a fixed world-space guess.
+			dialogue.ForceMeshUpdate(ignoreActiveState: true, forceTextReparsing: false);
+			if (dialogue.textInfo != null && dialogue.textInfo.lineCount > 0)
+			{
+				float lineHeight = dialogue.textInfo.lineInfo[0].lineHeight;
+				if (lineHeight > 0f && !float.IsNaN(lineHeight) && !float.IsInfinity(lineHeight))
+				{
+					return lineHeight * 0.5f;
+				}
+			}
+		}
+		catch (System.Exception exception)
+		{
+			Plugin.Log?.LogDebug("Engine-out dialogue line metric was unavailable: " + exception.GetBaseException().Message);
+		}
+		return 0f;
 	}
 
 	private void InitCallSign()

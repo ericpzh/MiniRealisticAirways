@@ -1,0 +1,29 @@
+{
+  "version": "2.0.0",
+  "build": "normal-runtime-fixes-20260911",
+  "eventBaseSeconds": 1800,
+  "eventRandomOffsetSeconds": 300,
+  "debugHotkeys": false,
+  "files": [
+    {
+      "File": "INSTALL.txt",
+      "SHA256": "26EF99071A114D470F2C65B6579B0550CD40B28783FBD4CF6BF5578EAED9FFF7",
+      "Bytes": 1425
+    },
+    {
+      "File": "MiniRealisticAirways-normal.zip",
+      "SHA256": "FFA9AF82C0E790555B5B03FD6E7660A0A3D83649A52DC3506D69AAF7315BD759",
+      "Bytes": 108624
+    },
+    {
+      "File": "MiniRealisticAirways-source.zip",
+      "SHA256": "6B79D550D6E642776AD623374D6A6445B77EF96439BC5025496AC587C4865E51",
+      "Bytes": 3154054
+    },
+    {
+      "File": "MiniRealisticAirways.dll",
+      "SHA256": "BBCB00DE8A8003851B8FB7CA4AA79801846CEA5CDC459DD1D75AA642DDB6F46C",
+      "Bytes": 287744
+    }
+  ]
+}

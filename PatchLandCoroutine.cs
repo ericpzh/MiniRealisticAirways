@@ -11,9 +11,13 @@ public class PatchLandCoroutine
 {
 	private static readonly System.Reflection.FieldInfo LandingCoroutineField = AccessTools.Field(typeof(Aircraft), "landCoroutine");
 
-	internal static void GoAround(Aircraft aircraft)
+	internal static void GoAround(Aircraft aircraft, bool stopLandingCoroutine = false)
 	{
 		if (aircraft == null || aircraft.state != Aircraft.State.Landing) return;
+		if (stopLandingCoroutine)
+		{
+			StopLandingCoroutine(aircraft);
+		}
 		AircraftState.GetAircraftStates(aircraft, out var _, out var _, out var type);
 		if (type != null) type.windChecked_ = false;
 		aircraft.aircraftVoiceAndSubtitles?.PlayFailedToLand();
@@ -40,9 +44,32 @@ public class PatchLandCoroutine
 		aircraft.targetSpeed = Speed.ToGameSpeed(type != null && type.weight_ == Weight.Light ? SpeedLevel.Slow : SpeedLevel.Normal);
 	}
 
+	private static void StopLandingCoroutine(Aircraft aircraft)
+	{
+		if (aircraft == null || LandingCoroutineField == null)
+		{
+			return;
+		}
+		try
+		{
+			Coroutine coroutine = LandingCoroutineField.GetValue(aircraft) as Coroutine;
+			if (coroutine != null)
+			{
+				aircraft.StopCoroutine(coroutine);
+			}
+		}
+		finally
+		{
+			LandingCoroutineField.SetValue(aircraft, null);
+		}
+	}
+
 	internal static bool CheckRunway(Aircraft aircraft)
 	{
-		if (EventManager.closedRunway_ != null && EventManager.closedRunway_ == aircraft.LandingRunway)
+		// 已触地的滑跑不再受进近禁令影响。
+		if (aircraft == null) return false;
+		if (aircraft.state != Aircraft.State.Landing) return true;
+		if (RunwayClose.IsRunwayClosed(aircraft.LandingRunway))
 		{
 			Plugin.Log?.LogInfo("Going around due to runway closed event.");
 			GoAround(aircraft);
@@ -81,6 +108,8 @@ public class PatchLandCoroutine
 	{
 		if (aircraft == null) return false;
 		if (aircraft.state != Aircraft.State.Landing) return true;
+		// 关闭后任何尚未触地的进近立即复飞，不必等到跑道入口。
+		if (RunwayClose.IsRunwayClosed(aircraft.LandingRunway)) return CheckRunway(aircraft);
 		if (AircraftState.GetAircraftStates(aircraft, out var altitude, out var speed, out var type)
 			&& (!altitude.CanLand() || !speed.CanLand(type.weight_)))
 		{

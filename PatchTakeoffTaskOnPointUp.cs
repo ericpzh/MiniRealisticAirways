@@ -75,7 +75,7 @@ internal class PatchTakeoffTaskOnPointUp
 			RejectTakeoff(ref __instance);
 			return false;
 		}
-		if (EventManager.closedRunway_ != null && EventManager.closedRunway_ == runway)
+		if (RunwayClose.IsRunwayClosed(runway))
 		{
 			Plugin.Log?.LogInfo("Rejected due to runway closed event.");
 			RejectTakeoff(ref __instance);
