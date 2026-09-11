@@ -1,0 +1,17 @@
+<Project>
+  <Target Name="GenerateBuildInfo" BeforeTargets="CoreCompile">
+    <PropertyGroup>
+      <_BuildInfoSource>namespace MiniRealisticAirways%3B
+internal static class BuildInfo
+{
+    internal const string Version = &quot;$(Version)&quot;%3B
+    internal const string BuildId = &quot;$(BuildId)&quot;%3B
+    internal const string AssemblyVersion = &quot;$(AssemblyVersion)&quot;%3B
+}</_BuildInfoSource>
+    </PropertyGroup>
+    <WriteLinesToFile File="$(IntermediateOutputPath)BuildInfo.g.cs" Lines="$(_BuildInfoSource)" Overwrite="true" WriteOnlyWhenDifferent="true" Encoding="UTF-8" />
+    <ItemGroup>
+      <Compile Include="$(IntermediateOutputPath)BuildInfo.g.cs" />
+    </ItemGroup>
+  </Target>
+</Project>

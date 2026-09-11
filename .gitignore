@@ -1,1 +1,8 @@
-obj/
+**/bin/
+**/obj/
+**/__pycache__/
+*.log
+*.tmp
+*.user
+*.suo
+*.pdb

@@ -2,345 +2,322 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
-namespace MiniRealisticAirways
+namespace MiniRealisticAirways;
+
+public class Weather : MonoBehaviour
 {
-    public class Cell
-    {
-        public Cell(Vector2 cell)
-        {
-            cell_ = cell;
-        }
+	public List<Cell> cells_;
 
-        public Vector2 cell_;
-        public GameObject gameObject_;
-        public SpriteRenderer spriteRenderer_;
-        public bool enabled_ = true;
-    }
+	public const float SIZE = 0.5f;
 
-    public class CellComparer : IComparer<Cell>
-    {
-        public int Compare(Cell left, Cell right)
-        {
-            var dif = left.cell_ - right.cell_;
-            if (dif.x == 0 && dif.y == 0)
-                return 0;
-            else if (dif.x == 0)
-                return (int)Mathf.Sign(dif.y);
-            return (int)Mathf.Sign(dif.x);
-        }
-    }
+	public bool enabled_ = false;
 
-    public class Weather : MonoBehaviour
-    {
-        public bool InCell(Vector2 position)
-        {
-            if (!enabled_)
-            {
-                return false;
-            }
+	private const float MOVE_STEP = 0.005f;
 
-            foreach (Cell cell in cells_)
-            {
-                if (position.x >= cell.cell_.x && position.x <= cell.cell_.x + SIZE &&
-                    position.y >= cell.cell_.y && position.y <= cell.cell_.y + SIZE &&
-                    cell.enabled_)
-                {
-                    return true;
-                }
-            }
-            return false;
-        }
+	private Vector2 center_;
 
-        public void DestoryWeather()
-        {
-            StartCoroutine(DestoryWeatherCoroutine());
-        }
+	private bool destroying_;
 
-        private void EnqueueRandom(ref List<Vector2> directions, ref Queue<Cell> queue, Cell current)
-        {
-            Utils.Shuffle<Vector2>(ref directions);
-            for (int i = 1; i < directions.Count; i++)
-            {
-                // Chopping off one direction to get more randomness.
-                Vector2 vector = new Vector2(directions[i].x * SIZE + current.cell_.x,
-                                             directions[i].y * SIZE + current.cell_.y);
-                queue.Enqueue(new Cell(vector));
-            }
-        }
+	// 全部网格的整体包围盒。InCell 先做 O(1) 判外，避免对每架飞机每物理帧
+	// 线性扫描全部网格；网格会连续漂移偏离对齐，不能用网格坐标做哈希索引。
+	private float boundsMinX_;
 
-        private void GenerateCells()
-        {
-            // Cell center.
-            center_ = new Vector2(UnityEngine.Random.Range(-6f, 6f), UnityEngine.Random.Range(-6f, 6f));
-            Cell current = new Cell(center_);
-            cells_ = new SortedSet<Cell>(new CellComparer()) { current };
+	private float boundsMinY_;
 
-            List<Vector2> directions = new List<Vector2>{
-                new Vector2(-1, 0), new Vector2(0, -1), new Vector2(0, 1), new Vector2(1, 0)};
-            Queue<Cell> queue = new Queue<Cell>();
-            EnqueueRandom(ref directions, ref queue, current);
+	private float boundsMaxX_;
 
-            int i = 0;
-            while (cells_.Count < GENERATE_NUMBER && ++i < Plugin.MAX_WHILE_LOOP_ITER)
-            {
-                while (queue.Count > 0 && cells_.Contains(queue.Peek()))
-                {
-                    queue.Dequeue();
-                }
+	private float boundsMaxY_;
 
-                if (queue.Count == 0)
-                {
-                    return;
-                }
+	private bool boundsValid_;
 
-                current = queue.Dequeue();
-                EnqueueRandom(ref directions, ref queue, current);
-                cells_.Add(current);
+	public bool InCell(Vector2 position)
+	{
+		if (!enabled_ || cells_ == null || !boundsValid_)
+		{
+			return false;
+		}
+		if (position.x < boundsMinX_ || position.x > boundsMaxX_ || position.y < boundsMinY_ || position.y > boundsMaxY_)
+		{
+			return false;
+		}
+		foreach (Cell item in cells_)
+		{
+			if (position.x >= item.cell_.x && position.x <= item.cell_.x + SIZE && position.y >= item.cell_.y && position.y <= item.cell_.y + SIZE && item.enabled_)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
 
-                if (i == Plugin.MAX_WHILE_LOOP_ITER - 1)
-                {
-                    Plugin.Log.LogWarning("INF Loop in GenerateCells().");
-                }
-            }
-        }
+	private void RecomputeBounds()
+	{
+		boundsValid_ = false;
+		if (cells_ == null || cells_.Count == 0)
+		{
+			return;
+		}
+		float minX = float.MaxValue;
+		float minY = float.MaxValue;
+		float maxX = float.MinValue;
+		float maxY = float.MinValue;
+		foreach (Cell item in cells_)
+		{
+			if (!item.enabled_) continue;
+			if (item.cell_.x < minX) minX = item.cell_.x;
+			if (item.cell_.y < minY) minY = item.cell_.y;
+			if (item.cell_.x + SIZE > maxX) maxX = item.cell_.x + SIZE;
+			if (item.cell_.y + SIZE > maxY) maxY = item.cell_.y + SIZE;
+		}
+		boundsMinX_ = minX;
+		boundsMinY_ = minY;
+		boundsMaxX_ = maxX;
+		boundsMaxY_ = maxY;
+		boundsValid_ = minX <= maxX && minY <= maxY;
+	}
 
-        private int GetColor(Cell cell, float duration)
-        {
-            if (center_ == null)
-            {
-                return WeatherCellTextures.RED;
-            }
+	public void DestroyWeather()
+	{
+		if (!destroying_)
+		{
+			destroying_ = true;
+			StartCoroutine(DestroyWeatherCoroutine());
+		}
+	}
 
-            float distance = Vector2.Distance(cell.cell_, center_);
-            if (distance < 0.6f && center_.x >= cell.cell_.x)
-            {
-                if (duration > 0.8)
-                {
-                    return WeatherCellTextures.GREEN;
-                }
-                else if (duration > 0.4)
-                {
-                    return WeatherCellTextures.YELLOW;
-                }
-                return WeatherCellTextures.RED;
-            }
-            else if ((distance < 1f || (distance < 1.5f && center_.y >= cell.cell_.y)) &&
-                      duration < 0.6)
-            {
-                return WeatherCellTextures.YELLOW;
-            }
-            return WeatherCellTextures.GREEN;
-        }
+	private void EnqueueRandom(List<Vector2> directions, Queue<Cell> queue, Cell current)
+	{
+		Utils.Shuffle(directions);
+		for (int i = 1; i < directions.Count; i++)
+		{
+			Vector2 cell = new Vector2(directions[i].x * SIZE + current.cell_.x, directions[i].y * SIZE + current.cell_.y);
+			queue.Enqueue(new Cell(cell));
+		}
+	}
 
-        private void MoveCells(float x, float y, int step)
-        {
-            float duration = step / MOVE_GRADIENT;
-            bool removedCell = false;
-            foreach (Cell cell in cells_)
-            {
-                if (cell.cell_ == null || !cell.enabled_)
-                {
-                    continue;
-                }
+	private void GenerateCells()
+	{
+		center_ = new Vector2(Random.Range(-6f, 6f), Random.Range(-6f, 6f));
+		Cell cell = new Cell(center_);
+		cells_ = new List<Cell> { cell };
+		// 去重键仅用于生成阶段，移动时不再持有可变坐标索引。
+		HashSet<Vector2> occupied = new HashSet<Vector2> { cell.cell_ };
+		List<Vector2> directions = new List<Vector2>
+		{
+			new Vector2(-1f, 0f),
+			new Vector2(0f, -1f),
+			new Vector2(0f, 1f),
+			new Vector2(1f, 0f)
+		};
+		Queue<Cell> queue = new Queue<Cell>();
+		EnqueueRandom(directions, queue, cell);
+		int num = 0;
+		while (cells_.Count < 60 && ++num < Plugin.MAX_WHILE_LOOP_ITER)
+		{
+			while (queue.Count > 0 && occupied.Contains(queue.Peek().cell_))
+			{
+				queue.Dequeue();
+			}
+			if (queue.Count == 0)
+			{
+				break;
+			}
+			cell = queue.Dequeue();
+			EnqueueRandom(directions, queue, cell);
+			cells_.Add(cell);
+			occupied.Add(cell.cell_);
+			if (num == Plugin.MAX_WHILE_LOOP_ITER - 1)
+			{
+				Plugin.Log.LogWarning("INF Loop in GenerateCells().");
+			}
+		}
+		RecomputeBounds();
+	}
 
-                int color = GetColor(cell, 0);
+	private int GetColor(Cell cell, float duration)
+	{
+		float num = Vector2.Distance(cell.cell_, center_);
+		if (num < 0.6f && center_.x >= cell.cell_.x)
+		{
+			if ((double)duration > 0.8)
+			{
+				return WeatherCellTextures.GREEN;
+			}
+			if ((double)duration > 0.4)
+			{
+				return WeatherCellTextures.YELLOW;
+			}
+			return WeatherCellTextures.RED;
+		}
+		if ((num < 1f || (num < 1.5f && center_.y >= cell.cell_.y)) && (double)duration < 0.6)
+		{
+			return WeatherCellTextures.YELLOW;
+		}
+		return WeatherCellTextures.GREEN;
+	}
 
-                // Disable a green cell randomly.
-                if (!removedCell && duration > 0.2 && step % 2 == 0 &&
-                    color == WeatherCellTextures.GREEN && UnityEngine.Random.value < 0.25)
-                {
-                    cell.spriteRenderer_.enabled = false;
-                    Destroy(cell.spriteRenderer_.sprite);
-                    cell.enabled_ = false;
-                    removedCell = true;
-                    continue;
-                }
+	private void MoveCells(float x, float y, int step)
+	{
+		if (cells_ == null || WeatherCellTextures.textures_ == null)
+		{
+			return;
+		}
+		bool flag = false;
+		foreach (Cell item in cells_)
+		{
+			if (!item.enabled_ || item.spriteRenderer_ == null || item.gameObject_ == null)
+			{
+				continue;
+			}
+			int color = GetColor(item, 0f);
+			if (!flag && step > 6 && step % 2 == 0 && color == WeatherCellTextures.GREEN && (double)Random.value < 0.25)
+			{
+				item.spriteRenderer_.enabled = false;
+				item.spriteRenderer_.sprite = null;
+				item.enabled_ = false;
+				flag = true;
+				continue;
+			}
+			if (step == 12 || step == 18 || step == 24)
+			{
+				item.spriteRenderer_.sprite = WeatherCellTextures.GetSprite(9, color);
+				item.spriteRenderer_.enabled = true;
+			}
+			// x/y 为本步增量；上游按步数递增，保留既有天气压迫节奏。
+			item.cell_.x += x;
+			item.cell_.y += y;
+			item.gameObject_.transform.position = new Vector3(item.cell_.x, item.cell_.y, -9f);
+		}
+		RecomputeBounds();
+	}
 
-                // No need to update when color isn't changing.
-                if (duration > 0.4 && duration < 0.41 ||
-                    duration > 0.6 && duration < 0.61 ||
-                    duration > 0.8 && duration < 0.81)
-                {
-                    Destroy(cell.spriteRenderer_.sprite);
-                    cell.spriteRenderer_.sprite = Sprite.Create(
-                        WeatherCellTextures.textures_[WeatherCellTextures.OPACITY_GRADIENT - 1][color],
-                        WeatherCellTextures.rect_, Vector2.zero);
-                    cell.spriteRenderer_.enabled = true;
-                }
-                cell.cell_.x += x;
-                cell.cell_.y += y;
-                cell.gameObject_.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
-            }
-        }
+	private IEnumerator GenerateWeatherCoroutine()
+	{
+		WaitForSeconds frameDelay = new WaitForSeconds(2f);
+		for (int i = 0; i < 10; i++)
+		{
+			if (cells_ == null || WeatherCellTextures.textures_ == null)
+			{
+				yield break;
+			}
+			foreach (Cell cell in cells_)
+			{
+				if (cell.spriteRenderer_ == null)
+				{
+					continue;
+				}
+				cell.spriteRenderer_.sprite = WeatherCellTextures.GetSprite(i, GetColor(cell, 0f));
+				cell.spriteRenderer_.enabled = true;
+			}
+			yield return frameDelay;
+		}
+		enabled_ = true;
+		int xDirection = Random.Range(-1, 2);
+		int yDirection = Random.Range(-1, 2);
+		int it = 0;
+		while (true)
+		{
+			int num2;
+			if (xDirection == 0 && yDirection == 0)
+			{
+				int num = it + 1;
+				it = num;
+				num2 = ((num < Plugin.MAX_WHILE_LOOP_ITER) ? 1 : 0);
+			}
+			else
+			{
+				num2 = 0;
+			}
+			if (num2 == 0)
+			{
+				break;
+			}
+			xDirection = Random.Range(-1, 2);
+			yDirection = Random.Range(-1, 2);
+			if (it == Plugin.MAX_WHILE_LOOP_ITER - 1)
+			{
+				Plugin.Log.LogWarning("INF Loop in GenerateWeatherCoroutine().");
+			}
+		}
+		Plugin.Log.LogInfo("Moving weather towards (" + xDirection + ", " + yDirection + ")");
+		WaitForSeconds moveDelay = new WaitForSeconds(2.1666667f);
+		for (int j = 0; (float)j < 30f && cells_ != null; j++)
+		{
+			// 保留上游加速漂移：30 步单轴累计 MOVE_STEP × 435。
+			MoveCells(MOVE_STEP * j * xDirection, MOVE_STEP * j * yDirection, j);
+			yield return moveDelay;
+		}
+	}
 
-        private IEnumerator GenerateWeatherCoroutine()
-        {
-            for (int i = 0; i < WeatherCellTextures.OPACITY_GRADIENT; i++)
-            {
-                foreach (Cell cell in cells_)
-                {
-                    Destroy(cell.spriteRenderer_.sprite);
-                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell, 0)],
-                                                                WeatherCellTextures.rect_, Vector2.zero);
-                    cell.spriteRenderer_.enabled = true;
-                }
+	private IEnumerator DestroyWeatherCoroutine()
+	{
+		enabled_ = false;
+		if (cells_ == null || WeatherCellTextures.textures_ == null)
+		{
+			CleanupCells();
+			Object.Destroy(this);
+			yield break;
+		}
+		WaitForSeconds fadeDelay = new WaitForSeconds(1f);
+		for (int i = 9; i >= 0; i--)
+		{
+			foreach (Cell cell in cells_)
+			{
+				if (cell.enabled_ && cell.spriteRenderer_ != null)
+				{
+					cell.spriteRenderer_.sprite = WeatherCellTextures.GetSprite(i, GetColor(cell, 1f));
+					cell.spriteRenderer_.enabled = true;
+				}
+			}
+			yield return fadeDelay;
+		}
+		CleanupCells();
+		Object.Destroy(this);
+	}
 
-                yield return new WaitForSeconds(ENABLE_TIME / WeatherCellTextures.OPACITY_GRADIENT);
-            }
+	private void Start()
+	{
+		GenerateCells();
+		foreach (Cell item in cells_)
+		{
+			GameObject gameObject = new GameObject("MiniRealisticAirways Weather Cell");
+			gameObject.transform.position = new Vector3(item.cell_.x, item.cell_.y, -9f);
+			item.gameObject_ = gameObject;
+			SpriteRenderer spriteRenderer_ = gameObject.AddComponent<SpriteRenderer>();
+			item.spriteRenderer_ = spriteRenderer_;
+		}
+		StartCoroutine(GenerateWeatherCoroutine());
+	}
 
-            enabled_ = true;
+	private void CleanupCells()
+	{
+		if (cells_ == null)
+		{
+			return;
+		}
+		foreach (Cell cell in cells_)
+		{
+			if (cell.spriteRenderer_ != null)
+			{
+				cell.spriteRenderer_.sprite = null;
+			}
+			if (cell.gameObject_ != null)
+			{
+				Object.Destroy(cell.gameObject_);
+				cell.gameObject_ = null;
+			}
+		}
+		cells_.Clear();
+		cells_ = null;
+	}
 
-            // Start moving weather cells towards single direction.
-            int xDirection = UnityEngine.Random.Range(-1, 1);
-            int yDirection = UnityEngine.Random.Range(-1, 1);
-            int it = 0;
-            while (xDirection == 0 && yDirection == 0 && ++it < Plugin.MAX_WHILE_LOOP_ITER)
-            {
-                xDirection = UnityEngine.Random.Range(-1, 1);
-                yDirection = UnityEngine.Random.Range(-1, 1);
-                if (it == Plugin.MAX_WHILE_LOOP_ITER - 1)
-                {
-                    Plugin.Log.LogWarning("INF Loop in GenerateWeatherCoroutine().");
-                }
-            }
-            Plugin.Log.LogInfo("Moving weather towards (" + xDirection + ", " + yDirection + ")");
-
-            for (int i = 0; i < MOVE_GRADIENT; i++)
-            {
-                MoveCells(MOVE_STEP * i * xDirection, MOVE_STEP * i * yDirection, i);
-                yield return new WaitForSeconds((EventManager.EVENT_RESTORE_TIME - DISABLE_TIME) / MOVE_GRADIENT);
-            }
-        }
-
-        private IEnumerator DestoryWeatherCoroutine()
-        {
-            enabled_ = false;
-
-            for (int i = WeatherCellTextures.OPACITY_GRADIENT - 1; i >= 0; i--)
-            {
-                foreach (Cell cell in cells_)
-                {
-                    if (!cell.enabled_)
-                    {
-                        continue;
-                    }
-
-                    if (cell.spriteRenderer_.sprite != null)
-                    {
-                        Destroy(cell.spriteRenderer_.sprite);
-                    }
-                    cell.spriteRenderer_.sprite = Sprite.Create(WeatherCellTextures.textures_[i][GetColor(cell, 1f)],
-                                                                WeatherCellTextures.rect_, Vector2.zero);
-                    cell.spriteRenderer_.enabled = true;
-                }
-
-                yield return new WaitForSeconds(DISABLE_TIME / WeatherCellTextures.OPACITY_GRADIENT);
-            }
-
-            foreach (Cell cell in cells_)
-            {
-                SpriteRenderer spriteRenderer = cell.spriteRenderer_;
-                if (spriteRenderer != null)
-                {
-                    Destroy(spriteRenderer.sprite);
-                }
-            }
-
-            Destroy(this);
-        }
-
-        private void Start()
-        {
-            GenerateCells();
-
-            foreach (Cell cell in cells_)
-            {
-                if (cell.cell_ != null)
-                {
-                    GameObject obj = new GameObject();
-                    obj.transform.position = new Vector3(cell.cell_.x, cell.cell_.y, -9f);
-                    cell.gameObject_ = obj;
-
-                    SpriteRenderer spriteRenderer = obj.AddComponent<SpriteRenderer>();
-                    cell.spriteRenderer_ = spriteRenderer;
-                }
-            }
-
-            StartCoroutine(GenerateWeatherCoroutine());
-        }
-
-        // Weather are list of continous square cells of SIZE.
-        public SortedSet<Cell> cells_;
-        public const float SIZE = 0.5f;
-        public bool enabled_ = false;
-        private const float ENABLE_TIME = 2 * WeatherCellTextures.OPACITY_GRADIENT;
-        private const int GENERATE_NUMBER = 60;
-        private const float DISABLE_TIME = WeatherCellTextures.OPACITY_GRADIENT;
-        private const float MOVE_GRADIENT = 30f;
-        private const float MOVE_STEP = 0.005f;
-        private Vector2 center_;
-    }
-
-    public static class WeatherCellTextures
-    {
-        private static Texture2D DrawCell(Color color)
-        {
-            Texture2D texture = new Texture2D(SIZE, SIZE);
-            for (int y = 0; y < texture.height; y++)
-            {
-                for (int x = 0; x < texture.width; x++)
-                {
-                    texture.SetPixel(x, y, color);
-                }
-            }
-            texture.Apply();
-            return texture;
-        }
-
-        public static void PreLoadTextures()
-        {
-            Plugin.Log.LogInfo("Pre-rendered weather cell textures.");
-            colors_ = new List<Color>{new Color(1f, 0f, 0f, 0.1f),
-                                      new Color(1f, 1f, 0f, 0.1f),
-                                      new Color(0f, 1f, 0f, 0.1f)};
-
-            textures_ = new List<List<Texture2D>>();
-            for (int i = 1; i < OPACITY_GRADIENT + 1; i++)
-            {
-                List<Texture2D> textures = new List<Texture2D>();
-                foreach (Color color in colors_)
-                {
-                    float opacity = (float)(i) / (float)OPACITY_GRADIENT * color.a;
-                    textures.Add(DrawCell(new Color(color.r, color.g, color.b, opacity)));
-                }
-                textures_.Add(textures);
-            }
-
-            rect_ = new Rect(0, 0, SIZE, SIZE);
-        }
-
-        public static void DestoryTextures()
-        {
-            if (textures_ == null)
-            {
-                return;
-            }
-            Plugin.Log.LogInfo("Weather cell textures destoried.");
-            foreach (List<Texture2D> textures in textures_)
-            {
-                foreach (Texture2D texture in textures)
-                {
-                    Texture2D.Destroy(texture);
-                }
-            }
-        }
-        public static Rect rect_;
-        public const int OPACITY_GRADIENT = 10;
-        public static List<List<Texture2D>> textures_;
-        public static int RED = 0;
-        public static int YELLOW = 1;
-        public static int GREEN = 2;
-        private static List<Color> colors_;
-        private const int SIZE = (int)(100 * Weather.SIZE);
-    }
+	private void OnDestroy()
+	{
+		StopAllCoroutines();
+		CleanupCells();
+		if (EventManager.weather_ == this)
+		{
+			EventManager.weather_ = null;
+		}
+	}
 }

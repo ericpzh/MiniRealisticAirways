@@ -1,18 +1,27 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
+  <Import Project="BuildVersion.props" />
+
   <PropertyGroup>
     <TargetFramework>netstandard2.1</TargetFramework>
+    <ReferenceDirectory Condition="'$(ReferenceDirectory)' == ''">$(MSBuildThisFileDirectory)lib</ReferenceDirectory>
     <AssemblyName>MiniRealisticAirways</AssemblyName>
     <Description>MiniRealisticAirwaysMod</Description>
-    <Version>1.3.7</Version>
+    <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
-    <LangVersion>latest</LangVersion>
+    <LangVersion>12.0</LangVersion>
+    <Deterministic>true</Deterministic>
+    <PathMap>$(MSBuildProjectDirectory)=/_/MiniRealisticAirways</PathMap>
+    <EnableDefaultCompileItems>false</EnableDefaultCompileItems>
   </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="*.cs" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="BepInEx.Analyzers" Version="1.*" PrivateAssets="all" />
     <PackageReference Include="BepInEx.Core" Version="5.*" />
-    <PackageReference Include="BepInEx.PluginInfoProps" Version="1.*" />
     <PackageReference Include="UnityEngine.Modules" Version="2022.3.4" IncludeAssets="compile" />
   </ItemGroup>
   
@@ -22,28 +31,47 @@
 
   <ItemGroup>
     <Reference Include="Assembly-CSharp">
-      <HintPath>lib\Assembly-CSharp.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/Assembly-CSharp.dll</HintPath>
     </Reference>
     <Reference Include="DOTween">
-      <HintPath>lib\DOTween.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/DOTween.dll</HintPath>
     </Reference>
     <Reference Include="Unity.TextMeshPro">
-      <HintPath>lib\Unity.TextMeshPro.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/Unity.TextMeshPro.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine">
-      <HintPath>lib\UnityEngine.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/UnityEngine.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.CoreModule">
-      <HintPath>lib\UnityEngine.CoreModule.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/UnityEngine.CoreModule.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UI">
-      <HintPath>lib\UnityEngine.UI.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="Unity.Localization">
-      <HintPath>lib\Unity.Localization.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/Unity.Localization.dll</HintPath>
     </Reference>
     <Reference Include="UnityEngine.UIModule">
-      <HintPath>lib\UnityEngine.UIModule.dll</HintPath>
+      <HintPath>$(ReferenceDirectory)/UnityEngine.UIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.InputLegacyModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.InputLegacyModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.AudioModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.AudioModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextRenderingModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.TextRenderingModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.TextCoreFontEngineModule">
+      <HintPath>$(ReferenceDirectory)/UnityEngine.TextCoreFontEngineModule.dll</HintPath>
     </Reference>
   </ItemGroup>
+  <Import Project="BuildMetadata.targets" />
 </Project>
