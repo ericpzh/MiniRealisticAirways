@@ -1,22 +1,5 @@
 # Mini Realistic Airways
 
-## 2026-09-11 正常包：运行时修复
-
-版本号保持 **2.0.0**；本次包以日期区分，不再包含临时跑道测试快捷键、测试面板或加速特情设置。
-
-- [安装包](releases/2.0.0-runtime-fixes-20260911/MiniRealisticAirways-normal.zip) · [DLL](releases/2.0.0-runtime-fixes-20260911/MiniRealisticAirways.dll) · [对应源码](releases/2.0.0-runtime-fixes-20260911/MiniRealisticAirways-source.zip)
-- 特情等待间隔恢复原稿的 **1800 ± 300 游戏秒**，受游戏时间倍率影响。事件持续时间、适用条件和重试逻辑未改，不保证每隔这些秒数必定发生某一种特情。
-- 跑道关闭时，尚未触地的进近飞机正常复飞，并清理原降落协程；已经触地、开始缩小或滑跑的飞机继续落地。正在起飞的飞机不再被清零速度或删除。关闭期间拒绝新进近和新起飞，使用原生禁用标记显示。
-- Discord 连接失败每 600 非缩放游戏秒重试；活动推送保留 5 秒间隔，连续三次失败或超时后重建连接。仅明确的 NotRunning/NotInstalled 降为 Info，InternalError 等仍保留 Warning；实际活动同步成功后单独提示。游戏挂起时不保证十分钟内恢复。
-- 飞行路径动画增加对象/材质失效检查；赞助名单仅清理已知 Monschi 条目中的替换字符。
-- 保留当前引擎故障对白排版：固定字号 5、文本框 16×2，并按实际行高上移半行；不声称其相对原版字号变小。
-
-DLL SHA-256：`BBCB00DE8A8003851B8FB7CA4AA79801846CEA5CDC459DD1D75AA642DDB6F46C`。
-
-验证范围：用户反馈跑道快捷测试正常；状态回归测试和 Release 编译通过。移除调试入口后的正常包未重新完成整局测试，Discord 实际客户端恢复、全部平台和长时稳定性也未完整验收。
-
-安装前退出游戏并备份旧 DLL，然后覆盖 `BepInEx/plugins/MiniRealisticAirways.dll`。本次上传仓库不等于 Steam 官方分支已更新。源码 ZIP 与公开仓库包一致，公开 README 未改；本节记录私人仓库的实际交付情况。
-
 [中文](https://github.com/liamkrabs/MiniRealisticAirways?tab=readme-ov-file#%E8%BF%B7%E4%BD%A0%E7%9C%9F%E5%AE%9E%E7%A9%BA%E7%AE%A1)
 
 This is a mini yet realistic air traffic control mod for Mini Airways.
