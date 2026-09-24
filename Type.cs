@@ -112,6 +112,10 @@ namespace MiniRealisticAirways
                 }
 
                 yield return new WaitForSeconds(fuelOutTime / 100f);
+                if (percentFuelLeft_ == 0)
+                {
+                    break;
+                }
             }
 
             if (blinkCoroutine != null)
@@ -318,7 +322,7 @@ namespace MiniRealisticAirways
 
         public string GetFuelString()
         {
-            if (percentFuelLeft_ > 0)
+            if (percentFuelLeft_ >= 0)
             {
                 return "Fuel: " + percentFuelLeft_ + "%";
             }
