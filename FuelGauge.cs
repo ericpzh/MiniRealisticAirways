@@ -87,6 +87,8 @@ namespace MiniRealisticAirways
             gameObject_.transform.SetParent(aircraft_.transform);
             gameObject_.transform.localPosition = new Vector3(1, 1, -5f);
             spriteRenderer_ = gameObject_.AddComponent<SpriteRenderer>();
+            spriteRenderer_.sortingLayerName = "Text";
+            spriteRenderer_.sortingOrder = 1;
             spriteRenderer_.sprite = Sprite.Create(FuelGaugeTextures.fuelTextures_[FuelGaugeTextures.REFRESH_GRADIENT],
                                                    FuelGaugeTextures.rect_, Vector2.zero);
         }

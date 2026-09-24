@@ -106,6 +106,33 @@ namespace MiniRealisticAirways
                                                                   altitudeLevelText_.transform.localScale.y, 
                                                                   altitudeLevelText_.transform.localScale.z);
             altitudeLevelText_.transform.rotation = Quaternion.AngleAxis(270, Vector3.back);
+
+            // Keep each aircraft and its child labels/gauges in one sorting unit.
+            Renderer renderer = aircraft_.AP == null ? null : aircraft_.AP.GetComponent<Renderer>();
+            if (renderer != null)
+            {
+                sortingGroup_ = aircraft_.GetComponent<SortingGroup>();
+                if (sortingGroup_ == null)
+                {
+                    sortingGroup_ = aircraft_.gameObject.AddComponent<SortingGroup>();
+                    sortingGroup_.sortingLayerID = renderer.sortingLayerID;
+                    sortingGroup_.sortingOrder = renderer.sortingOrder;
+                }
+                baseSortingOrder_ = sortingGroup_.sortingOrder;
+            }
+        }
+
+        private void LateUpdate()
+        {
+            if (sortingGroup_ != null && aircraftAltitude_ != null)
+            {
+                // Sort by actual altitude, including while the text is hidden.
+                int order = baseSortingOrder_ + (int)aircraftAltitude_.altitude_;
+                if (sortingGroup_.sortingOrder != order)
+                {
+                    sortingGroup_.sortingOrder = order;
+                }
+            }
         }
 
         private void Update()
@@ -164,5 +191,7 @@ namespace MiniRealisticAirways
         private TMP_Text speedLevelText_;
         private TMP_Text fuelText_;
         private TMP_Text weightText_;
+        private SortingGroup sortingGroup_;
+        private int baseSortingOrder_;
     }
 }

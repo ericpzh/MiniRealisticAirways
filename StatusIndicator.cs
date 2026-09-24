@@ -90,6 +90,8 @@ namespace MiniRealisticAirways
             {
                 GameObject gameObject = new GameObject();
                 SpriteRenderer spriteRenderer = gameObject.AddComponent<SpriteRenderer>();
+                spriteRenderer.sortingLayerName = "Text";
+                spriteRenderer.sortingOrder = 1;
                 spriteRenderer.sprite = Sprite.Create(GaugeArrowTexture.texture_, GaugeArrowTexture.rect_, Vector2.zero);
                 spriteRenderer.enabled = false;
 
